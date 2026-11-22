@@ -101,7 +101,7 @@ async function main() {
   await page.waitForTimeout(200);
 
   const buf = readFileSync(IMG);
-  await page.locator('input[type=file]').first().setInputFiles({
+  await page.locator('input[type=file]').last().setInputFiles({
     name: 'test.jpg',
     mimeType: 'image/jpeg',
     buffer: buf,

@@ -359,15 +359,14 @@ input{font:inherit;color:inherit}
 
 /* ---------- live total bar (vernier) ---------- */
 .live-total{
-  position:sticky;bottom:0;z-index:2;
+  position:relative;
   margin:14px 12px 0;
   padding:11px 12px 10px;
   border:1px solid rgba(255,255,255,.1);
   background:linear-gradient(180deg,#1d2224,#15181a);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
 }
-.live-total::before{content:"";position:absolute;left:-12px;right:-12px;top:-16px;bottom:-14px;z-index:-1;
-  background:linear-gradient(180deg,rgba(12,14,15,0) 0%,#0e1011 34%,#0e1011 100%);}
+
 .lt-top{display:flex;align-items:flex-end;gap:8px}
 .lt-k{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:26px;line-height:1;color:#efe9d9}
 .lt-u{font-size:11px;color:#8d8879;padding-bottom:2px}

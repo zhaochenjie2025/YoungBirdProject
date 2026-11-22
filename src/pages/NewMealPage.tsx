@@ -262,7 +262,8 @@ function AddDish({
   hasKey: boolean;
   onPick: (item: Omit<MealItem, 'uid'>) => void;
 }) {
-  const fileRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const albumRef = useRef<HTMLInputElement>(null);
   const [picking, setPicking] = useState<Candidate[] | null>(null);
   const [recognizing, setRecognizing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -312,34 +313,62 @@ function AddDish({
 
   return (
     <section className="section" style={{ marginTop: 0 }}>
+      {/* 拍与选分成两个 input：带 capture 的会强制开相机，不给相册入口，
+          与 PRD「可直接拍摄，也可从相册选择」冲突，因此分开。 */}
       <input
-        ref={fileRef}
+        ref={cameraRef}
         type="file"
         accept="image/*"
         capture="environment"
         className="sr-only"
         onChange={onFile}
       />
-      <button
-        className={`capture ${hasKey ? '' : 'capture--disabled'}`}
-        onClick={() => {
-          setError(null);
-          if (!hasKey) {
-            setError('未配置 API key。先在设置里填入才能拍照识别；也可以搜索或手动补录。');
-            return;
-          }
-          fileRef.current?.click();
-        }}
-        aria-disabled={recognizing}
-      >
-        <span className="capture__icon" aria-hidden="true">
-          📷
-        </span>
-        {recognizing ? '正在识别…' : '拍一张 / 从相册选'}
-        <span className="capture__hint">
-          {hasKey ? '单道菜一张，识别后由你确认' : '需要先在设置中配置 API key'}
-        </span>
-      </button>
+      <input
+        ref={albumRef}
+        type="file"
+        accept="image/*"
+        className="sr-only"
+        onChange={onFile}
+      />
+      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 'var(--s-2)' }}>
+        <button
+          className={`capture ${hasKey ? '' : 'capture--disabled'}`}
+          onClick={() => {
+            setError(null);
+            if (!hasKey) {
+              setError('未配置 API key。先在设置里填入才能拍照识别；也可以搜索或手动补录。');
+              return;
+            }
+            cameraRef.current?.click();
+          }}
+          aria-disabled={recognizing}
+        >
+          <span className="capture__icon" aria-hidden="true">
+            📷
+          </span>
+          {recognizing ? '正在识别…' : '拍一张'}
+          <span className="capture__hint">
+            {hasKey ? '单道菜一张，识别后由你确认' : '需要先在设置中配置 API key'}
+          </span>
+        </button>
+        <button
+          className={`capture ${hasKey ? '' : 'capture--disabled'}`}
+          onClick={() => {
+            setError(null);
+            if (!hasKey) {
+              setError('未配置 API key。先在设置里填入才能拍照识别；也可以搜索或手动补录。');
+              return;
+            }
+            albumRef.current?.click();
+          }}
+          aria-disabled={recognizing}
+        >
+          <span className="capture__icon" aria-hidden="true">
+            🖼
+          </span>
+          从相册选
+        </button>
+      </div>
 
       {preview && recognizing && (
         <div style={{ marginTop: 'var(--s-2)', fontSize: 'var(--t-xs)', color: 'var(--ink-3)' }}>

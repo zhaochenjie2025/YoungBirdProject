@@ -327,6 +327,7 @@ body{
 .capture-stage::before,.capture-stage::after{
   content:"";position:absolute;width:12px;height:12px;border:1.5px solid var(--vermilion);
 }
+.capture-stage[hidden]{display:none}
 .capture-stage::before{top:-1px;left:-1px;border-right:none;border-bottom:none}
 .capture-stage::after{bottom:-1px;right:-1px;border-left:none;border-top:none}
 .cs-frame{width:64px;height:64px;border:2px solid var(--ink);border-radius:50%;display:grid;place-items:center;position:relative}
@@ -713,7 +714,7 @@ function dayStats(date){
   const items = ms.flatMap(m=>m.items);
   const s = summarize(items);
   return {date, logged:ms.length>0, kcal:s.kcal, protein:s.protein, fat:s.fat, carbs:s.carbs,
-    pendingCount:s.pendingCount, mealCount:ms.length, items};
+    pendingCount:s.pendingCount, mealCount:ms.length, itemCount:s.itemCount, items};
 }
 function weekStats(endDate){
   const cells=[];
@@ -756,14 +757,26 @@ function masthead(date, kickerOverride){
     </div>
     <h1 class="nameplate">食堂<span class="np-thin">食事刊</span><span class="np-mark"></span></h1>
     <div class="rule-double"></div>
-    <div class="dateline">
-      <span class="dl-strong">${c.y} 年 ${c.m} 月 ${c.d} 日</span>
-      <span>星期${c.wd}</span>
-      <span class="dl-dot">·</span>
-      <span>本埠 晴 3℃</span>
+    <div class="mast-foot">
+      <div class="dateline">
+        <span class="dl-strong">${c.y} 年 ${c.m} 月 ${c.d} 日</span>
+        <span>星期${c.wd}</span>
+        <span class="dl-dot">·</span>
+        <span>第 ${issue} 期</span>
+      </div>
+      ${seal(date)}
     </div>
-    <div class="rule-hair"></div>
+    <div class="rule-hair" style="margin-top:2px"></div>
   </header>`;
+}
+function seal(date){
+  const c = cnDate(date);
+  return `
+  <div class="seal" aria-hidden="true"><div class="seal-inner">
+    <span class="st-mo">${String(c.m).padStart(2,'0')}月</span>
+    <span class="st-day">${String(c.d).padStart(2,'0')}</span>
+    <span class="st-wd">周${c.wd}</span>
+  </div></div>`;
 }
 function spine(date){
   const c = cnDate(date);
@@ -788,15 +801,7 @@ function folio(active){
     </div>
   </nav>`;
 }
-function stamp(date){
-  const c = cnDate(date);
-  return `
-  <div class="stamp" aria-hidden="true"><div class="stamp-inner">
-    <span class="st-mo">${String(c.m).padStart(2,'0')} /</span>
-    <span class="st-day">${String(c.d).padStart(2,'0')}</span>
-    <span class="st-wd">周${c.wd}</span>
-  </div></div>`;
-}
+/* 日期戳已并入报头 mast-foot（seal） */
 
 /* ============================================================
    屏 1：今日
@@ -873,7 +878,6 @@ function viewToday(){
   return `
     ${spine(today)}
     <section class="page">
-      ${stamp(today)}
       ${masthead(today)}
       ${leadHTML}
       ${listHTML}
@@ -936,7 +940,7 @@ function viewNew(){
 
   return `
     ${spine(today)}
-    <section class="page" style="padding-bottom:120px">
+    <section class="page" style="padding-bottom:186px">
       <button class="backline" data-nav="today"><span class="bl-arrow">←</span>返回今日</button>
       ${masthead(today,'新建一餐·编务')}
       <div class="section-head" style="margin-top:16px">
@@ -1036,7 +1040,7 @@ function viewResult(mealId){
         <div class="rh-top">
           <div>
             <div class="rh-slot">${SLOT_LABEL[meal.slot]}</div>
-            <div class="rh-when">${meal.date.replace(/-/g,'.')} · ${meal.time} 于学一食堂</div>
+            <div class="rh-when">${meal.date.replace(/-/g,'.')} · ${meal.time}</div>
           </div>
           <div class="rh-kcal">
             <span class="rk-num">${s.kcal}</span>
