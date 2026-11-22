@@ -26,11 +26,11 @@ export function DayAdvicePanel({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // 日期变化时清空旧结论，避免把昨天的建议显示在今天下面。
+  // 日期或当天数据变化时清空旧结论：否则改了记录、建议还在引用旧数值。
   useEffect(() => {
     setAdvice(null);
     setError(null);
-  }, [date]);
+  }, [date, meals, stats]);
 
   async function run() {
     if (!settings.hasKey) {

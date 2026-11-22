@@ -69,7 +69,9 @@ body::after{
 .app{position:relative;z-index:1;height:100%;display:flex;flex-direction:column}
 .screen{display:none;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
 .screen::-webkit-scrollbar{display:none}
-.screen.is-on{display:block}
+.screen.is-on{display:flex;flex-direction:column}
+.screen.is-on>.wrap{flex:1 0 auto}
+.screen.is-on>.dock{margin-top:auto}
 .wrap{width:100%;max-width:440px;margin:0 auto;padding:0 18px}
 </style>
 <style>
@@ -173,14 +175,16 @@ body::after{
 .peel{position:absolute;right:0;top:0;bottom:0;width:14px;z-index:2;background:linear-gradient(90deg,transparent,rgba(120,96,64,.10));border-radius:0 10px 10px 0}
 .peel::after{content:"";position:absolute;right:5px;top:50%;width:5px;height:5px;border-right:1.5px solid rgba(122,110,99,.6);border-top:1.5px solid rgba(122,110,99,.6);transform:translateY(-50%) rotate(45deg)}
 
-/* 深层卡只留头部，被前卡遮住大半 */
-.dish-card.is-deep .card-in{padding:12px 16px 12px 20px}
-.dish-card.is-deep .card-mid,.dish-card.is-deep .card-foot,.dish-card.is-deep .peel{display:none}
-.dish-card.is-deep .card-name{font-size:15px}
-.dish-card.is-deep .card-kcal b{font-size:16px}
+/* 深层卡只露出一个紧凑表头，刚好落在露出条带内，数字不被下一张卡切掉 */
+.dish-card.is-deep .card-in{padding:6px 14px 6px 16px;gap:0}
+.dish-card.is-deep .card-mid,.dish-card.is-deep .card-foot,.dish-card.is-deep .peel,.dish-card.is-deep .card-mac{display:none}
+.dish-card.is-deep .card-head{align-items:center;padding-right:20px}
+.dish-card.is-deep .card-name{font-size:14px;line-height:1.1;font-family:var(--font);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dish-card.is-deep .card-sub{display:none}
+.dish-card.is-deep .card-kcal b{font-size:14px;line-height:1.1}
 .dish-card.is-deep .card-kcal span{display:none}
 .dish-card.is-deep .tape{display:none}
-.deck-more{position:absolute;right:6px;top:-22px;font-size:11px;color:var(--cream-72);letter-spacing:.05em;z-index:70}
+.deck-more{position:absolute;right:10px;top:calc(var(--peek,26px) * 3 - 24px);font-size:11px;color:var(--cream-72);letter-spacing:.05em;z-index:70}
 
 /* 份量芯片：硬纸卡上的刻位 */
 .chip{
@@ -371,7 +375,7 @@ body::after{
 .ws-cell span{font-size:11px;color:var(--cream-72);letter-spacing:.04em}
 
 /* 提示 toast */
-.toast{position:fixed;left:50%;bottom:calc(108px + var(--safe-b));transform:translate(-50%,14px);z-index:200;
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 74px);transform:translate(-50%,-10px);z-index:200;
   background:rgba(28,25,22,.96);border:1px solid rgba(201,162,95,.4);color:var(--cream);font-size:12.5px;
   padding:10px 16px;border-radius:9px;box-shadow:0 10px 28px rgba(0,0,0,.5);opacity:0;pointer-events:none;
   transition:opacity .3s,transform .3s;white-space:nowrap}
@@ -421,7 +425,7 @@ body::after{
         </div>
       </div>
     </div>
-    <div class="dock" style="margin-top:26px">
+    <div class="dock">
       <button class="btn-ghost" data-go="week">
         <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 3v3M17 3v3M4 9h16M5 6h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1Z"/></svg>
         看这一周
@@ -585,8 +589,11 @@ var state = {
 function el(id){ return document.getElementById(id); }
 function esc(s){ return String(s).replace(/[&<>"]/g,function(m){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m];}); }
 
-/* 种子：今早的早餐，让「今日」一进来有内容；也给出周视图的真实感 */
+/* 初始状态：默认「今日」为空，直接展示设计的空状态。
+   加 ?demo=1 预置一份早餐，便于审阅「今日」有记录时的样子。 */
 function seed(){
+  var demo = /(?:^|[?&])demo=1(?:&|$)/.test(location.search);
+  if(!demo) return;
   var b = [ computeItem(BY_ID['pumpkin'],300,'一碗'), computeItem(BY_ID['tomatoegg'],90,'半份') ];
   state.saved = [{ id:'m1', date:'today', time:'07:50', slot:'breakfast', items:b }];
 }
@@ -774,7 +781,14 @@ function renderResult(){
   el('res-when').textContent = (m.time==='待保存'?'未保存 · ':'今天 ')+m.time+' · '+SLOT_LABEL[m.slot];
   var s = summarize(items);
   var hero = el('res-hero');
-  var range = null; items.forEach(function(it){ if(it.range && !range) range=it.range; });
+  // 整餐热量区间：只对有据可依的菜品累计上下限偏差，无区间的菜按单值计入
+  var loKcal=0, hiKcal=0, hasRange=false;
+  items.forEach(function(it){
+    if(it.pending) return; // 待估算不计入区间
+    if(it.range){ loKcal+=it.range[0]; hiKcal+=it.range[1]; hasRange=true; }
+    else { loKcal+=it.n[0]; hiKcal+=it.n[0]; }
+  });
+  var range = hasRange ? [loKcal, hiKcal] : null;
   var macroH = '<div class="rc-macros" style="margin-top:12px">';
   var anyM = (s.protein!=null||s.fat!=null||s.carbs!=null);
   macroH += '<div'+(s.protein==null?' class="na"':'')+'><b>'+(s.protein==null?'—':s.protein)+'</b><span>蛋白质 g</span></div>';
@@ -813,7 +827,7 @@ function renderResult(){
       + (it.range?'<dt>区间</dt><dd>'+it.range[0]+'–'+it.range[1]+' 千卡</dd>':'')
       + '</div>'
       + '<div class="dt-src"><b>营养出处</b> '+esc(it.src)+'<br><b>份量出处</b> '+esc(it.psrc)+(it.rnote?'<br>'+esc(it.rnote):'')+'</div>';
-    dh += '<div class="dt-item'+(idx===0?' open':'')+'" data-dt="'+idx+'">'
+    dh += '<div class="dt-item'+(idx===0 && items.length<=3?' open':'')+'" data-dt="'+idx+'">'
       + '<div class="dt-head"><span class="dt-swatch" style="--cat:'+catColor(it.cat)+'"></span>'
       + '<span class="nm"><b>'+esc(it.name)+'</b><span>'+fmtG(it.grams)+'g · '+esc(it.label)+'</span></span>'
       + '<span class="kc'+(pend?' na':'')+'">'+(pend?'待估算':it.n[0]+' 千卡')+'</span>'

@@ -5,7 +5,7 @@
 import type { ReactNode } from 'react';
 import type { Nutrition, MealItem } from '../domain/types';
 import type { Dish } from '../domain/types';
-import { formatGrams } from '../domain/nutrition';
+import { formatGrams, scaleNutrition, roundNutrition } from '../domain/nutrition';
 
 export function Num({ children }: { children: ReactNode }) {
   return <span className="num">{children}</span>;
@@ -86,7 +86,7 @@ export function ItemRow({
           {item.portionLabel} · <Num>{formatGrams(item.grams)}</Num> 克
         </div>
       </div>
-      {item.pending ? (
+      {item.pending || item.nutrition.kcal === null ? (
         <div className="item__kcal item__kcal--none">暂无数据</div>
       ) : (
         <div className="item__kcal">
@@ -132,6 +132,8 @@ export function Empty({
 /** 菜品估算依据的展开内容。 */
 export function DishEvidence({ dish, grams }: { dish: Dish; grams: number }) {
   const p = dish.per100g;
+  const raw = scaleNutrition(p, grams);
+  const scaled = roundNutrition(raw);
   return (
     <div className="detail">
       <div className="detail__row">
@@ -145,10 +147,19 @@ export function DishEvidence({ dish, grams }: { dish: Dish; grams: number }) {
         </span>
       </div>
       <div className="detail__row">
-        <span>按 <Num>{formatGrams(grams)}</Num> 克折算</span>
+        <span>每 100 克含量</span>
         <span>
           蛋白 <Num>{p.protein ?? '—'}</Num> · 脂肪 <Num>{p.fat ?? '—'}</Num> · 碳水{' '}
-          <Num>{p.carbs ?? '—'}</Num>
+          <Num>{p.carbs ?? '—'}</Num> 克
+        </span>
+      </div>
+      <div className="detail__row">
+        <span>
+          按 <Num>{formatGrams(grams)}</Num> 克折算
+        </span>
+        <span>
+          蛋白 <Num>{scaled.protein ?? '—'}</Num> · 脂肪 <Num>{scaled.fat ?? '—'}</Num> · 碳水{' '}
+          <Num>{scaled.carbs ?? '—'}</Num> 克
         </span>
       </div>
       <div style={{ marginTop: 'var(--s-2)' }}>

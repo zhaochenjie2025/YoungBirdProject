@@ -17,6 +17,16 @@ import { mealHref } from '../router';
 
 type DraftItem = Omit<MealItem, 'uid'> & { uid: string };
 
+/** 单道菜克数的合理上限：超过这个值几乎一定是输入错误。 */
+const MAX_GRAMS = 5000;
+
+/** 把用户输入的文本解析成克数；非法或超限返回 null。 */
+function parseGrams(text: string): number | null {
+  const g = Number(text);
+  if (!Number.isFinite(g) || g <= 0 || g > MAX_GRAMS) return null;
+  return g;
+}
+
 /** 为菜品挑一个默认份量：标准份。 */
 function standardGrams(dish: Dish): number {
   return dish.portions.find((p) => p.key === 'standard')?.grams ?? dish.portions[0]?.grams ?? 100;
@@ -63,7 +73,8 @@ export function NewMealPage({ meals, settings, navigate, editId }: PageProps & {
       slot,
       items: items.map(({ uid: _uid, ...rest }) => rest),
     });
-    navigate(mealHref(meal.id).slice(2));
+    // 写盘失败时不跳转：留在本页，顶部横幅会说明原因，用户可重试或导出。
+    if (meal) navigate(mealHref(meal.id).slice(2));
   }
 
   return (
@@ -241,8 +252,13 @@ function DraftItemRow({
             aria-label="克数"
             onChange={(e) => setGramsText(e.target.value)}
             onBlur={() => {
-              const g = Number(gramsText);
-              if (Number.isFinite(g) && g > 0) applyGrams(g, dish ? '自定义' : '自定义');
+              const g = parseGrams(gramsText);
+              if (g === null) {
+                // 非法输入不静默忽略：回写为当前实际克数，让输入框与真实值一致。
+                setGramsText(String(item.grams));
+                return;
+              }
+              applyGrams(g, '自定义');
             }}
           />
           <span className="portion__grams">克</span>
@@ -445,8 +461,8 @@ function AddDish({
                 value={customGrams}
                 onChange={(e) => {
                   setCustomGrams(e.target.value);
-                  const g = Number(e.target.value);
-                  if (Number.isFinite(g) && g > 0) {
+                  const g = parseGrams(e.target.value);
+                  if (g !== null) {
                     setPortionFor({ ...portionFor, grams: g, portionLabel: '自定义' });
                   }
                 }}
@@ -546,7 +562,7 @@ function ManualEntry({ onSubmit }: { onSubmit: (item: Omit<MealItem, 'uid'>) => 
         />
       </div>
       <div className="field">
-        <label className="field__label">大约吃了多少克</label>
+        <label className="field__label">大约吃了多少克（1~5000）</label>
         <input
           className="input"
           inputMode="decimal"
@@ -557,8 +573,11 @@ function ManualEntry({ onSubmit }: { onSubmit: (item: Omit<MealItem, 'uid'>) => 
       <div className="actions">
         <button
           className="btn btn--primary"
-          disabled={!name.trim() || !(Number(grams) > 0)}
-          onClick={() => onSubmit(computeCustomItem(name.trim(), Number(grams)))}
+          disabled={!name.trim() || parseGrams(grams) === null}
+          onClick={() => {
+            const g = parseGrams(grams);
+            if (g !== null) onSubmit(computeCustomItem(name.trim(), g));
+          }}
         >
           加入这一餐
         </button>

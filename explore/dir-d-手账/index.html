@@ -205,6 +205,14 @@ body{
   font-family:var(--serif);font-size:var(--t-0);letter-spacing:.3em;
   color:var(--ink-faint);line-height:1;padding-bottom:6px;white-space:nowrap;
 }
+/* 空版面主数据：待填横线，像稿纸上的填空栏 */
+.lead-blank{display:inline-flex;align-items:flex-end;gap:0;width:auto;min-height:.8em}
+.lead-blank .lb-tally{
+  display:block;width:2.3em;height:.7em;
+  border-bottom:3px solid var(--ink);
+  background-image:repeating-linear-gradient(90deg,var(--rule) 0 1px,transparent 1px 14px);
+  background-position:bottom;background-repeat:repeat-x;background-size:14px 6px;
+}
 .deck{font-size:var(--t-1);line-height:var(--lh-body);color:var(--ink-soft);margin-top:12px;letter-spacing:.01em}
 .deck b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
 .deck .dk-empty{color:var(--ink-faint)}
@@ -475,10 +483,11 @@ body{
 
 /* ---------- 周视图：账簿 ---------- */
 .week-head{margin-top:12px}
-.week-totals{display:flex;align-items:baseline;gap:8px;margin:6px 0 16px}
+.week-totals{display:flex;align-items:flex-end;justify-content:space-between;gap:8px;margin:6px 0 16px;flex-wrap:wrap}
+.week-totals .wt-main{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap}
 .week-totals .wt-num{font-family:var(--serif);font-weight:600;font-size:var(--t-5);line-height:.9;font-variant-numeric:tabular-nums}
-.week-totals .wt-lab{font-size:var(--t-0);color:var(--ink-soft);letter-spacing:.04em}
-.week-totals .wt-avg{margin-left:auto;text-align:right;font-size:11px;color:var(--ink-faint);line-height:1.4;font-variant-numeric:tabular-nums}
+.week-totals .wt-lab{font-size:var(--t-0);color:var(--ink-soft);letter-spacing:.04em;white-space:nowrap}
+.week-totals .wt-avg{text-align:right;font-size:11px;color:var(--ink-faint);line-height:1.45;font-variant-numeric:tabular-nums;white-space:nowrap}
 
 .ledger{position:relative}
 .ledger-day{
@@ -804,10 +813,10 @@ function folio(active){
 /* ============================================================
    屏 1：今日
    ============================================================ */
-function viewToday(){
+function viewToday(forceEmpty){
   const today = isoDate(TODAY);
-  const st = dayStats(today);
-  const meals = mealsOn(today);
+  const st = forceEmpty ? {logged:false,kcal:0,protein:null,fat:null,carbs:null,pendingCount:0,mealCount:0,itemCount:0} : dayStats(today);
+  const meals = forceEmpty ? [] : mealsOn(today);
   const c = cnDate(today);
 
   let leadHTML;
@@ -815,10 +824,10 @@ function viewToday(){
     leadHTML = `
       <div class="lead">
         <div class="lead-top">
-          <span class="lead-num" aria-hidden="true">—</span>
+          <span class="lead-num lead-blank" aria-hidden="true"><span class="lb-tally"></span></span>
           <span class="lead-side">本日尚无记录</span>
         </div>
-        <p class="deck"><span class="dk-empty">今日尚未记录任何一餐。版面留白，等你的第一笔。</span></p>
+        <p class="deck"><span class="dk-empty">本栏待填：今日的摄入总量，会随第一道菜落笔。</span></p>
       </div>`;
   } else {
     const pendTxt = st.pendingCount>0 ? `其中 <b>${st.pendingCount}</b> 道待估算` : '营养数据齐全';
@@ -868,9 +877,10 @@ function viewToday(){
     </div>` : `
     <div class="empty">
       <div class="section-head"><span class="kicker">空</span><span class="section-title">本日版面</span></div>
-      <h2 class="empty-title">今日的版面，<br>还留着一张白纸<span class="em-q">。</span></h2>
-      <p class="empty-body">拍下食堂这一餐，或者手动把菜名添进来。一道菜也行——这一期就有了开头。</p>
+      <h2 class="empty-title">这一期，<br>等你落笔<span class="em-q">。</span></h2>
+      <p class="empty-body">拍下食堂这一餐，或手动把菜名添进来。一道菜也行——有了开头，热量、营养素和出处会逐项排上版面。</p>
       <div class="empty-sig">— 编者按 —</div>
+      ${forceEmpty?`<button class="ghost-btn" data-nav="today" style="display:inline-flex;border:1px solid var(--rule);padding:8px 14px;margin-top:18px"><span class="gb-ico">↺</span>回到今日（有记录）</button>`:''}
     </div>`;
 
   return `
@@ -890,6 +900,9 @@ function viewToday(){
           <button class="ghost-btn" data-nav="new"><span class="gb-ico">＋</span>搜索添加</button>
           <button class="ghost-btn" data-nav="week"><span class="gb-ico">§</span>翻看七天</button>
         </div>
+        <button class="ghost-btn" data-nav="empty" style="display:flex;width:100%;margin-top:10px;border:1px dashed var(--rule-soft);justify-content:center">
+          <span class="gb-ico">◌</span>预览空版面（今日尚无记录时）
+        </button>
       </div>
     </section>
     ${folio('today')}`;
@@ -1129,8 +1142,10 @@ function viewWeek(){
       ${masthead(today,'七日回顾')}
       <div class="section-head" style="margin-top:14px"><span class="kicker">账簿</span><span class="section-title">最近七天</span></div>
       <div class="week-totals">
-        <span class="wt-num">${weekTotal}</span>
-        <span class="wt-lab">千卡 · 七日合计</span>
+        <div class="wt-main">
+          <span class="wt-num">${weekTotal}</span>
+          <span class="wt-lab">千卡 · 七日合计</span>
+        </div>
         <span class="wt-avg">有记录 ${logged.length} 天<br>日均 ${avg} 千卡</span>
       </div>
       <div class="ledger">${rowsHTML}</div>
@@ -1169,6 +1184,7 @@ function render(){
   if(hash.startsWith('#/result/')) html = viewResult(hash.slice('#/result/'.length));
   else if(hash.startsWith('#/week')) html = viewWeek();
   else if(hash.startsWith('#/new')) html = viewNew();
+  else if(hash.startsWith('#/today-empty')) html = viewToday(true);
   else html = viewToday();
   app.innerHTML = html;
   wireDynamic();
@@ -1190,6 +1206,7 @@ document.addEventListener('click', e=>{
     if(target==='new') location.hash='#/new';
     else if(target==='week') location.hash='#/week';
     else if(target==='today') location.hash='#/today';
+    else if(target==='empty') location.hash='#/today-empty';
     else if(target==='search'){ toast('探索试样：搜索面板未接入'); }
     else if(target==='result'){ location.hash='#/result/'+(navBtn.getAttribute('data-meal')||''); }
     return;

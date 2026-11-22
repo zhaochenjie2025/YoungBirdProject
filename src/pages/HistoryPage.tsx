@@ -48,9 +48,24 @@ export function HistoryPage({ meals, settings, navigate }: PageProps) {
         return;
       }
       const existing = new Set(meals.meals.map((m) => m.id));
-      const merged = [...meals.meals, ...parsed.filter((m) => !existing.has(m.id))];
-      meals.replaceAll(merged);
-      setImportMsg({ kind: 'info', text: `已导入 ${merged.length - meals.meals.length} 条新记录。` });
+      const fresh = parsed.filter((m) => !existing.has(m.id));
+      const skipped = parsed.length - fresh.length;
+      if (fresh.length === 0) {
+        setImportMsg({
+          kind: 'info',
+          text: skipped > 0 ? `文件里的 ${skipped} 条记录本机都已存在，未改动。` : '文件里没有可导入的记录。',
+        });
+        return;
+      }
+      const merged = [...meals.meals, ...fresh];
+      if (!meals.replaceAll(merged)) {
+        setImportMsg({ kind: 'warn', text: '写入本机存储失败，导入未生效。' });
+        return;
+      }
+      setImportMsg({
+        kind: 'info',
+        text: `已导入 ${fresh.length} 条新记录${skipped > 0 ? `，跳过 ${skipped} 条已存在的` : ''}。`,
+      });
     };
     reader.readAsText(file);
   }
