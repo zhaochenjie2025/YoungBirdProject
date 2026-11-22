@@ -903,7 +903,7 @@ function bindDeckDrag(){
   function end(){
     if(!dragging||!active) return;
     var dx = parseFloat(active.style.getPropertyValue('--dx'))||0;
-    var idx = parseInt(active.dataset.i,10);
+    var idx = parseInt(active.dataset.real,10);
     active.style.transition='';
     active.style.cursor='';
     if(Math.abs(dx) > (deck.clientWidth||340)*0.34){
