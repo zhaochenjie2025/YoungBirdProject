@@ -6,6 +6,7 @@ import { dayStats, mealsOn, localDate, mealSummary } from '../domain/stats';
 import { MEAL_SLOT_LABEL } from '../domain/types';
 import { KcalBlock, MacroRow, ItemRow, PendingTag, Empty } from '../components/ui';
 import { mealHref } from '../router';
+import { DayAdvicePanel } from '../components/DayAdvicePanel';
 
 export function TodayPage({ meals, settings, navigate }: PageProps) {
   const today = localDate();
@@ -85,6 +86,18 @@ export function TodayPage({ meals, settings, navigate }: PageProps) {
               </div>
             );
           })}
+        </section>
+      )}
+
+      {todayMeals.length > 0 && (
+        <section className="section">
+          <DayAdvicePanel
+            date={today}
+            meals={todayMeals}
+            stats={stats}
+            settings={settings}
+            navigate={navigate}
+          />
         </section>
       )}
     </>

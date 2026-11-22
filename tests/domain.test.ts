@@ -14,6 +14,7 @@ import {
 } from '../src/domain/nutrition';
 import { dayStats, weekStats, localDate, addDays, mealsOn } from '../src/domain/stats';
 import type { Dish, Meal, MealItem } from '../src/domain/types';
+import { extractNumbers } from '../src/advice/advice';
 
 const tomatoEgg: Dish = {
   id: 'tomato-egg',
@@ -232,5 +233,16 @@ describe('其他工具', () => {
   it('没有区间数据时返回 null', () => {
     expect(itemKcalRange(missingData, 180)).toBeNull();
     expect(itemKcalRange(undefined, 180)).toBeNull();
+  });
+});
+
+
+describe('建议数字提取', () => {
+  it('提取整数与小数', () => {
+    expect(extractNumbers('已有 189 千卡，蛋白质 11.7 克')).toEqual(['189', '11.7']);
+  });
+
+  it('没有数字时返回空数组', () => {
+    expect(extractNumbers('这餐蔬菜偏少')).toEqual([]);
   });
 });

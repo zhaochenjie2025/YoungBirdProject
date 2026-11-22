@@ -247,24 +247,24 @@ body{
 }
 
 /* ---------- 日期戳（橡皮图章，略歪、带缺口） ---------- */
-.stamp{
-  position:absolute;right:calc(-1 * var(--spine) + 6px);top:2px;
-  width:74px;height:74px;
-  display:grid;place-items:center;
-  transform:rotate(-8deg);
-  color:var(--vermilion);opacity:.85;
-  font-family:var(--serif);
-  -webkit-mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='74' height='74'><filter id='r'><feTurbulence type='fractalNoise' baseFrequency='0.62' numOctaves='2'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.6 1.18'/></filter><rect width='74' height='74' filter='url(%23r)'/></svg>");
-  mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='74' height='74'><filter id='r'><feTurbulence type='fractalNoise' baseFrequency='0.62' numOctaves='2'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.6 1.18'/></filter><rect width='74' height='74' filter='url(%23r)'/></svg>");
-  -webkit-mask-size:74px 74px;mask-size:74px 74px;
+/* 版面页脚行：左侧数据日期，右侧日期印章，二者同一基线，绝不越出版心 */
+.mast-foot{display:flex;align-items:flex-start;gap:12px;justify-content:space-between}
+.mast-foot .dateline{flex:1 1 auto;min-width:0;padding-bottom:0}
+.seal{
+  flex:0 0 auto;width:64px;height:64px;margin-top:-8px;
+  display:grid;place-items:center;transform:rotate(-7deg);
+  color:var(--vermilion);opacity:.9;font-family:var(--serif);
+  -webkit-mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><filter id='r'><feTurbulence type='fractalNoise' baseFrequency='0.62' numOctaves='2'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.7 1.22'/></filter><rect width='64' height='64' filter='url(%23r)'/></svg>");
+  mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><filter id='r'><feTurbulence type='fractalNoise' baseFrequency='0.62' numOctaves='2'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.7 1.22'/></filter><rect width='64' height='64' filter='url(%23r)'/></svg>");
+  -webkit-mask-size:64px 64px;mask-size:64px 64px;
 }
-.stamp-inner{
-  width:66px;height:66px;border:2px solid currentColor;border-radius:50%;
+.seal-inner{
+  width:57px;height:57px;border:2px solid currentColor;border-radius:50%;
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
 }
-.stamp-inner .st-day{font-size:26px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
-.stamp-inner .st-mo{font-size:10px;letter-spacing:.16em}
-.stamp-inner .st-wd{font-size:10px;letter-spacing:.08em;border-top:1px solid currentColor;padding-top:1px}
+.seal-inner .st-day{font-size:23px;font-weight:700;line-height:1;font-variant-numeric:tabular-nums}
+.seal-inner .st-mo{font-size:9px;letter-spacing:.14em}
+.seal-inner .st-wd{font-size:9px;letter-spacing:.06em;border-top:1px solid currentColor;padding-top:1px;margin-top:1px}
 
 /* ---------- 空状态 ---------- */
 .empty{margin-top:18px;text-align:left}

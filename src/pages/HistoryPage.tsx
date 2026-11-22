@@ -3,13 +3,14 @@
 // 原理 分组与合计全部由 meals 现算；导出导入走同一份 schema，保证换浏览器时数据可迁移。
 import { useRef, useState } from 'react';
 import type { PageProps } from '../App';
-import { mealSummary } from '../domain/stats';
+import { mealSummary, dayStats } from '../domain/stats';
 import { MEAL_SLOT_LABEL } from '../domain/types';
 import { exportMeals, parseImport } from '../store/persistence';
 import { Notice } from '../components/ui';
+import { DayAdvicePanel } from '../components/DayAdvicePanel';
 import { mealHref } from '../router';
 
-export function HistoryPage({ meals, navigate }: PageProps) {
+export function HistoryPage({ meals, settings, navigate }: PageProps) {
   const [importMsg, setImportMsg] = useState<{ kind: 'warn' | 'info'; text: string } | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -112,6 +113,15 @@ export function HistoryPage({ meals, navigate }: PageProps) {
                   </button>
                 );
               })}
+              <div style={{ marginTop: 'var(--s-3)' }}>
+                <DayAdvicePanel
+                  date={date}
+                  meals={dayMeals}
+                  stats={dayStats(meals.meals, date)}
+                  settings={settings}
+                  navigate={navigate}
+                />
+              </div>
             </section>
           );
         })
