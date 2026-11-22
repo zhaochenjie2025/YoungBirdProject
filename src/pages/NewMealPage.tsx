@@ -262,6 +262,18 @@ function DraftItemRow({
             }}
           />
           <span className="portion__grams">克</span>
+          {dish && (
+            <button
+              className="portion"
+              onClick={() => {
+                // 允许回到预设份量，否则选了自定义就再也点不回来。
+                setCustom(false);
+                setGramsText(String(item.grams));
+              }}
+            >
+              用预设份量
+            </button>
+          )}
         </div>
       )}
     </div>
