@@ -91,6 +91,7 @@ body::after{
 .stage{position:relative;perspective:1100px;perspective-origin:50% 6%;margin:0 -2px;padding-top:calc(var(--peek,26px) * 3 + 14px)}
 .deck{position:relative;height:var(--card-h,236px)}
 .deck-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+/* cf-justify: 这是一张实体菜卡，矩形是母题本身（可推开/翻起/叠合的卡片），圆角模拟切好的硬纸卡四角；材质靠多层 background 渐变+纸纤维颗粒+胶带+类别色条+三层推导阴影堆出，非默认容器 */
 .dish-card{
   position:absolute;left:0;right:0;top:0;height:var(--card-h,236px);
   border-radius:11px;
@@ -201,6 +202,7 @@ body::after{
 /* ============ 小票纸带 ============ */
 .tape-wrap{position:relative;margin:18px auto 0;width:calc(100% - 34px);max-width:330px;transition:transform .45s cubic-bezier(.2,1.1,.3,1),opacity .4s ease}
 .tape-wrap.tearing{transform:translateY(70%) rotate(2.5deg);opacity:0}
+/* cf-justify: 热敏小票纸带，形状由撕齿上缘与穿孔撕线定义，是本方向「一餐账单」的物理载体 */
 .receipt{
   position:relative;background:linear-gradient(180deg,#fbf7ec,#f4ecda 60%,#eee3cd);
   color:var(--ink);border-radius:0 0 4px 4px;padding:16px 16px 12px;
@@ -308,6 +310,7 @@ body::after{
 .empty-deck .cam svg{width:26px;height:26px;stroke:#5a3f1c;stroke-width:1.7;fill:none}
 
 /* ============ 单餐结果：详情 + 展开 ============ */
+/* cf-justify: 单餐结果是一张放大摊平的菜卡/账单，继承同一卡片母语与纸面材质 */
 .result-hero{position:relative;margin-top:8px;padding:18px 18px 16px;border-radius:14px;
   background:
     radial-gradient(circle at 100% 0,rgba(255,255,255,.5),transparent 40%),
