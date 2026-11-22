@@ -438,8 +438,8 @@ main{
           <div class="tt-k" id="today-kcal">0<small>千卡</small></div>
           <div class="tt-sub" id="today-sub">今天还没有显影的记录</div>
         </div>
-        <button class="switch" id="today-switch" aria-pressed="false" title="切换有记录 / 空状态">
-          <span class="switch__track"><span class="switch__dot"></span></span>样张
+        <button class="switch" id="today-switch" aria-pressed="false" title="有记录 / 空状态">
+          <span class="switch__track"><span class="switch__dot"></span></span><span id="switch-label">看空状态</span>
         </button>
       </div>
 
@@ -653,7 +653,8 @@ main{
   /* ---------- 渲染：今日 ---------- */
   function renderToday(filled){
     const fan=$('#today-fan'), empty=$('#today-empty');
-    $('#today-switch').setAttribute('aria-pressed', filled?'true':'false');
+    $('#today-switch').setAttribute('aria-pressed', filled?'false':'true');
+    const lbl=$('#switch-label'); if(lbl) lbl.textContent = filled?'看空状态':'看有记录';
     if(filled){
       let sum=0, todoTotal=0;
       todayMeals.forEach(m=>{ const t=mealTotals(m); sum+=t.kcal; todoTotal+=t.todo; });
@@ -811,8 +812,9 @@ main{
     if(e.target.closest('#btn-search')){ addSearch(); return; }
     if(e.target.closest('#btn-manual')){ addManual(); return; }
     if(e.target.closest('#today-switch')){
-      const pressed = $('#today-switch').getAttribute('aria-pressed')==='true';
-      renderToday(!pressed); return;
+      const isEmpty = !$('#today-empty').hidden;   // 当前是否显示空状态
+      renderToday(isEmpty);                        // 空 → 切到有记录；有记录 → 切到空
+      return;
     }
     const entryBtn=e.target.closest('.entry__btn');
     if(entryBtn){

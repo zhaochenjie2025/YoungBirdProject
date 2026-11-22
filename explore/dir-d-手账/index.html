@@ -449,7 +449,7 @@ body{
 }
 .nutri-table th:first-child,.nutri-table td:first-child{text-align:left;font-family:var(--sans);letter-spacing:.02em}
 .nutri-table thead th{font-weight:600;color:var(--ink-soft);border-bottom:1px solid var(--ink);font-size:11px;letter-spacing:.04em}
-.nutri-table thead th .th-per{display:block;font-weight:400;color:var(--ink-faint);font-size:10px;letter-spacing:0}
+.nutri-table thead th .th-per{display:block;font-weight:400;color:var(--ink-faint);font-size:11px;letter-spacing:0}
 .nutri-table td{font-family:var(--serif)}
 .nutri-table td:first-child{font-family:var(--sans);color:var(--ink)}
 .nutri-note{font-size:11px;line-height:1.6;color:var(--ink-soft);letter-spacing:.01em}
@@ -494,7 +494,7 @@ body{
 }
 .ld-date{display:flex;flex-direction:column;align-items:flex-start;line-height:1.1}
 .ld-weekday{font-family:var(--serif);font-weight:700;font-size:var(--t-2);font-variant-numeric:tabular-nums}
-.ld-daynum{font-size:10px;color:var(--ink-faint);letter-spacing:.03em;font-variant-numeric:tabular-nums;margin-top:2px}
+.ld-daynum{font-size:11px;color:var(--ink-faint);letter-spacing:.03em;font-variant-numeric:tabular-nums;margin-top:2px}
 .ld-mid{min-width:0}
 .ld-bar{position:relative;height:16px;display:flex;align-items:flex-end}
 .ld-bar-rule{position:absolute;left:0;right:0;bottom:0;border-bottom:1px solid var(--rule)}
@@ -503,11 +503,11 @@ body{
   transition:width .7s cubic-bezier(.2,.8,.2,1);
 }
 .ld-bar-fill.is-vrm{background:var(--vermilion)}
-.ld-dishes{font-size:10.5px;color:var(--ink-faint);letter-spacing:.02em;margin-top:5px;line-height:1.4;
+.ld-dishes{font-size:11px;color:var(--ink-faint);letter-spacing:.02em;margin-top:5px;line-height:1.4;
   white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .ld-state{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .ld-state .ld-kcal{font-family:var(--serif);font-weight:600;font-size:var(--t-2);line-height:1}
-.ld-state .ld-tag{display:block;font-size:10px;letter-spacing:.04em;margin-top:2px;color:var(--ink-faint)}
+.ld-state .ld-tag{display:block;font-size:11px;letter-spacing:.04em;margin-top:2px;color:var(--ink-faint)}
 .ld-state .ld-tag.is-miss{font-family:var(--serif);font-style:italic;letter-spacing:.1em}
 .ld-state .ld-tag.is-inc{color:var(--vermilion)}
 .ld-state.is-empty .ld-tag{font-size:var(--t-0);letter-spacing:.18em;color:var(--ink-faint);font-family:var(--serif)}
@@ -534,7 +534,7 @@ body{
   transition:color .16s ease;position:relative;
 }
 .folio-btn .fb-mark{font-family:var(--serif);font-size:var(--t-1);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:.02em}
-.folio-btn .fb-name{font-size:10px;letter-spacing:.08em}
+.folio-btn .fb-name{font-size:11px;letter-spacing:.08em}
 .folio-btn.is-active{color:var(--vermilion)}
 .folio-btn.is-active .fb-mark{font-weight:700}
 .folio-btn.is-active::after{
@@ -761,8 +761,6 @@ function masthead(date, kickerOverride){
       <div class="dateline">
         <span class="dl-strong">${c.y} 年 ${c.m} 月 ${c.d} 日</span>
         <span>星期${c.wd}</span>
-        <span class="dl-dot">·</span>
-        <span>第 ${issue} 期</span>
       </div>
       ${seal(date)}
     </div>
@@ -835,17 +833,17 @@ function viewToday(){
           <div class="gauge-row">
             <span class="gauge-lab">蛋白质</span>
             <span class="gauge-track"><span class="gauge-fill" style="width:${pct(st.protein,60)}%"></span></span>
-            <span class="gauge-val">${na(st.protein)}<span style="font-size:10px;color:var(--ink-faint)">g</span></span>
+            <span class="gauge-val">${na(st.protein)}<span style="font-size:11px;color:var(--ink-faint)">g</span></span>
           </div>
           <div class="gauge-row">
             <span class="gauge-lab">脂肪</span>
             <span class="gauge-track"><span class="gauge-fill" style="width:${pct(st.fat,70)}%"></span></span>
-            <span class="gauge-val">${na(st.fat)}<span style="font-size:10px;color:var(--ink-faint)">g</span></span>
+            <span class="gauge-val">${na(st.fat)}<span style="font-size:11px;color:var(--ink-faint)">g</span></span>
           </div>
           <div class="gauge-row">
             <span class="gauge-lab">碳水</span>
             <span class="gauge-track"><span class="gauge-fill" style="width:${pct(st.carbs,250)}%"></span></span>
-            <span class="gauge-val">${na(st.carbs)}<span style="font-size:10px;color:var(--ink-faint)">g</span></span>
+            <span class="gauge-val">${na(st.carbs)}<span style="font-size:11px;color:var(--ink-faint)">g</span></span>
           </div>
         </div>
       </div>`;
@@ -917,7 +915,7 @@ function viewNew(){
       <div class="dish-item" data-uid="${it.uid}">
         <span class="gutter-num">${String(idx+1).padStart(2,'0')}</span>
         <div class="di-name">${esc(it.name)}${pend}</div>
-        <div class="di-kcal">${kcalTxt}${it.pending?'':'<span style="font-size:10px;color:var(--ink-faint);font-weight:400"> 千卡</span>'}</div>
+        <div class="di-kcal">${kcalTxt}${it.pending?'':'<span style="font-size:11px;color:var(--ink-faint);font-weight:400"> 千卡</span>'}</div>
         <div class="di-meta">${it.portionLabel} · ${fmtG(it.grams)} 克 · ${rangeTxt}</div>
         <button class="di-remove" data-remove="${it.uid}" aria-label="移除${esc(it.name)}">✕</button>
       </div>`;
@@ -942,7 +940,7 @@ function viewNew(){
     ${spine(today)}
     <section class="page" style="padding-bottom:186px">
       <button class="backline" data-nav="today"><span class="bl-arrow">←</span>返回今日</button>
-      ${masthead(today,'新建一餐·编务')}
+      ${masthead(today,'新建一餐')}
       <div class="section-head" style="margin-top:16px">
         <span class="kicker">组稿</span><span class="section-title">这一餐的稿件</span>
       </div>
@@ -968,7 +966,7 @@ function viewNew(){
       <button class="add-dish" data-nav="search">
         <span class="ad-plus" aria-hidden="true">＋</span>
         <span class="ad-label">搜索添加菜品</span>
-        <span class="ad-hint">米饭·番茄炒蛋·青菜…</span>
+        <span class="ad-hint">支持别名，如「番茄炒蛋」</span>
       </button>
       <button class="add-dish" id="customBtn">
         <span class="ad-plus" aria-hidden="true">✎</span>
@@ -1035,7 +1033,7 @@ function viewResult(mealId){
     ${spine(meal.date)}
     <section class="page">
       <button class="backline" data-nav="today"><span class="bl-arrow">←</span>返回今日</button>
-      ${masthead(meal.date,'餐次明细·第 '+issueNo(meal.date)+' 期')}
+      ${masthead(meal.date,'餐次明细')}
       <div class="result-hero">
         <div class="rh-top">
           <div>
@@ -1128,7 +1126,7 @@ function viewWeek(){
   return `
     ${spine(today)}
     <section class="page">
-      ${masthead(today,'七日回顾·第 '+issueNo(today)+' 期')}
+      ${masthead(today,'七日回顾')}
       <div class="section-head" style="margin-top:14px"><span class="kicker">账簿</span><span class="section-title">最近七天</span></div>
       <div class="week-totals">
         <span class="wt-num">${weekTotal}</span>

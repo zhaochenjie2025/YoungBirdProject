@@ -131,6 +131,9 @@ body::after{
   box-shadow:inset -1px 0 0 rgba(0,0,0,.25);
 }
 .dish-card.is-front{border-color:rgba(255,255,255,.75);cursor:grab}
+.dish-card.is-front .tape{opacity:1}
+.dish-card.is-deep .tape{opacity:0}
+.dish-card.is-deep .peel{display:none}
 .dish-card.is-ghost{opacity:0!important;pointer-events:none}
 
 .card-in{position:absolute;inset:0;padding:16px 16px 14px 20px;display:flex;flex-direction:column;gap:8px;color:var(--ink)}
@@ -142,7 +145,16 @@ body::after{
 .card-kcal span{display:block;font-size:11px;color:var(--ink-3);letter-spacing:.14em;margin-top:2px}
 .card-kcal.pending b{font-family:var(--font);font-size:15px;color:var(--seal);letter-spacing:.04em}
 
-.card-mid{margin-top:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card-mid{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+/* 宏量配比条：一张卡里用三条油墨刻度表达这份菜的构成，填补中段留白且承载真实数据 */
+.card-mac{margin-top:auto;display:flex;flex-direction:column;gap:7px;padding:2px 0 4px}
+.mac-row{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink-3)}
+.mac-row .ml{width:30px;flex:none;letter-spacing:.02em}
+.mac-row .track{flex:1;height:5px;border-radius:3px;background:rgba(120,96,64,.16);overflow:hidden;position:relative}
+.mac-row .fill{position:absolute;left:0;top:0;bottom:0;border-radius:3px}
+.mac-row .mv{width:46px;flex:none;text-align:right;font-family:var(--mono);font-size:11px;color:var(--ink-2);font-weight:500}
+.mac-row.na .track{background:repeating-linear-gradient(90deg,rgba(120,96,64,.22) 0 3px,transparent 3px 6px)}
+.mac-row.na .mv{color:var(--seal)}
 .card-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;padding-top:9px;border-top:1px dashed rgba(120,96,64,.4)}
 .card-foot .src{font-size:11px;color:var(--ink-3);line-height:1.4;max-width:58%}
 .card-foot .per{font-size:11px;color:var(--ink-2);text-align:right;line-height:1.5}
@@ -592,20 +604,37 @@ function go(name){
 }
 
 /* ---------- 卡片 HTML ---------- */
-function cardHTML(it, i){
+function macRow(label, val, max, unit, cat){
+  if(val==null) return '<div class="mac-row na"><span class="ml">'+label+'</span><span class="track"></span><span class="mv">暂无</span></div>';
+  var pct = max>0 ? Math.min(100, Math.round(val/max*100)) : 0;
+  return '<div class="mac-row"><span class="ml">'+label+'</span><span class="track"><span class="fill" style="width:'+pct+'%;background:'+cat+'"></span></span><span class="mv">'+val+unit+'</span></div>';
+}
+function macroBars(it){
+  if(it.pending) return '';
+  var n=it.n;
+  var max = Math.max(n[1]||0, n[2]||0, n[3]||0, 1);
+  return '<div class="card-mac">'
+    + macRow('蛋白', n[1], max, 'g', catColor(it.cat))
+    + macRow('脂肪', n[2], max, 'g', catColor(it.cat))
+    + macRow('碳水', n[3], max, 'g', catColor(it.cat))
+    + '</div>';
+}
+
+function cardHTML(it, v, realIdx){
   var cat = catColor(it.cat);
   var pending = it.pending;
   var kcalHTML = pending
     ? '<div class="card-kcal pending"><b>待估算</b><span>无热量数据</span></div>'
     : '<div class="card-kcal"><b>'+it.n[0]+'</b><span>千卡</span></div>';
-  return '<article class="dish-card'+(i>0?' is-deep':' is-front')+'" data-i="'+i+'" style="--i:'+i+';--cat:'+cat+'">'
+  return '<article class="dish-card'+(v>0?' is-deep':' is-front')+'" data-i="'+v+'" data-real="'+realIdx+'" style="--i:'+v+';--cat:'+cat+'">'
     + '<div class="tape"></div><div class="peel"></div>'
     + '<div class="card-in">'
     +   '<div class="card-head"><div>'
     +     '<div class="card-name">'+esc(it.name)+'</div>'
     +     '<div class="card-sub">'+esc(it.cook)+' · '+esc(it.cat)+' · 实吃 '+fmtG(it.grams)+' 克</div>'
     +   '</div>'+kcalHTML+'</div>'
-    +   '<div class="card-mid" data-portions="'+i+'"></div>'
+    +   macroBars(it)
+    +   '<div class="card-mid" data-portions="'+realIdx+'"></div>'
     +   '<div class="card-foot">'
     +     '<div class="src">'+esc(it.psrc)+'</div>'
     +     '<div class="per">'+ (pending
@@ -620,14 +649,17 @@ function renderNew(){
   var deck = el('deck'), empty = el('deck-empty');
   var n = state.draft.length;
   empty.style.display = n? 'none':'flex';
-  el('deck-more').textContent = n>4 ? '共 '+n+' 道菜' : '';
-  // 最多渲染 4 层（第 4 层起汇总成「还有 N 道」），超出部分不再绘制，保证性能
+  el('deck-more').textContent = n>4 ? '上面还压着 '+(n-3)+' 道，顶上是最新一张' : '';
+  // 最多渲染 4 层（第 4 层起汇总成「上面还压着 N 道」），超出部分不再绘制，保证性能。
+  // 最新加入的菜永远在顶上（视觉层 0），最老的沉到后面。
   var shown = Math.min(n,4);
   var html = '';
-  for(var i=shown-1;i>=0;i--){ html += cardHTML(state.draft[i], i); }
+  for(var v=shown-1; v>=0; v--){
+    var realIdx = n-1-v;           // 视觉层 v 对应的真实数组下标
+    html += cardHTML(state.draft[realIdx], v, realIdx);
+  }
   deck.innerHTML = html;
-  // 为前卡注入份量刻位
-  for(var k=0;k<shown;k++){ mountPortions(k); }
+  for(var k=0;k<shown;k++){ mountPortions(n-1-k); }
   renderReceipt();
   el('btn-save').disabled = n===0;
   el('save-sub').textContent = n? (n+' 道 · '+sumKlass(state.draft)) : '先加菜';
