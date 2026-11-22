@@ -893,4 +893,357 @@ function viewToday(){
     ${folio('today')}`;
 }
 function pct(v,den){ if(v==null) return 0; return Math.max(2,Math.min(100, Math.round(v/den*100))); }
+
+/* ============================================================
+   屏 2：新建一餐
+   ============================================================ */
+let draft = { slot: defaultSlot(), items: [makeItem('tomato-egg',180,'标准份')] };
+function defaultSlot(){ const h=TODAY.getHours(); if(h<10)return'breakfast'; if(h<15)return'lunch'; if(h<21)return'dinner'; return'snack'; }
+
+function viewNew(){
+  const today = isoDate(TODAY);
+  const s = summarize(draft.items);
+  const c = cnDate(today);
+  const itemsHTML = draft.items.map((it,idx)=>{
+    const d = it.dishId?DISHES_lookup(it.dishId):null;
+    const rangeTxt = d ? `每百克 ${d.per[0]} 千卡` : '菜品库外 · 待估算';
+    const pend = it.pending ? `<span class="di-pend">待估算</span>` : '';
+    const kcalTxt = it.pending ? '—' : it.nutri[0];
+    return `
+      <div class="dish-item" data-uid="${it.uid}">
+        <span class="gutter-num">${String(idx+1).padStart(2,'0')}</span>
+        <div class="di-name">${esc(it.name)}${pend}</div>
+        <div class="di-kcal">${kcalTxt}${it.pending?'':'<span style="font-size:10px;color:var(--ink-faint);font-weight:400"> 千卡</span>'}</div>
+        <div class="di-meta">${it.portionLabel} · ${fmtG(it.grams)} 克 · ${rangeTxt}</div>
+        <button class="di-remove" data-remove="${it.uid}" aria-label="移除${esc(it.name)}">✕</button>
+      </div>`;
+  }).join('');
+
+  const has = draft.items.length>0;
+  const sumHTML = `
+    <div class="draft-sum ${has?'show':''}" id="draftSum">
+      <div class="ds-row">
+        <div>
+          <span class="ds-num" id="sumKcal">${s.kcal}</span><span class="ds-unit">千卡</span>
+        </div>
+        <div class="ds-side">
+          共 ${s.itemCount} 道${s.pendingCount>0?` · <span class="ds-pend">${s.pendingCount} 道待估算</span>`:''}
+          <br>${SLOT_LABEL[draft.slot]} · 即将收录第 ${issueNo(today)} 期
+        </div>
+      </div>
+      <button class="ds-save" id="saveMeal" ${has?'':'disabled'}>收录这一餐</button>
+    </div>`;
+
+  return `
+    ${spine(today)}
+    <section class="page" style="padding-bottom:120px">
+      <button class="backline" data-nav="today"><span class="bl-arrow">←</span>返回今日</button>
+      ${masthead(today,'新建一餐·编务')}
+      <div class="section-head" style="margin-top:16px">
+        <span class="kicker">组稿</span><span class="section-title">这一餐的稿件</span>
+      </div>
+
+      <button class="shutter" id="shutterBtn" style="margin-top:12px">
+        <span class="sh-aperture" aria-hidden="true"></span>
+        <span class="sh-text"><span class="sh-main">拍下菜品</span>
+          <span class="sh-sub">识别后从候选菜名里挑一项</span></span>
+        <span class="sh-arrow" aria-hidden="true">◉</span>
+      </button>
+      <div class="capture-stage" id="captureStage" hidden>
+        <div class="cs-frame" aria-hidden="true"></div>
+        <div class="cs-title">识别中…</div>
+        <div class="cs-hint">这是探索试样，不接入真实相机与模型；示意识别完成后的候选确认流程。</div>
+      </div>
+
+      <div class="draft-toolbar">
+        <span class="dt-count">已入库 <b>${draft.items.length}</b> 道</span>
+        <span class="dt-count">${SLOT_LABEL[draft.slot]} · ${today.slice(5).replace('-','/')}</span>
+      </div>
+      <div class="detail-list">${itemsHTML || `<p style="padding:18px 0;font-size:13px;color:var(--ink-faint)">还没有菜品。拍一张，或从下面添加。</p>`}</div>
+
+      <button class="add-dish" data-nav="search">
+        <span class="ad-plus" aria-hidden="true">＋</span>
+        <span class="ad-label">搜索添加菜品</span>
+        <span class="ad-hint">米饭·番茄炒蛋·青菜…</span>
+      </button>
+      <button class="add-dish" id="customBtn">
+        <span class="ad-plus" aria-hidden="true">✎</span>
+        <span class="ad-label">手动记一道</span>
+        <span class="ad-hint">库外菜品，标记待估算</span>
+      </button>
+    </section>
+    ${sumHTML}
+    ${folio('new')}`;
+}
+
+/* ============================================================
+   屏 3：单餐结果
+   ============================================================ */
+function viewResult(mealId){
+  const meal = MEALS.find(m=>m.id===mealId) || MEALS[MEALS.length-1];
+  const s = summarize(meal.items);
+  const today = isoDate(TODAY);
+  const totalRange = computeMealRange(meal.items);
+  const rangeHTML = totalRange ? `<div class="range-badge">合计可能落在 ${totalRange[0]}–${totalRange[1]} 千卡</div>` : '';
+
+  const dishesHTML = meal.items.map((it,idx)=>{
+    const d = it.dishId?DISHES_lookup(it.dishId):null;
+    const n = it.nutri;
+    const kcalCell = it.pending ? `<span class="dd-kcal-na">待估算</span>` : `${n[0]}`;
+    const per100 = d ? d.per : null;
+    const rng = d && d.range && !it.pending ? itemRange(d,it.grams) : null;
+
+    const tableHTML = d ? `
+      <table class="nutri-table">
+        <thead><tr>
+          <th>项目</th>
+          <th>每 100 克<span class="th-per">基准</span></th>
+          <th>本份 ${fmtG(it.grams)} 克<span class="th-per">食用部分</span></th>
+        </tr></thead>
+        <tbody>
+          <tr><td>热量</td><td>${per100[0]} 千卡</td><td>${n[0]} 千卡</td></tr>
+          <tr><td>蛋白质</td><td>${per100[1]} 克</td><td>${n[1]} 克</td></tr>
+          <tr><td>脂肪</td><td>${per100[2]} 克</td><td>${n[2]} 克</td></tr>
+          <tr><td>碳水</td><td>${per100[3]} 克</td><td>${n[3]} 克</td></tr>
+        </tbody>
+      </table>
+      ${rng?`<div class="range-badge">区间参考 ${rng[0]}–${rng[1]} 千卡</div>`:''}
+      <p class="nutri-note"><span class="nn-k">出处<sup class="dag">†</sup></span> ${esc(d.note)}</p>
+      <p class="nutri-note" style="margin-top:6px">份量按「${it.portionLabel}」计，食用部分 ${fmtG(it.grams)} 克。<span class="nn-k">口径<sup class="dag">‡</sup></span> 含油量按食堂标准偏高一档估算。</p>
+    ` : `
+      <p class="nutri-note"><span class="nn-k">待估算</span> 这是在菜品库外手动记录的菜，暂无每百克营养数据。可先保存，补录数据后再回到这里更正。</p>
+    `;
+    return `
+      <div class="detail-dish ${idx===0?'open':''}" data-dish="${it.uid}">
+        <button class="dd-head" data-toggle="${it.uid}" aria-expanded="${idx===0?'true':'false'}">
+          <span><span class="dd-name">${esc(it.name)}</span>
+            <span class="dd-portion">${it.portionLabel} · ${fmtG(it.grams)} 克</span></span>
+          <span class="dd-kcal">${kcalCell}</span>
+          <span class="dd-toggle" aria-hidden="true"></span>
+        </button>
+        <div class="dd-body"><div class="dd-body-inner"><div class="dd-body-pad">
+          ${tableHTML}
+        </div></div></div>
+      </div>`;
+  }).join('');
+
+  return `
+    ${spine(meal.date)}
+    <section class="page">
+      <button class="backline" data-nav="today"><span class="bl-arrow">←</span>返回今日</button>
+      ${masthead(meal.date,'餐次明细·第 '+issueNo(meal.date)+' 期')}
+      <div class="result-hero">
+        <div class="rh-top">
+          <div>
+            <div class="rh-slot">${SLOT_LABEL[meal.slot]}</div>
+            <div class="rh-when">${meal.date.replace(/-/g,'.')} · ${meal.time} 于学一食堂</div>
+          </div>
+          <div class="rh-kcal">
+            <span class="rk-num">${s.kcal}</span>
+            <span class="rk-unit">${s.pendingCount>0?'已估算·千卡':'千卡'}</span>
+          </div>
+        </div>
+        ${rangeHTML}
+        <div class="rh-macros">
+          <div class="rm-cell"><div class="rm-v">${numOr(s.protein,'g')}</div><div class="rm-k">蛋白质</div></div>
+          <div class="rm-cell"><div class="rm-v">${numOr(s.fat,'g')}</div><div class="rm-k">脂肪</div></div>
+          <div class="rm-cell"><div class="rm-v">${numOr(s.carbs,'g')}</div><div class="rm-k">碳水</div></div>
+        </div>
+      </div>
+
+      <div class="section-head" style="margin-top:20px"><span class="kicker">明细</span><span class="section-title">逐道展开</span></div>
+      <div class="detail-list">${dishesHTML}</div>
+
+      <div class="footnotes">
+        <div class="fn-title">出处与口径</div>
+        <div class="fn-item"><span class="fn-mark">†</span><span class="fn-body"><b>营养数据</b> 取自<b>${DISH_SRC}</b>；食堂实际配方未取得时采用可追溯的近似条目。<span class="fn-note">按每 100 克食用部分折算。</span></span></div>
+        <div class="fn-item"><span class="fn-mark">‡</span><span class="fn-body"><b>份量</b> 来自<b>${PORTION_SRC}</b>，为估重而非实测；<span class="fn-note">番茄炒蛋等含油量波动较大的菜给出了区间。</span></span></div>
+      </div>
+
+      <div style="margin-top:24px">
+        <button class="shutter" data-nav="week">
+          <span class="sh-aperture" aria-hidden="true"></span>
+          <span class="sh-text"><span class="sh-main">翻看七天</span>
+            <span class="sh-sub">把这几餐放回一週的账簿里看</span></span>
+          <span class="sh-arrow" aria-hidden="true">→</span>
+        </button>
+      </div>
+    </section>
+    ${folio('today')}`;
+}
+function itemRange(d, grams){ if(!d.range) return null; const f=grams/100; return [ROUND(d.range[0]*f), ROUND(d.range[1]*f)]; }
+function computeMealRange(items){
+  let lo=0, hi=0, any=false;
+  for(const it of items){ if(it.pending) continue; const d=it.dishId?DISHES_lookup(it.dishId):null; const r=itemRange(d,it.grams); if(!r) return null; any=true; lo+=r[0]; hi+=r[1]; }
+  return any?[lo,hi]:null;
+}
+
+/* ============================================================
+   屏 4：周视图（七天账簿）
+   ============================================================ */
+function viewWeek(){
+  const today = isoDate(TODAY);
+  const cells = weekStats(TODAY);
+  const logged = cells.filter(c=>c.logged);
+  const weekTotal = logged.reduce((a,c)=>a+c.kcal,0);
+  const avg = logged.length ? Math.round(weekTotal/logged.length) : 0;
+  const maxKcal = Math.max(...cells.map(c=>c.kcal),1);
+
+  const rowsHTML = cells.map(cell=>{
+    const c = cnDate(cell.date);
+    const isToday = cell.date===today;
+    let rightHTML, barHTML, dishesTxt='';
+    if(!cell.logged){
+      rightHTML = `<span class="ld-tag is-miss">未记录</span>`;
+      barHTML = `<span class="ld-bar-fill" style="width:0"></span>`;
+    } else {
+      const w = Math.max(6, Math.round(cell.kcal/maxKcal*100));
+      const inc = cell.incomplete;
+      barHTML = `<span class="ld-bar-fill ${inc?'is-vrm':''}" style="width:${w}%"></span>`;
+      dishesTxt = summarize(cell.items).itemCount + ' 道菜';
+      rightHTML = `<span class="ld-kcal">${cell.kcal}</span>
+        <span class="ld-tag ${inc?'is-inc':''}">${inc?'数据不完整':'千卡'}</span>`;
+    }
+    return `
+      <div class="ledger-day ${isToday?'is-today':''}">
+        <div class="ld-date">
+          <span class="ld-weekday">周${c.wd}</span>
+          <span class="ld-daynum">${c.m}/${c.d}</span>
+        </div>
+        <div class="ld-mid">
+          <div class="ld-bar"><span class="ld-bar-rule"></span>${barHTML}</div>
+          <div class="ld-dishes">${cell.logged?dishesTxt:'版面空缺'}</div>
+        </div>
+        <div class="ld-state ${cell.logged?'':'is-empty'}">${rightHTML}</div>
+      </div>`;
+  }).join('');
+
+  const incompleteCount = cells.filter(c=>c.incomplete).length;
+  const missedCount = cells.filter(c=>!c.logged).length;
+
+  return `
+    ${spine(today)}
+    <section class="page">
+      ${masthead(today,'七日回顾·第 '+issueNo(today)+' 期')}
+      <div class="section-head" style="margin-top:14px"><span class="kicker">账簿</span><span class="section-title">最近七天</span></div>
+      <div class="week-totals">
+        <span class="wt-num">${weekTotal}</span>
+        <span class="wt-lab">千卡 · 七日合计</span>
+        <span class="wt-avg">有记录 ${logged.length} 天<br>日均 ${avg} 千卡</span>
+      </div>
+      <div class="ledger">${rowsHTML}</div>
+
+      <div class="footnotes">
+        <div class="fn-title">本统计说明</div>
+        <div class="fn-item"><span class="fn-mark">§</span><span class="fn-body">${missedCount} 天未记录、${incompleteCount} 天数据不完整（含待估算菜品）。<span class="fn-note">柱高按当日已估算千卡相对于本周单日最大值绘制。</span></span></div>
+      </div>
+
+      <div style="margin-top:24px">
+        <button class="shutter" data-nav="new">
+          <span class="sh-aperture" aria-hidden="true"></span>
+          <span class="sh-text"><span class="sh-main">补录今天</span>
+            <span class="sh-sub">把缺的记录补上，账簿才齐</span></span>
+          <span class="sh-arrow" aria-hidden="true">→</span>
+        </button>
+      </div>
+    </section>
+    ${folio('week')}`;
+}
+
+/* ============================================================
+   引擎：hash 路由 + 事件委托
+   ============================================================ */
+const app = document.getElementById('app');
+const toastEl = document.getElementById('toast');
+let toastTimer = null;
+function toast(msg){
+  toastEl.textContent = msg; toastEl.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>toastEl.classList.remove('show'),1600);
+}
+
+function render(){
+  const hash = location.hash || '#/today';
+  let html;
+  if(hash.startsWith('#/result/')) html = viewResult(hash.slice('#/result/'.length));
+  else if(hash.startsWith('#/week')) html = viewWeek();
+  else if(hash.startsWith('#/new')) html = viewNew();
+  else html = viewToday();
+  app.innerHTML = html;
+  wireDynamic();
+  window.scrollTo({top:0,behavior:'instant'});
+}
+
+function wireDynamic(){
+  // 给进场的条形填充设宽度（从 0 触发过渡）
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('.ld-bar-fill[style*="width"]').forEach(el=>{ /* 已内联宽度即动画终点 */ });
+  });
+}
+
+// 全局事件委托
+document.addEventListener('click', e=>{
+  const navBtn = e.target.closest('[data-nav]');
+  if(navBtn){
+    const target = navBtn.getAttribute('data-nav');
+    if(target==='new') location.hash='#/new';
+    else if(target==='week') location.hash='#/week';
+    else if(target==='today') location.hash='#/today';
+    else if(target==='search'){ toast('探索试样：搜索面板未接入'); }
+    else if(target==='result'){ location.hash='#/result/'+(navBtn.getAttribute('data-meal')||''); }
+    return;
+  }
+  const mealRow = e.target.closest('[data-meal]');
+  if(mealRow){ location.hash = '#/result/'+mealRow.getAttribute('data-meal'); return; }
+
+  const toggle = e.target.closest('[data-toggle]');
+  if(toggle){
+    const wrap = toggle.closest('.detail-dish');
+    if(wrap){ const open = wrap.classList.toggle('open'); toggle.setAttribute('aria-expanded', open?'true':'false'); }
+    return;
+  }
+  const remove = e.target.closest('[data-remove]');
+  if(remove){
+    const uid = remove.getAttribute('data-remove');
+    draft.items = draft.items.filter(it=>it.uid!==uid);
+    if(location.hash==='#/new') render(); else location.hash='#/new';
+    toast('已移除');
+    return;
+  }
+  const save = e.target.closest('#saveMeal');
+  if(save){
+    if(draft.items.length===0){ toast('还没有菜品'); return; }
+    const today = isoDate(TODAY);
+    const meal = {id:'m_new_'+Date.now(), date:today, time:localTimeNow(), slot:draft.slot, items:draft.items.slice()};
+    MEALS.push(meal);
+    draft = {slot:defaultSlot(), items:[makeItem('tomato-egg',180,'标准份')]};
+    location.hash = '#/result/'+meal.id;
+    toast('已收录第 '+issueNo(today)+' 期');
+    return;
+  }
+  const shutter = e.target.closest('#shutterBtn');
+  if(shutter){
+    const stage = document.getElementById('captureStage');
+    if(stage){ stage.hidden=false; setTimeout(()=>{ stage.hidden=true; toast('识别试样：请从候选里确认菜名'); }, 1500); }
+    return;
+  }
+  const custom = e.target.closest('#customBtn');
+  if(custom){
+    const name = '自选凉菜';
+    draft.items.push(makeItem(null, 120, '自定义', name));
+    render(); toast('已加一道待估算菜品');
+    return;
+  }
+});
+function localTimeNow(){ const d=new Date(); return String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0'); }
+
+// 键盘可达
+document.addEventListener('keydown', e=>{
+  if((e.key==='Enter'||e.key===' ') && e.target.matches('[data-meal]')){ e.preventDefault(); e.target.click(); }
+});
+
+window.addEventListener('hashchange', render);
+render();
+})();
 </script>
+</body>
+</html>

@@ -8,3 +8,6 @@ dist/
 explore/.shots/
 tools/.cache/
 .DS_Store
+
+# 测试图片体积大，单独存放，不入库
+data/vision-test/img/

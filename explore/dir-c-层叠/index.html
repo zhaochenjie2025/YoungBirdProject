@@ -1,0 +1,262 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="dark" />
+<title>卡路里拍立得 · 层叠方向</title>
+<style>
+/* ============ 设计令牌：一套材质，阴影只有一个推导公式 ============ */
+:root{
+  --ink:#1c1916;
+  --ink-2:#4a4139;
+  --ink-3:#7a6e63;
+  --paper:#f3ecdd;
+  --paper-hi:#fbf6ec;
+  --paper-lo:#e3d6c0;
+  --paper-edge:#cbbba0;
+  --table:#211d19;
+  --table-2:#2b2621;
+  --table-3:#171310;
+  --accent:#c4512f;
+  --seal:#a8322a;
+  --brass:#c9a25f;
+  --cream:#f6efe1;
+  --cream-72:rgba(246,239,225,.72);
+
+  /* 类别色：卡片左侧露出的色条，叠起来成一列菜品配比 */
+  --c-staple:#c9974a;
+  --c-meat:#b0462f;
+  --c-veg:#4e7c5b;
+  --c-egg:#c9a24a;
+  --c-soup:#3e7c8a;
+  --c-other:#8a7a66;
+
+  /* 阴影单一公式：所有卡片都从这里取，不许各写各的 */
+  --sh-a:0 calc(1px + var(--dz,0) * 1px) 0 rgba(120,96,64,.30);
+  --sh-b:0 calc(6px + var(--dz,0) * 3px) calc(16px + var(--dz,0) * 9px) rgba(10,8,6,.42);
+  --sh-c:0 calc(14px + var(--dz,0) * 6px) calc(34px + var(--dz,0) * 14px) rgba(6,4,2,.36);
+
+  --font:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Noto Sans SC","Source Han Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  --mono:"SF Mono",ui-monospace,"JetBrains Mono",Menlo,Consolas,monospace;
+  --r:14px;
+  --safe-b:env(safe-area-inset-bottom,0px);
+}
+
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;height:100%}
+body{
+  font-family:var(--font);
+  color:var(--cream);
+  background:
+    radial-gradient(120% 72% at 50% -8%, #33291f 0%, var(--table-2) 34%, var(--table) 66%, var(--table-3) 100%);
+  background-attachment:fixed;
+  -webkit-font-smoothing:antialiased;
+  overflow:hidden;
+}
+/* 木纹桌面：极淡的重复织理，只做底层，不参与动画 */
+body::before{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;opacity:.5;
+  background:
+    repeating-linear-gradient(91deg, rgba(0,0,0,0) 0 11px, rgba(0,0,0,.10) 11px 12px),
+    repeating-linear-gradient(91deg, rgba(255,224,180,0) 0 43px, rgba(255,224,180,.015) 43px 44px);
+}
+/* 桌面接触光：叠得越重、越靠下越暗，由 JS 写 --press */
+body::after{
+  content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+  background:radial-gradient(96% 54% at 50% 100%, rgba(0,0,0,var(--press,.34)) 0%, rgba(0,0,0,0) 62%);
+}
+.app{position:relative;z-index:1;height:100%;display:flex;flex-direction:column}
+.screen{display:none;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.screen::-webkit-scrollbar{display:none}
+.screen.is-on{display:block}
+.wrap{width:100%;max-width:440px;margin:0 auto;padding:0 18px}
+</style>
+<style>
+/* ============ 顶栏 ============ */
+.topbar{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding:18px 0 10px}
+.topbar .brand{display:flex;flex-direction:column;gap:2px}
+.topbar .brand b{font-size:15px;letter-spacing:.06em;color:var(--cream);font-weight:600}
+.topbar .brand span{font-size:11.5px;letter-spacing:.05em;color:var(--cream-72)}
+.topbar .today{text-align:right;font-size:12px;letter-spacing:.04em;color:var(--cream-72)}
+.topbar .today strong{display:block;font-family:var(--mono);font-size:19px;letter-spacing:.02em;color:var(--brass);font-weight:500}
+.rule{height:1px;background:linear-gradient(90deg,rgba(201,162,95,0),rgba(201,162,95,.45),rgba(201,162,95,0))}
+
+/* ============ 数字：纸面打印机感 ============ */
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+
+/* ============ 卡片堆栈舞台 ============ */
+.stage{position:relative;perspective:1100px;perspective-origin:50% 6%;margin:0 -2px;padding-top:calc(var(--peek,26px) * 3 + 14px)}
+.deck{position:relative;height:var(--card-h,236px)}
+.deck-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
+.dish-card{
+  position:absolute;left:0;right:0;top:0;height:var(--card-h,236px);
+  border-radius:11px;
+  transform-origin:50% 0%;
+  transform:
+    translateY(calc(var(--i) * var(--peek,26px) * -1))
+    translateZ(calc(var(--i) * -30px))
+    rotateX(calc(var(--i) * 1.15deg))
+    scale(calc(1 - var(--i) * .022));
+  z-index:calc(60 - var(--i));
+  --dz:calc(var(--i) * 1.3 + .45);
+  box-shadow:var(--sh-a),var(--sh-b),var(--sh-c);
+  transition:transform .5s cubic-bezier(.2,1.12,.3,1), opacity .3s ease, box-shadow .5s ease;
+  will-change:transform;
+  cursor:grab;
+  touch-action:pan-y;
+  background:
+    radial-gradient(circle at calc(100% - 20px) 18px, var(--table) 0 5.5px, rgba(0,0,0,.45) 5.8px 6.8px, rgba(255,255,255,.35) 7px 7.8px, transparent 8px),
+    repeating-linear-gradient(93deg, rgba(150,120,80,.045) 0 2px, transparent 2px 5px),
+    repeating-linear-gradient(3deg, rgba(110,84,48,.04) 0 1px, transparent 1px 4px),
+    radial-gradient(130% 120% at 18% -10%, var(--paper-hi) 0%, var(--paper) 52%, var(--paper-lo) 100%);
+  border:1px solid rgba(255,255,255,.55);
+  overflow:hidden;
+  user-select:none;
+}
+/* 纸纤维颗粒 + 顶部叠压阴影（前一张卡投在它上面的暗带） */
+.dish-card::after{
+  content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:
+    radial-gradient(rgba(90,68,40,.10) .6px, transparent .8px) 0 0/6px 6px,
+    linear-gradient(180deg, rgba(30,22,14,.30) 0, rgba(30,22,14,.10) 10px, transparent 26px);
+  opacity:calc(.5 + var(--i) * .12);
+}
+/* 类别色边：左侧一窄条，叠起来成为一列菜品配比 */
+.dish-card::before{
+  content:"";position:absolute;left:0;top:0;bottom:0;width:7px;z-index:2;
+  background:linear-gradient(90deg,var(--cat),color-mix(in srgb,var(--cat) 70%,#000) 100%);
+  box-shadow:inset -1px 0 0 rgba(0,0,0,.25);
+}
+.dish-card.is-front{border-color:rgba(255,255,255,.75);cursor:grab}
+.dish-card.is-ghost{opacity:0!important;pointer-events:none}
+
+.card-in{position:absolute;inset:0;padding:16px 16px 14px 20px;display:flex;flex-direction:column;gap:8px;color:var(--ink)}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding-right:26px}
+.card-name{font-family:"Songti SC","STSong","Noto Serif SC",serif;font-size:21px;line-height:1.15;font-weight:700;letter-spacing:.01em;color:var(--ink)}
+.card-sub{font-size:11.5px;color:var(--ink-3);letter-spacing:.03em;margin-top:3px}
+.card-kcal{text-align:right;flex:none}
+.card-kcal b{font-family:var(--mono);font-size:25px;font-weight:600;color:var(--ink);line-height:1}
+.card-kcal span{display:block;font-size:10.5px;color:var(--ink-3);letter-spacing:.14em;margin-top:2px}
+.card-kcal.pending b{font-family:var(--font);font-size:15px;color:var(--seal);letter-spacing:.04em}
+
+.card-mid{margin-top:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.card-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;padding-top:9px;border-top:1px dashed rgba(120,96,64,.4)}
+.card-foot .src{font-size:11px;color:var(--ink-3);line-height:1.4;max-width:58%}
+.card-foot .per{font-size:11px;color:var(--ink-2);text-align:right;line-height:1.5}
+.card-foot .per b{font-family:var(--mono);font-weight:600;color:var(--ink)}
+
+/* 胶带：钉住卡片的手工感 */
+.tape{
+  position:absolute;top:-9px;left:34px;width:64px;height:19px;transform:rotate(-4deg);
+  background:linear-gradient(180deg,rgba(232,203,152,.88),rgba(214,180,124,.82));
+  box-shadow:0 1px 2px rgba(0,0,0,.18);
+  z-index:3;
+  -webkit-mask:repeating-linear-gradient(90deg,#000 0 3px,transparent 3px 3.6px);
+  mask:repeating-linear-gradient(90deg,#000 0 3px,transparent 3px 3.6px);
+}
+/* 右缘“可推开”撕口暗示 */
+.peel{position:absolute;right:0;top:0;bottom:0;width:14px;z-index:2;background:linear-gradient(90deg,transparent,rgba(120,96,64,.10));border-radius:0 10px 10px 0}
+.peel::after{content:"";position:absolute;right:5px;top:50%;width:5px;height:5px;border-right:1.5px solid rgba(122,110,99,.6);border-top:1.5px solid rgba(122,110,99,.6);transform:translateY(-50%) rotate(45deg)}
+
+/* 深层卡只留头部，被前卡遮住大半 */
+.dish-card.is-deep .card-in{padding:12px 16px 12px 20px}
+.dish-card.is-deep .card-mid,.dish-card.is-deep .card-foot,.dish-card.is-deep .peel{display:none}
+.dish-card.is-deep .card-name{font-size:15px}
+.dish-card.is-deep .card-kcal b{font-size:16px}
+.dish-card.is-deep .card-kcal span{display:none}
+.dish-card.is-deep .tape{display:none}
+.deck-more{position:absolute;right:6px;top:-22px;font-size:11px;color:var(--cream-72);letter-spacing:.05em;z-index:70}
+
+/* 份量芯片：硬纸卡上的刻位 */
+.chip{
+  border:1px solid rgba(90,70,44,.35);background:rgba(255,255,255,.34);
+  color:var(--ink-2);border-radius:5px;padding:5px 9px;font-size:11.5px;line-height:1;
+  font-family:var(--font);letter-spacing:.02em;cursor:pointer;transition:transform .16s,background .2s,color .2s;
+}
+.chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.chip:active{transform:scale(.94)}
+.grams-edit{display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--ink-3)}
+.grams-edit b{font-family:var(--mono);color:var(--ink);font-size:12.5px}
+.card-grip{width:24px;height:24px;border-radius:50%;border:1px solid rgba(90,70,44,.35);display:grid;place-items:center;color:var(--ink-2);font-size:15px;line-height:1;background:rgba(255,255,255,.3)}
+
+/* ============ 小票纸带 ============ */
+.tape-wrap{position:relative;margin:18px auto 0;width:calc(100% - 34px);max-width:330px;transition:transform .45s cubic-bezier(.2,1.1,.3,1),opacity .4s ease}
+.tape-wrap.tearing{transform:translateY(70%) rotate(2.5deg);opacity:0}
+.receipt{
+  position:relative;background:linear-gradient(180deg,#fbf7ec,#f4ecda 60%,#eee3cd);
+  color:var(--ink);border-radius:0 0 4px 4px;padding:16px 16px 12px;
+  box-shadow:0 1px 0 rgba(255,255,255,.6) inset, 0 8px 18px rgba(0,0,0,.32), 0 2px 4px rgba(0,0,0,.22);
+  text-shadow:none;
+}
+/* 上缘撕齿（与小票穿孔） */
+.receipt::before{
+  content:"";position:absolute;left:0;right:0;top:-7px;height:7px;background:inherit;
+  -webkit-mask:repeating-linear-gradient(90deg,#000 0 7px,transparent 7px 11px);
+  mask:repeating-linear-gradient(90deg,#000 0 7px,transparent 7px 11px);
+}
+/* 穿孔撕线 */
+.perf{height:1px;border-top:1.5px dashed rgba(90,70,44,.5);position:relative;margin:10px -16px}
+.perf::before,.perf::after{content:"";position:absolute;top:-7px;width:12px;height:12px;border-radius:50%;background:var(--table);box-shadow:inset -1px 1px 2px rgba(0,0,0,.5)}
+.perf::before{left:-6px}.perf::after{right:-6px}
+.rc-head{display:flex;justify-content:space-between;align-items:baseline;font-size:11.5px;color:var(--ink-3);letter-spacing:.08em}
+.rc-total{display:flex;align-items:flex-end;justify-content:space-between;margin:6px 0 2px}
+.rc-total .k{font-size:12px;color:var(--ink-3);letter-spacing:.2em;align-self:center}
+.rc-total .v{font-family:var(--mono);font-size:46px;line-height:.86;font-weight:600;color:var(--ink);letter-spacing:-.03em}
+.rc-total .v small{font-size:13px;font-weight:400;color:var(--ink-3);letter-spacing:.06em;margin-left:4px}
+.rc-macros{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin-top:10px}
+.rc-macros div{padding:7px 0 5px;border-top:1px solid rgba(90,70,44,.22);border-right:1px solid rgba(90,70,44,.16)}
+.rc-macros div:last-child{border-right:0}
+.rc-macros b{display:block;font-family:var(--mono);font-size:15px;font-weight:600;color:var(--ink)}
+.rc-macros span{font-size:10.5px;color:var(--ink-3);letter-spacing:.12em}
+.rc-macros .na b{font-family:var(--font);font-size:12px;color:var(--ink-3);font-weight:400}
+.rc-foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
+.rc-src{font-size:10.5px;color:var(--ink-3);line-height:1.5;max-width:64%}
+.stamp{
+  font-family:"Songti SC",serif;font-weight:700;color:var(--seal);border:2px solid var(--seal);
+  border-radius:6px;padding:3px 8px;font-size:12px;letter-spacing:.16em;transform:rotate(-7deg);
+  opacity:.86;mix-blend-mode:multiply;box-shadow:0 0 0 1px rgba(168,50,42,.25) inset;
+}
+.stamp.pending{color:var(--accent);border-color:var(--accent)}
+.rc-empty{font-size:12.5px;color:var(--ink-3);text-align:center;padding:10px 0 4px;line-height:1.6}
+
+/* ============ 底部操作坞 + 快门 ============ */
+.dock{position:sticky;bottom:0;z-index:80;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:10px 4px calc(10px + var(--safe-b));background:linear-gradient(180deg,rgba(23,19,16,0),rgba(23,19,16,.86) 38%,rgba(23,19,16,.96))}
+.btn-ghost{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(201,162,95,.4);background:rgba(201,162,95,.08);
+  color:var(--cream);border-radius:999px;padding:10px 14px;font-size:12.5px;letter-spacing:.04em;cursor:pointer;transition:transform .15s,background .2s}
+.btn-ghost:active{transform:scale(.96);background:rgba(201,162,95,.16)}
+.shutter{
+  position:relative;width:70px;height:70px;border-radius:50%;border:0;cursor:pointer;flex:none;
+  background:radial-gradient(circle at 50% 32%,#f7e9c8,#d9b878 46%,#a8803f 72%,#7a5a29 100%);
+  box-shadow:0 2px 0 rgba(255,246,222,.55) inset,0 -3px 0 rgba(60,40,16,.55) inset,0 6px 12px rgba(0,0,0,.45),0 1px 0 rgba(0,0,0,.5);
+  display:grid;place-items:center;transition:transform .12s;
+}
+.shutter::before{content:"";position:absolute;inset:7px;border-radius:50%;border:1.5px solid rgba(70,48,20,.45);box-shadow:0 0 0 1px rgba(255,245,220,.25) inset}
+.shutter::after{content:"";position:absolute;inset:15px;border-radius:50%;background:radial-gradient(circle at 50% 30%,#3b3128,#1b1611 78%);box-shadow:0 1px 0 rgba(255,255,255,.14) inset}
+.shutter svg{position:relative;z-index:2;width:24px;height:24px;stroke:#f2e3bd;stroke-width:1.8;fill:none}
+.shutter:active{transform:scale(.94)}
+.shutter .ring{position:absolute;inset:-5px;border-radius:50%;border:1px dashed rgba(201,162,95,.45)}
+.dock .save{display:inline-flex;flex-direction:column;align-items:flex-end;gap:1px;border:0;background:none;color:var(--cream);cursor:pointer;padding:6px 2px}
+.dock .save b{font-size:13.5px;letter-spacing:.05em}
+.dock .save span{font-size:10.5px;color:var(--cream-72)}
+.dock .save:disabled{opacity:.35;cursor:default}
+
+/* ============ 底部导航：文件袋纸标签 ============ */
+.nav{position:relative;z-index:90;display:flex;gap:6px;padding:0 10px calc(8px + var(--safe-b));background:var(--table-3);border-top:1px solid rgba(201,162,95,.18)}
+.nav button{
+  flex:1;border:0;background:linear-gradient(180deg,#3a322a,#241f1a);color:rgba(246,239,225,.62);
+  padding:9px 4px 10px;font-size:11.5px;letter-spacing:.06em;cursor:pointer;position:relative;
+  display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:8px 8px 0 0;
+  box-shadow:0 1px 0 rgba(255,255,255,.06) inset;transition:color .2s,background .2s,transform .2s;
+}
+.nav button svg{width:19px;height:19px;stroke:currentColor;stroke-width:1.7;fill:none}
+.nav button.on{color:var(--cream);background:linear-gradient(180deg,var(--table-2),#33291f);transform:translateY(-2px)}
+.nav button.on::after{content:"";position:absolute;left:14%;right:14%;bottom:4px;height:2px;background:var(--brass);border-radius:2px;box-shadow:0 0 8px rgba(201,162,95,.7)}
+</style>
+<!--@@HEAD-END@@-->
+</head>
+<body>
+<!--@@BODY@@-->
+</body>
+</html>
