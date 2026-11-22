@@ -1,0 +1,1113 @@
+[
+  {
+    "id": "tomato-egg",
+    "name": "番茄炒蛋",
+    "aliases": [
+      "西红柿炒鸡蛋",
+      "番茄炒鸡蛋",
+      "西红柿炒蛋"
+    ],
+    "cooking": "炒",
+    "category": "蛋豆",
+    "per100g": {
+      "kcal": 105,
+      "protein": 5.6,
+      "fat": 7.5,
+      "carbs": 4
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "按常见配比（鸡蛋约六成、番茄约四成）折算，含油量按食堂标准偏高一档"
+    },
+    "portions": [
+      {
+        "key": "half",
+        "label": "半份",
+        "grams": 90
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 180
+      },
+      {
+        "key": "large",
+        "label": "大份",
+        "grams": 270
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂常见炒菜盘估重，非实测"
+    },
+    "kcalRange": [
+      88,
+      128
+    ],
+    "rangeNote": "差异主要来自用油量与蛋菜比例"
+  },
+  {
+    "id": "stir-fried-greens",
+    "name": "清炒青菜",
+    "aliases": [
+      "炒青菜",
+      "清炒小白菜",
+      "炒时蔬"
+    ],
+    "cooking": "炒",
+    "category": "蔬菜",
+    "per100g": {
+      "kcal": 55,
+      "protein": 1.8,
+      "fat": 4.2,
+      "carbs": 3
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "以小白菜为基础，按食堂清炒用油量折算"
+    },
+    "portions": [
+      {
+        "key": "half",
+        "label": "半份",
+        "grams": 90
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 170
+      },
+      {
+        "key": "large",
+        "label": "大份",
+        "grams": 250
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂常见蔬菜盘估重，非实测"
+    },
+    "kcalRange": [
+      40,
+      72
+    ],
+    "rangeNote": "差异主要来自油量与是否为叶菜"
+  },
+  {
+    "id": "braised-pork",
+    "name": "红烧肉",
+    "aliases": [
+      "红烧五花肉",
+      "炖五花肉"
+    ],
+    "cooking": "炖",
+    "category": "荤菜",
+    "per100g": {
+      "kcal": 470,
+      "protein": 12,
+      "fat": 44,
+      "carbs": 6
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "以肥瘦猪肉（五花）炖制折算，含糖色与汤汁油脂，按常见做法估算"
+    },
+    "portions": [
+      {
+        "key": "half",
+        "label": "半份",
+        "grams": 60
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 120
+      },
+      {
+        "key": "large",
+        "label": "大份",
+        "grams": 180
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂常见小份荤菜估重，非实测"
+    },
+    "kcalRange": [
+      400,
+      540
+    ],
+    "rangeNote": "差异主要来自肥瘦比例与收汁程度"
+  },
+  {
+    "id": "rice",
+    "name": "米饭",
+    "aliases": [
+      "白米饭",
+      "大米饭",
+      "蒸饭"
+    ],
+    "cooking": "蒸",
+    "category": "主食",
+    "per100g": {
+      "kcal": 116,
+      "protein": 2.6,
+      "fat": 0.3,
+      "carbs": 25.9
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "蒸制白米饭，水分约 70%，采用表中米饭条目"
+    },
+    "portions": [
+      {
+        "key": "half",
+        "label": "半份",
+        "grams": 100
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 200
+      },
+      {
+        "key": "large",
+        "label": "大份",
+        "grams": 300
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂常见饭碗去餐具后估重，非实测"
+    },
+    "kcalRange": [
+      100,
+      130
+    ],
+    "rangeNote": "差异主要来自加水量与米种"
+  },
+  {
+    "id": "potato-shreds",
+    "name": "土豆丝",
+    "aliases": [
+      "炒土豆丝",
+      "醋溜土豆丝",
+      "酸辣土豆丝"
+    ],
+    "cooking": "炒",
+    "category": "蔬菜",
+    "per100g": {
+      "kcal": 112,
+      "protein": 2,
+      "fat": 6.5,
+      "carbs": 12.5
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "以马铃薯为原料按清炒做法折算，含油量按食堂标准"
+    },
+    "portions": [
+      {
+        "key": "half",
+        "label": "半份",
+        "grams": 90
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 160
+      },
+      {
+        "key": "large",
+        "label": "大份",
+        "grams": 240
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂常见炒菜盘估重，非实测"
+    },
+    "kcalRange": [
+      85,
+      140
+    ],
+    "rangeNote": "差异主要来自用油量与是否过水去淀粉"
+  },
+  {
+    "id": "kungpao-chicken",
+    "name": "宫保鸡丁",
+    "aliases": [
+      "宫爆鸡丁",
+      "花生鸡丁"
+    ],
+    "cooking": "炒",
+    "category": "荤菜",
+    "per100g": {
+      "kcal": 230,
+      "protein": 15,
+      "fat": 15,
+      "carbs": 9
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "以鸡胸肉、花生米按常见配比折算，含糖醋汁与红油"
+    },
+    "portions": [
+      {
+        "key": "half",
+        "label": "半份",
+        "grams": 80
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 160
+      },
+      {
+        "key": "large",
+        "label": "大份",
+        "grams": 240
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂常见荤菜盘估重，非实测"
+    },
+    "kcalRange": [
+      180,
+      280
+    ],
+    "rangeNote": "差异主要来自花生用量与用油量"
+  },
+  {
+    "id": "mapo-tofu",
+    "name": "麻婆豆腐",
+    "aliases": [
+      "麻辣豆腐",
+      "川味豆腐"
+    ],
+    "cooking": "烧",
+    "category": "蛋豆",
+    "per100g": {
+      "kcal": 130,
+      "protein": 9,
+      "fat": 8,
+      "carbs": 5.5
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "以南豆腐加少量肉末、豆瓣酱与红油折算，按常见做法估算"
+    },
+    "portions": [
+      {
+        "key": "half",
+        "label": "半份",
+        "grams": 90
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 180
+      },
+      {
+        "key": "large",
+        "label": "大份",
+        "grams": 270
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂常见豆腐盘估重，非实测"
+    },
+    "kcalRange": [
+      105,
+      160
+    ],
+    "rangeNote": "差异主要来自肉末比例与红油用量"
+  },
+  {
+    "id": "seaweed-egg-soup",
+    "name": "紫菜蛋花汤",
+    "aliases": [
+      "紫菜蛋汤",
+      "蛋花汤"
+    ],
+    "cooking": "煮",
+    "category": "汤",
+    "per100g": {
+      "kcal": 35,
+      "protein": 2.5,
+      "fat": 1.8,
+      "carbs": 2.5
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "以紫菜、鸡蛋按食堂清汤配比折算，含少量香油"
+    },
+    "portions": [
+      {
+        "key": "half",
+        "label": "半份",
+        "grams": 150
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 250
+      },
+      {
+        "key": "large",
+        "label": "大份",
+        "grams": 350
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂汤碗估重，非实测"
+    },
+    "kcalRange": [
+      22,
+      48
+    ],
+    "rangeNote": "差异主要来自蛋量与是否加淀粉勾芡"
+  },
+  {
+    "id": "yu-xiang-pork",
+    "name": "鱼香肉丝",
+    "aliases": [
+      "鱼香瘦肉丝",
+      "川味肉丝"
+    ],
+    "cooking": "炒",
+    "category": "荤菜",
+    "per100g": {
+      "kcal": 190,
+      "protein": 12,
+      "fat": 12,
+      "carbs": 8.5
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "以猪瘦肉、木耳、笋丝按常见配比折算，含糖醋汁与油"
+    },
+    "portions": [
+      {
+        "key": "half",
+        "label": "半份",
+        "grams": 80
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 160
+      },
+      {
+        "key": "large",
+        "label": "大份",
+        "grams": 240
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂常见荤菜盘估重，非实测"
+    },
+    "kcalRange": [
+      155,
+      230
+    ],
+    "rangeNote": "差异主要来自糖醋汁浓度与用油量"
+  },
+  {
+    "id": "pepper-pork-shreds",
+    "name": "青椒肉丝",
+    "aliases": [
+      "尖椒肉丝",
+      "青椒炒肉丝"
+    ],
+    "cooking": "炒",
+    "category": "荤菜",
+    "per100g": {
+      "kcal": 150,
+      "protein": 11,
+      "fat": 10,
+      "carbs": 4.5
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "以猪瘦肉与青椒按常见配比折算，按食堂用油量"
+    },
+    "portions": [
+      {
+        "key": "half",
+        "label": "半份",
+        "grams": 80
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 170
+      },
+      {
+        "key": "large",
+        "label": "大份",
+        "grams": 250
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂常见荤菜盘估重，非实测"
+    },
+    "kcalRange": [
+      120,
+      185
+    ],
+    "rangeNote": "差异主要来自肥瘦比例与用油量"
+  },
+  {
+    "id": "braised-eggplant",
+    "name": "红烧茄子",
+    "aliases": [
+      "烧茄子",
+      "酱烧茄子"
+    ],
+    "cooking": "烧",
+    "category": "蔬菜",
+    "per100g": {
+      "kcal": 160,
+      "protein": 2,
+      "fat": 13,
+      "carbs": 9
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "茄子吸油明显，按食堂常见过油做法折算，含酱油糖汁"
+    },
+    "portions": [
+      {
+        "key": "half",
+        "label": "半份",
+        "grams": 90
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 170
+      },
+      {
+        "key": "large",
+        "label": "大份",
+        "grams": 250
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂常见蔬菜盘估重，非实测"
+    },
+    "kcalRange": [
+      120,
+      200
+    ],
+    "rangeNote": "差异主要来自是否先炸再过油，油量差别很大"
+  },
+  {
+    "id": "tomato-egg-soup",
+    "name": "西红柿鸡蛋汤",
+    "aliases": [
+      "番茄蛋汤",
+      "西红柿蛋花汤"
+    ],
+    "cooking": "煮",
+    "category": "汤",
+    "per100g": {
+      "kcal": 30,
+      "protein": 1.8,
+      "fat": 1.5,
+      "carbs": 2.2
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "以西红柿、鸡蛋按食堂清汤配比折算，含少量油与淀粉"
+    },
+    "portions": [
+      {
+        "key": "half",
+        "label": "半份",
+        "grams": 150
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 250
+      },
+      {
+        "key": "large",
+        "label": "大份",
+        "grams": 350
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂汤碗估重，非实测"
+    },
+    "kcalRange": [
+      18,
+      42
+    ],
+    "rangeNote": "差异主要来自蛋量与是否勾芡"
+  },
+  {
+    "id": "steamed-bun",
+    "name": "馒头",
+    "aliases": [
+      "白馒头",
+      "刀切馒头"
+    ],
+    "cooking": "蒸",
+    "category": "主食",
+    "per100g": {
+      "kcal": 223,
+      "protein": 7,
+      "fat": 1.1,
+      "carbs": 47
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "蒸制白面馒头，采用表中馒头条目"
+    },
+    "portions": [
+      {
+        "key": "small",
+        "label": "小个",
+        "grams": 60
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 100
+      },
+      {
+        "key": "large",
+        "label": "大个",
+        "grams": 150
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂常见馒头个重，非实测"
+    },
+    "kcalRange": [
+      205,
+      240
+    ],
+    "rangeNote": "差异主要来自面坯大小与含水率"
+  },
+  {
+    "id": "hua-juan",
+    "name": "花卷",
+    "aliases": [
+      "葱花卷",
+      "千层花卷"
+    ],
+    "cooking": "蒸",
+    "category": "主食",
+    "per100g": {
+      "kcal": 217,
+      "protein": 6.4,
+      "fat": 1,
+      "carbs": 45.6
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "蒸制花卷，采用表中面条类折算，含少量葱油"
+    },
+    "portions": [
+      {
+        "key": "small",
+        "label": "小个",
+        "grams": 60
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 100
+      },
+      {
+        "key": "large",
+        "label": "大个",
+        "grams": 150
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂常见花卷个重，非实测"
+    },
+    "kcalRange": [
+      200,
+      235
+    ],
+    "rangeNote": "差异主要来自面坯大小与抹油量"
+  },
+  {
+    "id": "egg-fried-rice",
+    "name": "蛋炒饭",
+    "aliases": [
+      "炒饭",
+      "鸡蛋炒饭"
+    ],
+    "cooking": "炒",
+    "category": "主食",
+    "per100g": {
+      "kcal": 180,
+      "protein": 5.5,
+      "fat": 6,
+      "carbs": 26
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "以米饭、鸡蛋按常见配比折算，含炒制用油"
+    },
+    "portions": [
+      {
+        "key": "half",
+        "label": "半份",
+        "grams": 150
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 300
+      },
+      {
+        "key": "large",
+        "label": "大份",
+        "grams": 400
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂炒饭盘估重，非实测"
+    },
+    "kcalRange": [
+      150,
+      215
+    ],
+    "rangeNote": "差异主要来自用油量与蛋饭比例"
+  },
+  {
+    "id": "braised-chicken-leg",
+    "name": "红烧鸡腿",
+    "aliases": [
+      "卤鸡腿",
+      "酱鸡腿"
+    ],
+    "cooking": "炖",
+    "category": "荤菜",
+    "per100g": {
+      "kcal": 200,
+      "protein": 18,
+      "fat": 12,
+      "carbs": 4
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "以带皮鸡腿卤制折算，含酱汁；食用部分按去骨计"
+    },
+    "portions": [
+      {
+        "key": "one",
+        "label": "一只",
+        "grams": 100
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 150
+      },
+      {
+        "key": "large",
+        "label": "大份",
+        "grams": 200
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂常见鸡腿只重（去骨），非实测"
+    },
+    "kcalRange": [
+      165,
+      240
+    ],
+    "rangeNote": "差异主要来自带皮与否与酱汁含糖量"
+  },
+  {
+    "id": "braised-spareribs",
+    "name": "红烧排骨",
+    "aliases": [
+      "酱排骨",
+      "炖排骨"
+    ],
+    "cooking": "炖",
+    "category": "荤菜",
+    "per100g": {
+      "kcal": 280,
+      "protein": 16,
+      "fat": 20,
+      "carbs": 8
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "以猪排骨炖制折算，食用部分按去骨计，含糖色与收汁油脂"
+    },
+    "portions": [
+      {
+        "key": "half",
+        "label": "半份",
+        "grams": 70
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 140
+      },
+      {
+        "key": "large",
+        "label": "大份",
+        "grams": 210
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂常见排骨盘估重（去骨），非实测"
+    },
+    "kcalRange": [
+      235,
+      320
+    ],
+    "rangeNote": "差异主要来自肥瘦比例与收汁程度"
+  },
+  {
+    "id": "winter-melon-sparerib-soup",
+    "name": "冬瓜排骨汤",
+    "aliases": [
+      "冬瓜骨汤",
+      "排骨冬瓜汤"
+    ],
+    "cooking": "炖",
+    "category": "汤",
+    "per100g": {
+      "kcal": 32,
+      "protein": 2.5,
+      "fat": 2,
+      "carbs": 1.5
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "以冬瓜与排骨清炖折算，含少量肉末与浮油"
+    },
+    "portions": [
+      {
+        "key": "half",
+        "label": "半份",
+        "grams": 150
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 250
+      },
+      {
+        "key": "large",
+        "label": "大份",
+        "grams": 350
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂汤碗估重，非实测"
+    },
+    "kcalRange": [
+      20,
+      50
+    ],
+    "rangeNote": "差异主要来自汤内肉块量与是否撇油"
+  },
+  {
+    "id": "garlic-broccoli",
+    "name": "蒜蓉西兰花",
+    "aliases": [
+      "清炒西兰花",
+      "蒜香西兰花",
+      "西兰花"
+    ],
+    "cooking": "炒",
+    "category": "蔬菜",
+    "per100g": {
+      "kcal": 82,
+      "protein": 3.2,
+      "fat": 5.2,
+      "carbs": 5.8
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "以西兰花按蒜蓉清炒折算，含用油"
+    },
+    "portions": [
+      {
+        "key": "half",
+        "label": "半份",
+        "grams": 90
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 170
+      },
+      {
+        "key": "large",
+        "label": "大份",
+        "grams": 250
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂常见蔬菜盘估重，非实测"
+    },
+    "kcalRange": [
+      62,
+      105
+    ],
+    "rangeNote": "差异主要来自用油量与是否焯水"
+  },
+  {
+    "id": "dry-fried-green-beans",
+    "name": "干煸豆角",
+    "aliases": [
+      "干煸四季豆",
+      "干煸芸豆"
+    ],
+    "cooking": "炒",
+    "category": "蔬菜",
+    "per100g": {
+      "kcal": 170,
+      "protein": 3.5,
+      "fat": 13.5,
+      "carbs": 9.5
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "以四季豆按干煸做法（少量肉末、较多油）折算"
+    },
+    "portions": [
+      {
+        "key": "half",
+        "label": "半份",
+        "grams": 90
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 170
+      },
+      {
+        "key": "large",
+        "label": "大份",
+        "grams": 250
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂常见炒菜盘估重，非实测"
+    },
+    "kcalRange": [
+      130,
+      210
+    ],
+    "rangeNote": "差异主要来自肉末比例与用油量"
+  },
+  {
+    "id": "sweet-sour-pork",
+    "name": "糖醋里脊",
+    "aliases": [
+      "糖醋肉",
+      "炸里脊"
+    ],
+    "cooking": "炸",
+    "category": "荤菜",
+    "per100g": {
+      "kcal": 285,
+      "protein": 14,
+      "fat": 15,
+      "carbs": 25
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "以猪里脊挂糊油炸后裹糖醋汁折算，含淀粉糊"
+    },
+    "portions": [
+      {
+        "key": "half",
+        "label": "半份",
+        "grams": 80
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 160
+      },
+      {
+        "key": "large",
+        "label": "大份",
+        "grams": 240
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂常见荤菜盘估重，非实测"
+    },
+    "kcalRange": [
+      235,
+      330
+    ],
+    "rangeNote": "差异主要来自挂糊厚度与糖汁浓度"
+  },
+  {
+    "id": "steamed-egg",
+    "name": "蒸蛋",
+    "aliases": [
+      "水蒸蛋",
+      "鸡蛋羹",
+      "蒸水蛋"
+    ],
+    "cooking": "蒸",
+    "category": "蛋豆",
+    "per100g": {
+      "kcal": 72,
+      "protein": 6,
+      "fat": 4.5,
+      "carbs": 2.5
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "以鸡蛋加约等量水蒸制折算，含少量酱油与油"
+    },
+    "portions": [
+      {
+        "key": "small",
+        "label": "小碗",
+        "grams": 120
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 200
+      },
+      {
+        "key": "large",
+        "label": "大碗",
+        "grams": 300
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂常见蒸蛋碗估重，非实测"
+    },
+    "kcalRange": [
+      55,
+      92
+    ],
+    "rangeNote": "差异主要来自加水量与蛋水比例"
+  },
+  {
+    "id": "soy-milk",
+    "name": "豆浆",
+    "aliases": [
+      "甜豆浆",
+      "黄豆浆"
+    ],
+    "cooking": "煮",
+    "category": "蛋豆",
+    "per100g": {
+      "kcal": 48,
+      "protein": 2.8,
+      "fat": 1.5,
+      "carbs": 6
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "以黄豆磨浆（含少量糖）折算，按食堂常见浓度"
+    },
+    "portions": [
+      {
+        "key": "small",
+        "label": "小杯",
+        "grams": 200
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 300
+      },
+      {
+        "key": "large",
+        "label": "大杯",
+        "grams": 400
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂常见杯子估重，非实测"
+    },
+    "kcalRange": [
+      35,
+      65
+    ],
+    "rangeNote": "差异主要来自浓度与加糖量"
+  },
+  {
+    "id": "shredded-cabbage",
+    "name": "手撕包菜",
+    "aliases": [
+      "炒包菜",
+      "醋溜包菜",
+      "清炒圆白菜"
+    ],
+    "cooking": "炒",
+    "category": "蔬菜",
+    "per100g": {
+      "kcal": 88,
+      "protein": 1.8,
+      "fat": 7,
+      "carbs": 5.5
+    },
+    "source": {
+      "name": "中国食物成分表 第6版",
+      "note": "以圆白菜按手撕干锅炒做法折算，含较多油与少量辣椒"
+    },
+    "portions": [
+      {
+        "key": "half",
+        "label": "半份",
+        "grams": 90
+      },
+      {
+        "key": "standard",
+        "label": "标准份",
+        "grams": 170
+      },
+      {
+        "key": "large",
+        "label": "大份",
+        "grams": 250
+      }
+    ],
+    "portionSource": {
+      "name": "团队称重估算 2026-11",
+      "note": "食堂常见蔬菜盘估重，非实测"
+    },
+    "kcalRange": [
+      65,
+      115
+    ],
+    "rangeNote": "差异主要来自用油量"
+  }
+]

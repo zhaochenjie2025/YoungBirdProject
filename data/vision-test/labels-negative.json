@@ -1,0 +1,38 @@
+[
+  {
+    "file": "tomato-egg-2.jpg",
+    "dishId": "tomato-egg",
+    "group": "tomato-egg",
+    "title": "File:Tomato scrambled eggs noodles.jpg",
+    "sourceUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/d/d4/Tomato_scrambled_eggs_noodles.jpg/960px-Tomato_scrambled_eggs_noodles.jpg",
+    "note": "网络公开图片，仅用于链路验证",
+    "expectEmpty": true
+  },
+  {
+    "file": "braised-pork-0.jpg",
+    "dishId": "braised-pork",
+    "group": "braised-pork",
+    "title": "File:Red Braised Pork Belly Bao - Tiger Bites Pig 2025-11-20.jpg",
+    "sourceUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/6/64/Red_Braised_Pork_Belly_Bao_-_Tiger_Bites_Pig_2025-11-20.jpg/960px-Red_Braised_Pork_Belly_Bao_-_Tiger_Bites_Pig_2025-11-20.jpg",
+    "note": "网络公开图片，仅用于链路验证",
+    "expectEmpty": true
+  },
+  {
+    "file": "rice-2.jpg",
+    "dishId": "rice",
+    "group": "rice",
+    "title": "File:Ceramic bowl full of white rice.jpg",
+    "sourceUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/aa/Ceramic_bowl_full_of_white_rice.jpg/960px-Ceramic_bowl_full_of_white_rice.jpg",
+    "note": "网络公开图片，仅用于链路验证",
+    "expectEmpty": true
+  },
+  {
+    "file": "kung-pao-chicken-2.jpg",
+    "dishId": "kungpao-chicken",
+    "group": "kungpao-chicken",
+    "title": "File:Uncooked raw kung pao chicken.jpg",
+    "sourceUrl": "https://thumb.wikimedia.org/wikipedia/commons/thumb/a/a9/Uncooked_raw_kung_pao_chicken.jpg/960px-Uncooked_raw_kung_pao_chicken.jpg",
+    "note": "网络公开图片，仅用于链路验证",
+    "expectEmpty": true
+  }
+]

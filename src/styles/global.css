@@ -1,0 +1,125 @@
+/* S39O-cs-styles: 全局样式与设计令牌，所有组件只引用这里的变量，不写死颜色和间距。
+   实现 在 :root 定义颜色/间距/字号/圆角/动效令牌，并提供移动端安全区与基础排版。
+   原理 视觉方向一旦定稿只需替换这一处的令牌值，组件结构不用动；
+   令牌集中也保证同一层级的圆角、间距来自同一套比例，而不是各组件随手取值。 */
+
+:root {
+  /* 色彩 —— 暖中性底 + 单一强调色，强调色只用于主操作与热量数值 */
+  --bg: #f7f4ef;
+  --surface: #fffdf9;
+  --surface-2: #efe9e0;
+  --ink: #1c1a17;
+  --ink-2: #4a453e;
+  --ink-3: #7d766c;
+  --line: #ddd5c9;
+  --accent: #c2410c;
+  --accent-ink: #fff8f3;
+  --warn: #9a6700;
+  --warn-bg: #fdf3d7;
+  --ok: #2f6b4f;
+
+  /* 间距 —— 4px 基准的比例尺 */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 20px;
+  --s-6: 24px;
+  --s-8: 32px;
+  --s-10: 40px;
+  --s-12: 48px;
+
+  /* 字号 —— 1.2 倍上浮阶梯，正文针对中文取较高行高 */
+  --t-xs: 12px;
+  --t-sm: 14px;
+  --t-base: 16px;
+  --t-lg: 19px;
+  --t-xl: 23px;
+  --t-2xl: 28px;
+  --t-3xl: 34px;
+  --t-num: 44px;
+
+  /* 圆角 */
+  --r-sm: 8px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-full: 999px;
+
+  /* 动效 —— 只用 transform/opacity，时长统一 */
+  --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+  --dur: 180ms;
+
+  /* 安全区 */
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  color-scheme: light;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB',
+    'Microsoft YaHei', 'Noto Sans CJK SC', system-ui, sans-serif;
+  font-size: var(--t-base);
+  line-height: 1.65;
+  -webkit-font-smoothing: antialiased;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+}
+
+/* 数字一律等宽，避免热量数值跳动 */
+.num {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

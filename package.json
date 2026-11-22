@@ -1,0 +1,36 @@
+{
+  "name": "caloriesnap",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "卡路里拍立得 — 校园食堂饮食记录（纯前端 SPA）",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "typecheck": "tsc --noEmit",
+    "check:semantics": "node tools/check-semantics.mjs",
+    "check:dishes": "node tools/check-dishes.mjs",
+    "verify": "npm run check:semantics && npm run check:dishes && npm run typecheck && npm run test && vite build",
+    "smoke:vision": "tsx tools/smoke-vision.ts",
+    "smoke": "tsx tools/smoke.ts",
+    "eval:vision": "tsx tools/vision-eval.ts"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^26.6.6",
+    "@types/react": "^18.3.5",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.1",
+    "playwright-core": "^1.65.1",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.2",
+    "vite": "^5.4.6",
+    "vitest": "^2.1.1"
+  }
+}

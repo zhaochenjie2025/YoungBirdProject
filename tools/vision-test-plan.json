@@ -1,0 +1,10 @@
+[
+  { "dishId": "tomato-egg", "searchTerm": "stir fried tomato with eggs", "count": 3 },
+  { "dishId": "bok-choy", "searchTerm": "stir fried bok choy", "count": 3 },
+  { "dishId": "braised-pork", "searchTerm": "hong shao rou braised pork belly", "count": 3 },
+  { "dishId": "rice", "searchTerm": "bowl of cooked white rice", "count": 3 },
+  { "dishId": "potato-shreds", "searchTerm": "stir fried shredded potato", "count": 3 },
+  { "dishId": "kung-pao-chicken", "searchTerm": "kung pao chicken", "count": 3 },
+  { "dishId": "mapo-tofu", "searchTerm": "mapo tofu", "count": 3 },
+  { "dishId": "seaweed-egg-soup", "searchTerm": "seaweed egg drop soup", "count": 2 }
+]

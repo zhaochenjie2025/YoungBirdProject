@@ -1,0 +1,15 @@
+{
+  "srcExt": [
+    ".ts",
+    ".tsx",
+    ".mjs",
+    ".cjs",
+    ".css",
+    ".py"
+  ],
+  "skip": [
+    "explore",
+    "dist",
+    "tools/.cache"
+  ]
+}

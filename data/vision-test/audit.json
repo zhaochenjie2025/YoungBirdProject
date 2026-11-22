@@ -1,0 +1,135 @@
+[
+  {
+    "file": "tomato-egg-0.jpg",
+    "dishId": "tomato-egg",
+    "verdict": "correct",
+    "actuallyShows": "一盘番茄炒蛋，番茄块红亮、炒蛋金黄成块，带葱花，俯拍近景",
+    "reason": "番茄和鸡蛋都是主料，炒制成型，构图清晰，符合番茄炒蛋标准样本"
+  },
+  {
+    "file": "tomato-egg-1.jpg",
+    "dishId": "tomato-egg",
+    "verdict": "ambiguous",
+    "actuallyShows": "绿碗里大块番茄块配白色丝状蛋花/洋葱，光线昏暗，极近特写",
+    "reason": "主料是番茄和蛋，但蛋呈白色丝状几乎未凝，像没炒透的半成品，构图和画质都不适合当标准样本"
+  },
+  {
+    "file": "tomato-egg-2.jpg",
+    "dishId": "tomato-egg",
+    "verdict": "wrong",
+    "actuallyShows": "一碗番茄蛋花汤面，有面条、番茄、蛋花、白菜、香菜和辣椒油",
+    "reason": "这是番茄鸡蛋面汤而非番茄炒蛋，主食是面条，成品形态完全不同"
+  },
+  {
+    "file": "bok-choy-0.jpg",
+    "dishId": "stir-fried-greens",
+    "verdict": "correct",
+    "actuallyShows": "一盘清炒小白菜/青菜，带蒜片、芝麻和洋葱片，淋了深色酱汁，俯拍",
+    "reason": "青菜是绝对主料，炒制做法，符合清炒青菜"
+  },
+  {
+    "file": "bok-choy-1.jpg",
+    "dishId": "stir-fried-greens",
+    "verdict": "correct",
+    "actuallyShows": "白盘里一把清炒小白菜，叶片完整、带蒜蓉",
+    "reason": "典型清炒青菜，主料和做法都对得上，构图为正常的菜品照"
+  },
+  {
+    "file": "bok-choy-2.jpg",
+    "dishId": "stir-fried-greens",
+    "verdict": "ambiguous",
+    "actuallyShows": "什锦炒，含素虾仁（大块仿虾）、香菇、荷兰豆、白菜，酱汁浓稠，极近特写",
+    "reason": "多菜混合的什锦炒，白菜只是配料之一，素虾仁和香菇占主导，不是单一青菜"
+  },
+  {
+    "file": "braised-pork-0.jpg",
+    "dishId": "braised-pork",
+    "verdict": "wrong",
+    "actuallyShows": "一个刈包（割包）夹红烧五花肉，配香菜和花生碎，放在菜单上",
+    "reason": "红烧肉被夹进馒头做成刈包，属于包子类变形，不是一盘红烧肉"
+  },
+  {
+    "file": "braised-pork-1.jpg",
+    "dishId": "braised-pork",
+    "verdict": "correct",
+    "actuallyShows": "砂锅里满满一碗红亮油润的红烧五花肉块，带结块腐竹/面筋",
+    "reason": "典型红烧五花肉，色泽红亮、切块规整，主料和做法都对"
+  },
+  {
+    "file": "braised-pork-2.jpg",
+    "dishId": "braised-pork",
+    "verdict": "correct",
+    "actuallyShows": "黑色石锅里码着酱汁裹满的带皮五花肉方块，底下垫黄豆芽和青椒",
+    "reason": "带皮五花肉块酱炖收汁，符合红烧肉，垫菜不影响主料判断"
+  },
+  {
+    "file": "rice-0.jpg",
+    "dishId": "rice",
+    "verdict": "correct",
+    "actuallyShows": "蓝边白碗里一满碗熟白米饭，俯拍",
+    "reason": "主料就是熟白米饭，构图规整"
+  },
+  {
+    "file": "rice-1.jpg",
+    "dishId": "rice",
+    "verdict": "correct",
+    "actuallyShows": "浅口白碗里一满碗熟白米饭，俯拍近景",
+    "reason": "熟白米饭，主料对，构图正常"
+  },
+  {
+    "file": "rice-2.jpg",
+    "dishId": "rice",
+    "verdict": "wrong",
+    "actuallyShows": "深色碗里装的是生米粒，碗外还散落一堆生米，带水印 epSos.de",
+    "reason": "是生大米原料，不是蒸熟的米饭"
+  },
+  {
+    "file": "potato-shreds-1.jpg",
+    "dishId": "potato-shreds",
+    "verdict": "correct",
+    "actuallyShows": "青花边盘里一盘炒土豆丝，配红椒丝、青椒丝，带汤汁",
+    "reason": "土豆丝是主料，切丝炒制，符合土豆丝"
+  },
+  {
+    "file": "kung-pao-chicken-0.jpg",
+    "dishId": "kungpao-chicken",
+    "verdict": "correct",
+    "actuallyShows": "白方盘里宫保鸡丁：鸡丁、花生米、干辣椒段、大葱段，带红油",
+    "reason": "鸡丁、花生、干辣椒、葱段四要素齐全，典型宫保鸡丁"
+  },
+  {
+    "file": "kung-pao-chicken-1.jpg",
+    "dishId": "kungpao-chicken",
+    "verdict": "correct",
+    "actuallyShows": "白圆盘里宫保鸡丁，鸡丁、花生米、干辣椒、葱段，背景一小碗米饭",
+    "reason": "主料和配料齐全，宫保鸡丁做法明确"
+  },
+  {
+    "file": "kung-pao-chicken-2.jpg",
+    "dishId": "kungpao-chicken",
+    "verdict": "wrong",
+    "actuallyShows": "生鸡丁裹橙色腌料，拌着玉米粒和青豆，是未烹饪的生食材",
+    "reason": "这是生腌鸡肉原料，没有花生、干辣椒，也不是炒好的宫保鸡丁"
+  },
+  {
+    "file": "mapo-tofu-0.jpg",
+    "dishId": "mapo-tofu",
+    "verdict": "correct",
+    "actuallyShows": "白碗里麻婆豆腐：豆腐块泡在红油里，撒了花椒粉、肉末和葱花，俯拍",
+    "reason": "豆腐块加红油、花椒末、肉末，典型麻婆豆腐"
+  },
+  {
+    "file": "mapo-tofu-1.jpg",
+    "dishId": "mapo-tofu",
+    "verdict": "correct",
+    "actuallyShows": "大白盘里豆腐块配肉末酱汁，压在米饭上，酱色偏浅",
+    "reason": "豆腐块加肉末烧制，是家常版麻婆豆腐盖饭，主料和做法都对"
+  },
+  {
+    "file": "mapo-tofu-2.jpg",
+    "dishId": "mapo-tofu",
+    "verdict": "correct",
+    "actuallyShows": "深色陶碗里麻婆豆腐：豆腐块浸在酱汁里，带肉末、花椒粉和青椒圈",
+    "reason": "豆腐块、肉末、花椒、酱汁都对，符合麻婆豆腐"
+  }
+]
