@@ -48,6 +48,16 @@ npm run smoke        # 浏览器端到端冒烟（需先 vite preview 起在 527
 - **识别准确率**：目前只在 13 张公开图片的干净子集上验证（13/13），样本量远不足 PRD 要求的 100 张独立测试图。
 - **生产端点未联调**：本机没有 DeepSeek API key，识别与建议只在本地模型网关（Anthropic 格式）上验证过，OpenAI 格式的生产调用路径尚未用真实 key 跑通。
 
+## 结题测试工具
+
+PRD 第四章的三个指标需要团队采集的真实数据，工具已备好：
+
+| 指标 | 工具 | 说明 |
+|---|---|---|
+| 单菜识别准确率 | `npm run eval:vision` | 需 `data/vision-test/labels-*.json` 与图片 |
+| 热量估算 MAPE | `python3 tools/eval-calorie.py 参考表.csv 记录.json` | 参考表由实测重量与配方算出 |
+| 使用效率 | `python3 tools/eval-usage.py 记录表.csv` | 方案见 [docs/USABILITY-TEST.md](docs/USABILITY-TEST.md) |
+
 ## 目录
 
 ```
