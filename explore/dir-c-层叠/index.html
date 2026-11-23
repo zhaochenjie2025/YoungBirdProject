@@ -88,17 +88,20 @@ body::after{
 .num{font-family:var(--mono);font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 
 /* ============ 卡片堆栈舞台 ============ */
-.stage{position:relative;perspective:1100px;perspective-origin:50% 6%;margin:0 -2px;padding-top:calc(var(--peek,26px) * 3 + 14px)}
+/* 卡厚 ∝ 该道菜千卡：每张被压住的卡露出 band = 30 + 千卡*0.03（钳在 30–46px），
+   于是整叠的抬升高度随整餐热量增长——「整餐热量是这叠卡的合力」在几何上成立。
+   JS 逐卡写入 --ty（累积抬升量）与 --band。 */
+.stage{position:relative;perspective:1100px;perspective-origin:50% 2%;margin:0 -2px;padding-top:calc(var(--rise,0px) + 44px)}
 .deck{position:relative;height:var(--card-h,236px)}
 .deck-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
 /* cf-justify: 这是一张实体菜卡，矩形是母题本身（可推开/翻起/叠合的卡片），圆角模拟切好的硬纸卡四角；材质靠多层 background 渐变+纸纤维颗粒+胶带+类别色条+三层推导阴影堆出，非默认容器 */
 .dish-card{
   position:absolute;left:0;right:0;top:0;height:var(--card-h,236px);
-  border-radius:11px;
+  border-radius:11px; /* cf-justify: 实体菜卡切角，母题本体 */
   transform-origin:50% 0%;
   transform:
     translateX(var(--dx,0px))
-    translateY(calc(var(--i) * var(--peek,26px) * -1))
+    translateY(var(--ty,0px))
     translateZ(calc(var(--i) * -30px))
     rotateX(calc(var(--i) * 1.15deg))
     rotateY(var(--dry,0deg))
@@ -185,7 +188,16 @@ body::after{
 .dish-card.is-deep .card-kcal b{font-size:14px;line-height:1.1}
 .dish-card.is-deep .card-kcal span{display:none}
 .dish-card.is-deep .tape{display:none}
-.deck-more{position:absolute;left:0;right:2px;top:0;text-align:right;font-size:11px;color:var(--cream-72);letter-spacing:.04em;line-height:1;z-index:70;pointer-events:none}
+/* 被隐藏的更老菜卡：画成这叠卡底部一摞加厚侧边（层叠棱边），计数长在卡堆上而非浮字 */
+/* cf-justify: 被隐藏的更老菜卡画成这叠底部一摞加厚侧边，圆角是纸卡切角，属母题 */
+.deck-slab{display:none;position:absolute;left:10px;right:10px;top:calc(-1 * var(--rise,0px));border-radius:6px;
+  background:
+    repeating-linear-gradient(180deg, rgba(120,96,64,.30) 0 1px, rgba(243,236,221,.9) 1px 3px, rgba(203,187,160,.9) 3px 4px),
+    linear-gradient(180deg,var(--paper),var(--paper-lo));
+  box-shadow:0 3px 0 rgba(120,96,64,.4),0 10px 20px rgba(6,4,2,.4);
+  transform:translateZ(-140px) scale(.94);transform-origin:50% 0;z-index:1}
+.deck-slab span{position:absolute;left:14px;bottom:9px;font-size:11px;color:var(--ink-2);letter-spacing:.04em;
+  background:var(--paper-hi);padding:2px 7px;border-radius:3px;border:1px solid rgba(120,96,64,.3)}
 
 /* 份量芯片：硬纸卡上的刻位 */
 .chip{
@@ -197,7 +209,6 @@ body::after{
 .chip:active{transform:scale(.94)}
 .grams-edit{display:flex;align-items:center;gap:4px;font-size:11.5px;color:var(--ink-3)}
 .grams-edit b{font-family:var(--mono);color:var(--ink);font-size:12.5px}
-.card-grip{width:24px;height:24px;border-radius:50%;border:1px solid rgba(90,70,44,.35);display:grid;place-items:center;color:var(--ink-2);font-size:15px;line-height:1;background:rgba(255,255,255,.3)}
 
 /* ============ 小票纸带 ============ */
 .tape-wrap{position:relative;margin:18px auto 0;width:calc(100% - 34px);max-width:330px;transition:transform .45s cubic-bezier(.2,1.1,.3,1),opacity .4s ease}
@@ -232,12 +243,23 @@ body::after{
 .rc-macros .na b{font-family:var(--font);font-size:12px;color:var(--ink-3);font-weight:400}
 .rc-foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
 .rc-src{font-size:11px;color:var(--ink-3);line-height:1.5;max-width:64%}
+/* 橡皮章：不规则墨迹边 + 轻微重印偏移，不再是一个均匀圆角标签 */
 .stamp{
-  font-family:"Songti SC",serif;font-weight:700;color:var(--seal);border:2px solid var(--seal);
-  border-radius:6px;padding:3px 8px;font-size:12px;letter-spacing:.16em;transform:rotate(-7deg);
-  opacity:.86;mix-blend-mode:multiply;box-shadow:0 0 0 1px rgba(168,50,42,.25) inset;
+  position:relative;font-family:"Songti SC",serif;font-weight:700;color:var(--seal);
+  padding:4px 10px;font-size:12px;letter-spacing:.16em;transform:rotate(-7deg);
+  opacity:.9;mix-blend-mode:multiply;text-shadow:.5px .5px 0 rgba(168,50,42,.18);
+  -webkit-mask:
+    radial-gradient(circle at 3px 50%, #000 1.6px, transparent 2.1px) left / 6px 100% repeat-x,
+    radial-gradient(circle at calc(100% - 3px) 50%, #000 1.6px, transparent 2.1px) right / 6px 100% repeat-x,
+    linear-gradient(#000,#000) center / calc(100% - 8px) 100% no-repeat;
+  mask:
+    radial-gradient(circle at 3px 50%, #000 1.6px, transparent 2.1px) left / 6px 100% repeat-x,
+    radial-gradient(circle at calc(100% - 3px) 50%, #000 1.6px, transparent 2.1px) right / 6px 100% repeat-x,
+    linear-gradient(#000,#000) center / calc(100% - 8px) 100% no-repeat;
 }
-.stamp.pending{color:var(--accent);border-color:var(--accent)}
+.stamp::before{content:"";position:absolute;inset:0;border:2px solid var(--seal);mask:inherit;-webkit-mask:inherit;opacity:.9}
+.stamp.pending{color:var(--accent)}
+.stamp.pending::before{border-color:var(--accent)}
 .rc-empty{font-size:12.5px;color:var(--ink-3);text-align:center;padding:10px 0 4px;line-height:1.6}
 
 /* ============ 底部操作坞 + 快门 ============ */
@@ -257,17 +279,28 @@ body::after{
 .shutter svg{position:relative;z-index:2;width:24px;height:24px;stroke:#f2e3bd;stroke-width:1.8;fill:none}
 .shutter:active{transform:scale(.94)}
 .shutter .ring{position:absolute;inset:-5px;border-radius:50%;border:1px dashed rgba(201,162,95,.45)}
-.dock .save{display:inline-flex;flex-direction:column;align-items:flex-end;gap:1px;border:0;background:none;color:var(--cream);cursor:pointer;padding:6px 2px}
-.dock .save b{font-size:13.5px;letter-spacing:.05em}
-.dock .save span{font-size:11px;color:var(--cream-72)}
-.dock .save:disabled{opacity:.35;cursor:default}
+/* cf-justify: 结账是有物理形态的黄铜压铸按键（圆形高光+内阴影），不是默认圆角按钮 */
+.dock .save{display:inline-flex;flex-direction:column;align-items:center;gap:1px;border:0;cursor:pointer;padding:9px 16px;border-radius:9px;
+  color:#2a1b0c;background:radial-gradient(circle at 50% 28%,#f7e9c8,#d9b878 58%,#b48a48 100%);
+  box-shadow:0 1px 0 rgba(255,246,222,.7) inset,0 -2px 0 rgba(90,60,20,.35) inset,0 5px 12px rgba(0,0,0,.4);
+  transition:transform .14s,box-shadow .2s,opacity .2s}
+.dock .save b{font-size:14px;letter-spacing:.12em;font-family:"Songti SC",serif;font-weight:700}
+.dock .save span{font-size:11px;color:rgba(58,38,14,.82);letter-spacing:.02em}
+.dock .save:active{transform:scale(.95)}
+.dock .save:disabled{opacity:.3;cursor:default;box-shadow:0 1px 0 rgba(255,246,222,.4) inset,0 3px 8px rgba(0,0,0,.3)}
+/* 已有菜后：快门降级、结账升为主操作 */
+.dock.has-items .shutter{width:56px;height:56px}
+.dock.has-items .shutter svg{width:20px;height:20px}
+.dock.has-items .shutter .ring{inset:-4px}
+.dock:not(.has-items) .save b{font-size:13.5px}
 
 /* ============ 底部导航：文件袋纸标签 ============ */
 .nav{position:relative;z-index:90;display:flex;gap:6px;padding:0 10px calc(8px + var(--safe-b));background:var(--table-3);border-top:1px solid rgba(201,162,95,.18)}
+/* cf-justify: 底部导航是文件袋纸标签，只有上方两角圆，嵌进底板，属母题 */
 .nav button{
   flex:1;border:0;background:linear-gradient(180deg,#3a322a,#241f1a);color:rgba(246,239,225,.62);
   padding:9px 4px 10px;font-size:11.5px;letter-spacing:.06em;cursor:pointer;position:relative;
-  display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:8px 8px 0 0;
+  display:flex;flex-direction:column;align-items:center;gap:3px;border-radius:8px 8px 0 0; /* cf-justify: 文件袋纸标签，仅上方两角圆 */
   box-shadow:0 1px 0 rgba(255,255,255,.06) inset;transition:color .2s,background .2s,transform .2s;
 }
 .nav button svg{width:19px;height:19px;stroke:currentColor;stroke-width:1.7;fill:none}
@@ -275,29 +308,52 @@ body::after{
 .nav button.on::after{content:"";position:absolute;left:14%;right:14%;bottom:4px;height:2px;background:var(--brass);border-radius:2px;box-shadow:0 0 8px rgba(201,162,95,.7)}
 </style>
 <style>
-/* ============ 今日：已录餐次小叠 + 空状态 ============ */
+/* ============ 今日：已录餐次 = 桌上几摞实体卡，摞的厚薄 = 该餐热量 ============ */
 .page-h{display:flex;align-items:baseline;justify-content:space-between;margin:6px 0 2px}
 .page-h h1{font-family:"Songti SC","STSong",serif;font-size:26px;margin:0;letter-spacing:.04em;color:var(--cream);font-weight:700}
 .page-h .sub{font-size:12px;color:var(--cream-72);letter-spacing:.04em}
-.meal-row{display:grid;grid-template-columns:60px 1fr;gap:12px;align-items:stretch;margin-top:12px;cursor:pointer}
-.meal-row .when{display:flex;flex-direction:column;justify-content:center;padding:2px 0}
-.meal-row .when b{font-family:"Songti SC",serif;font-size:16px;color:var(--cream);letter-spacing:.04em}
-.meal-row .when span{font-family:var(--mono);font-size:11px;color:var(--cream-72);margin-top:2px}
-.mini-stack{position:relative;display:flex;flex-direction:column;gap:0}
-.mini-item{display:flex;align-items:center;justify-content:space-between;gap:10px;background:linear-gradient(180deg,var(--paper-hi),var(--paper));
-  border:1px solid rgba(255,255,255,.5);border-left:5px solid var(--cat);border-radius:7px;padding:9px 11px;color:var(--ink);
-  box-shadow:var(--sh-a),0 3px 8px rgba(0,0,0,.28);transform-origin:50% 0;
+.meal-block{margin-top:16px;cursor:pointer}
+.meal-block .mb-head{display:flex;align-items:baseline;gap:8px;margin-bottom:9px}
+.meal-block .mb-head b{font-family:"Songti SC",serif;font-size:16px;color:var(--cream);letter-spacing:.04em}
+.meal-block .mb-head span{font-family:var(--mono);font-size:11px;color:var(--cream-72)}
+.meal-block .mb-head .mb-sum{margin-left:auto;font-size:12px;color:var(--cream-72);letter-spacing:.04em}
+.meal-block .mb-head .mb-sum b{font-family:var(--mono);font-size:15px;color:var(--brass);margin-left:3px}
+/* 一摞：每道菜一张被压住的纸卡，露出高度 ∝ 该菜千卡；卡面带宏量刻条+打孔+出处，与新建页同档工艺 */
+.tstack{position:relative;perspective:900px}
+/* cf-justify: 今日餐次小叠卡，同一实体菜卡母题，左上直角+右下纸卡切角 */
+.tstack .tcard{position:relative;display:flex;flex-direction:column;justify-content:center;gap:4px;
+  height:var(--bh,64px);margin-top:-14px;
+  background:
+    radial-gradient(circle at calc(100% - 16px) 13px, var(--table) 0 3.6px, rgba(0,0,0,.4) 3.9px 4.6px, rgba(255,255,255,.3) 4.8px 5.4px, transparent 5.6px),
+    repeating-linear-gradient(93deg,rgba(150,120,80,.045) 0 2px,transparent 2px 5px),
+    linear-gradient(180deg,var(--paper-hi),var(--paper) 62%,var(--paper-lo));
+  border:1px solid rgba(255,255,255,.55);border-left:6px solid var(--cat);border-radius:8px 8px 3px 3px; /* cf-justify: 今日小叠卡，菜卡切角 */
+  padding:8px 12px 8px 14px;color:var(--ink);transform-origin:50% 0;
+  box-shadow:0 -1px 0 rgba(120,96,64,.28) inset,0 1px 0 rgba(120,96,64,.3),0 4px 10px rgba(6,4,2,.3);
   transition:transform .3s cubic-bezier(.2,1.1,.3,1)}
-.mini-item+.mini-item{margin-top:-6px;transform:translateY(calc(var(--j)* -3px)) scale(calc(1 - var(--j)*.012));z-index:calc(10 - var(--j))}
-.mini-item .nm{font-size:13px;font-weight:600;display:flex;align-items:center;gap:6px}
-.mini-item .nm i{font-style:normal;font-size:11px;color:var(--ink-3);font-weight:400}
-.mini-item .kc{font-family:var(--mono);font-size:13px;color:var(--ink-2);white-space:nowrap}
-.mini-item .kc.na{font-family:var(--font);font-size:11px;color:var(--seal)}
-.meal-row .meal-total{grid-column:2;display:flex;align-items:center;justify-content:space-between;margin-top:9px;padding-left:2px}
-.meal-row .meal-total .t{font-size:12px;color:var(--cream-72);letter-spacing:.04em}
-.meal-row .meal-total .t b{font-family:var(--mono);font-size:16px;color:var(--brass);font-weight:600;margin-left:2px}
+.tstack .tcard:first-child{margin-top:0}
+.tstack .tcard .trow{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.tstack .tcard .tname{font-size:14.5px;font-weight:700;font-family:"Songti SC",serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tstack .tcard .tname i{font-style:normal;font-size:10.5px;color:var(--ink-3);font-weight:400;margin-left:6px;font-family:var(--font)}
+.tstack .tcard .tkc{font-family:var(--mono);font-size:13.5px;color:var(--ink);white-space:nowrap;font-weight:600}
+.tstack .tcard .tkc.na{font-family:var(--font);font-size:11px;color:var(--seal);font-weight:400}
+.tstack .tcard .tmac{display:flex;gap:10px;font-size:10px;color:var(--ink-3);line-height:1;letter-spacing:.02em}
+.tstack .tcard .tmac b{font-family:var(--mono);color:var(--ink-2);font-weight:600;margin-left:2px}
+/* 合计：印在卡摞下方、像账单落款，不浮在空气里 */
+.meal-block .mb-foot{display:flex;align-items:center;justify-content:space-between;margin-top:9px;padding-left:2px}
+.meal-block .mb-foot .ft{font-size:11.5px;color:var(--cream-72);letter-spacing:.04em}
+.meal-block .mb-foot .ft b{font-family:var(--mono);font-size:13px;color:var(--cream);font-weight:500;margin-left:2px}
+.meal-block .mb-foot svg{opacity:.5}
+.meal-block:active .tcard{transform:translateY(-2px)}
+/* 未记录餐次：一张空白的虚线菜卡留位，明示「这里还能叠」 */
+.slot-invite{display:flex;align-items:center;gap:9px;height:56px;padding:0 14px;border-radius:8px 8px 3px 3px;
+  border:1.5px dashed rgba(201,162,95,.42);background:linear-gradient(180deg,rgba(243,236,221,.05),rgba(243,236,221,.02));
+  color:var(--cream-72);font-size:12.5px;letter-spacing:.02em}
+.slot-invite .si-plus{width:22px;height:22px;border-radius:50%;border:1px solid rgba(201,162,95,.5);display:grid;place-items:center;
+  color:var(--brass);font-size:15px;line-height:1;flex:none}
 
 .empty-deck{position:relative;margin:34px auto 0;width:min(320px,86%);aspect-ratio:1/.78;perspective:900px}
+/* cf-justify: 空状态虚影卡，沿用菜卡母题轮廓 */
 .empty-deck .ghost-card{position:absolute;left:0;right:0;top:0;height:62%;border-radius:11px;
   background:linear-gradient(180deg,rgba(243,236,221,.10),rgba(243,236,221,.04));border:1.5px dashed rgba(201,162,95,.4);
   transform-origin:50% 0;transform:translateY(calc(var(--i)* -14px)) rotateX(calc(var(--i)*1.4deg)) scale(calc(1 - var(--i)*.03));
@@ -305,11 +361,23 @@ body::after{
 .empty-deck .hint{position:absolute;left:50%;top:64%;transform:translate(-50%,-50%);text-align:center;width:90%}
 .empty-deck .hint p{margin:0 0 4px;font-size:14px;color:var(--cream);letter-spacing:.02em;line-height:1.5}
 .empty-deck .hint small{font-size:11.5px;color:var(--cream-72);letter-spacing:.03em}
-.empty-deck .cam{position:absolute;left:50%;top:0;transform:translate(-50%,-34%);width:54px;height:54px;border-radius:14px;
-  background:linear-gradient(180deg,#f0dfb8,#c9a25f);display:grid;place-items:center;box-shadow:0 8px 20px rgba(0,0,0,.4),0 1px 0 rgba(255,246,222,.6) inset}
+/* cf-justify: 空状态相机入口是一枚黄铜圆盘（圆形，非矩形卡片），承接母题的实物流水 */
+.empty-deck .cam{position:absolute;left:50%;top:0;transform:translate(-50%,-34%);width:54px;height:54px;border-radius:50%;
+  background:radial-gradient(circle at 50% 32%,#f7e9c8,#d9b878 50%,#a8803f 100%);display:grid;place-items:center;
+  box-shadow:0 3px 0 rgba(255,246,222,.4) inset,0 -3px 0 rgba(60,40,16,.5) inset,0 8px 20px rgba(0,0,0,.45)}
 .empty-deck .cam svg{width:26px;height:26px;stroke:#5a3f1c;stroke-width:1.7;fill:none}
 
-/* ============ 单餐结果：详情 + 展开 ============ */
+/* 今日合力：印在卡摞下方的桌面落款，把整天的合力落在桌上而不是浮空 */
+.today-ledger{margin-top:22px;padding:14px 2px 2px;border-top:1px solid rgba(201,162,95,.22);
+  display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.today-ledger .tl-k{font-size:12px;color:var(--cream-72);letter-spacing:.16em;align-self:center}
+.today-ledger .tl-v{font-family:var(--mono);font-size:40px;line-height:.84;font-weight:600;color:var(--brass);letter-spacing:-.03em}
+.today-ledger .tl-v small{font-size:13px;color:var(--cream-72);letter-spacing:.06em;margin-left:4px;font-weight:400}
+.today-ledger .tl-mac{display:flex;gap:0;margin-top:0;padding-top:0}
+.today-ledger .tl-mac div{padding:0 10px;border-left:1px solid rgba(201,162,95,.2);text-align:right}
+.today-ledger .tl-mac b{display:block;font-family:var(--mono);font-size:14px;color:var(--cream);font-weight:600}
+.today-ledger .tl-mac span{font-size:10.5px;color:var(--cream-72);letter-spacing:.1em}
+.today-ledger .tl-mac .na b{font-family:var(--font);font-size:12px;color:#e0a072;font-weight:400}
 /* cf-justify: 单餐结果是一张放大摊平的菜卡/账单，继承同一卡片母语与纸面材质 */
 .result-hero{position:relative;margin-top:8px;padding:18px 18px 16px;border-radius:14px;
   background:
@@ -321,33 +389,42 @@ body::after{
 .result-hero .rh-kcal{display:flex;align-items:flex-end;gap:8px;margin-top:6px}
 .result-hero .rh-kcal b{font-family:var(--mono);font-size:52px;line-height:.84;font-weight:600;letter-spacing:-.03em}
 .result-hero .rh-kcal small{font-size:13px;color:var(--ink-3);margin-bottom:6px}
-.result-hero .rh-range{font-size:11.5px;color:var(--ink-2);margin-top:8px;padding:6px 9px;background:rgba(201,162,95,.15);border-radius:6px;border-left:3px solid var(--brass);line-height:1.4}
-.rh-analysis{margin-top:10px;font-size:12.5px;line-height:1.6;color:var(--ink-2);border-top:1px dashed rgba(120,96,64,.4);padding-top:10px}
+/* 区间参考：账单页脚细字 + 荧光笔划，不做浅底提示框 */
+.rh-range{font-size:11.5px;color:var(--ink-2);margin-top:9px;line-height:1.5;padding:0 2px}
+.rh-range b{font-family:var(--mono);font-weight:600;color:var(--ink);background:linear-gradient(180deg,transparent 58%,rgba(201,162,95,.55) 58%,rgba(201,162,95,.55) 92%,transparent 92%);padding:0 1px}
+.rh-analysis{margin-top:12px;font-size:12.5px;line-height:1.6;color:var(--ink-2);border-top:1px dashed rgba(120,96,64,.4);padding-top:10px}
 .rh-analysis b{color:var(--seal)}
-.rh-advice{margin-top:10px;font-size:12.5px;line-height:1.6;color:var(--ink-2);background:rgba(78,124,91,.10);border-radius:8px;padding:10px 11px;border:1px solid rgba(78,124,91,.25)}
-.rh-advice .lbl{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:#3c6247;letter-spacing:.06em;margin-bottom:4px}
-.rh-advice .lbl::before{content:"";width:6px;height:6px;border-radius:50%;background:#4e7c5b}
+/* 膳食建议：页边手批，无绿底无圆角框无圆点 */
+.rh-advice{margin-top:12px;font-size:13px;line-height:1.55;color:#4a3f33;position:relative;padding:2px 0 2px 24px;
+  font-family:"Kaiti SC","STKaiti",serif}
+.rh-advice::before{content:"";position:absolute;left:2px;top:4px;bottom:4px;width:2px;background:var(--seal);opacity:.55;transform:rotate(-1.2deg)}
+.rh-advice .lbl{font-size:11px;color:var(--seal);letter-spacing:.1em;display:block;margin-bottom:3px;font-family:var(--font)}
 
-.detail-list{margin-top:14px;display:flex;flex-direction:column;gap:8px}
-.dt-item{background:linear-gradient(180deg,rgba(243,236,221,.07),rgba(243,236,221,.03));border:1px solid rgba(201,162,95,.22);border-radius:10px;overflow:hidden;transition:background .25s}
-.dt-item.open{background:linear-gradient(180deg,rgba(243,236,221,.11),rgba(243,236,221,.05));border-color:rgba(201,162,95,.4)}
+/* 结果明细 = 摊在桌面上的菜卡：纸面材质、左缘类别色条、直角切纸，不再是暗色折叠行 */
+.detail-list{margin-top:14px;display:flex;flex-direction:column;gap:9px}
+.dt-item{position:relative;background:
+    repeating-linear-gradient(93deg,rgba(150,120,80,.045) 0 2px,transparent 2px 5px),
+    linear-gradient(180deg,var(--paper-hi),var(--paper) 60%,var(--paper-lo));
+  border:1px solid rgba(255,255,255,.55);border-left:6px solid var(--cat);border-radius:2px 8px 8px 2px;
+  overflow:hidden;color:var(--ink);box-shadow:0 1px 0 rgba(120,96,64,.3),0 5px 12px rgba(6,4,2,.32);
+  transition:box-shadow .3s,transform .3s}
+.dt-item.open{box-shadow:0 1px 0 rgba(120,96,64,.3),0 10px 22px rgba(6,4,2,.42)}
 .dt-head{display:flex;align-items:center;gap:10px;padding:12px 13px;cursor:pointer}
-.dt-swatch{width:9px;height:34px;border-radius:3px;background:var(--cat);flex:none;box-shadow:inset -1px 0 0 rgba(0,0,0,.25)}
 .dt-head .nm{flex:1;min-width:0}
-.dt-head .nm b{font-family:"Songti SC",serif;font-size:15px;color:var(--cream);font-weight:600}
-.dt-head .nm span{display:block;font-size:11px;color:var(--cream-72);margin-top:1px}
-.dt-head .kc{font-family:var(--mono);font-size:15px;color:var(--brass);text-align:right;white-space:nowrap}
-.dt-head .kc.na{font-family:var(--font);font-size:11.5px;color:#e08a72}
-.dt-head .arw{width:16px;height:16px;stroke:var(--cream-72);stroke-width:1.6;fill:none;transition:transform .3s;flex:none}
+.dt-head .nm b{font-family:"Songti SC",serif;font-size:16px;color:var(--ink);font-weight:700}
+.dt-head .nm span{display:block;font-size:11px;color:var(--ink-3);margin-top:1px}
+.dt-head .kc{font-family:var(--mono);font-size:16px;color:var(--ink);text-align:right;white-space:nowrap;font-weight:600}
+.dt-head .kc.na{font-family:var(--font);font-size:11.5px;color:var(--seal);font-weight:400}
+.dt-head .arw{width:16px;height:16px;stroke:var(--ink-3);stroke-width:1.6;fill:none;transition:transform .3s;flex:none}
 .dt-item.open .arw{transform:rotate(180deg)}
 .dt-body{max-height:0;overflow:hidden;transition:max-height .4s ease}
 .dt-item.open .dt-body{max-height:360px}
-.dt-body-in{padding:2px 13px 13px 32px;font-size:12px;color:var(--cream-72);line-height:1.7}
+.dt-body-in{padding:2px 14px 14px;font-size:12px;color:var(--ink-2);line-height:1.7;border-top:1px dashed rgba(120,96,64,.4);margin-top:2px;padding-top:11px}
 .dt-grid{display:grid;grid-template-columns:auto 1fr;gap:5px 12px;margin-bottom:9px}
-.dt-grid dt{color:var(--cream-72)}
-.dt-grid dd{margin:0;color:var(--cream);font-family:var(--mono);font-size:11.5px;text-align:right}
-.dt-src{font-size:11px;color:rgba(246,239,225,.55);border-top:1px dashed rgba(201,162,95,.22);padding-top:8px;line-height:1.5}
-.dt-src b{color:rgba(246,239,225,.8);font-weight:500}
+.dt-grid dt{color:var(--ink-3)}
+.dt-grid dd{margin:0;color:var(--ink);font-family:var(--mono);font-size:11.5px;text-align:right}
+.dt-src{font-size:11px;color:var(--ink-3);border-top:1px dashed rgba(120,96,64,.35);padding-top:8px;line-height:1.5}
+.dt-src b{color:var(--ink-2);font-weight:600}
 
 /* ============ 周视图：层叠柱 + 未记录/不完整 ============ */
 .week-strip{display:flex;gap:7px;justify-content:space-between;align-items:flex-end;margin-top:20px;padding-bottom:6px}
@@ -372,17 +449,25 @@ body::after{
 .week-legend i{width:9px;height:9px;border-radius:2px;display:inline-block}
 .week-legend i.dash{background:repeating-linear-gradient(90deg,rgba(201,162,95,.5) 0 3px,transparent 3px 6px)}
 .week-legend i.dot{background:var(--accent);border-radius:50%}
+/* 周汇总三格：做成钉在桌上的三张小票据（直角撕边），不是暗色圆角面板 */
 .week-summary{display:flex;gap:10px;margin-top:20px}
-.ws-cell{flex:1;background:linear-gradient(180deg,rgba(243,236,221,.08),rgba(243,236,221,.03));border:1px solid rgba(201,162,95,.2);border-radius:10px;padding:11px 12px}
-.ws-cell b{display:block;font-family:var(--mono);font-size:20px;color:var(--brass);font-weight:600;letter-spacing:-.02em}
-.ws-cell span{font-size:11px;color:var(--cream-72);letter-spacing:.04em}
+.ws-cell{flex:1;position:relative;background:linear-gradient(180deg,var(--paper-hi),var(--paper) 70%,var(--paper-lo));
+  border:1px solid rgba(255,255,255,.5);border-radius:3px;padding:12px 12px 13px;color:var(--ink);
+  box-shadow:0 1px 0 rgba(120,96,64,.3),0 5px 12px rgba(6,4,2,.3)}
+.ws-cell::before{content:"";position:absolute;left:0;right:0;top:-5px;height:5px;background:inherit;
+  -webkit-mask:repeating-linear-gradient(90deg,#000 0 6px,transparent 6px 9px);mask:repeating-linear-gradient(90deg,#000 0 6px,transparent 6px 9px)}
+.ws-cell b{display:block;font-family:var(--mono);font-size:21px;color:var(--ink);font-weight:600;letter-spacing:-.02em}
+.ws-cell span{font-size:11px;color:var(--ink-3);letter-spacing:.04em}
 
-/* 提示 toast */
-.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 74px);transform:translate(-50%,-10px);z-index:200;
-  background:rgba(28,25,22,.96);border:1px solid rgba(201,162,95,.4);color:var(--cream);font-size:12.5px;
-  padding:10px 16px;border-radius:9px;box-shadow:0 10px 28px rgba(0,0,0,.5);opacity:0;pointer-events:none;
+/* 提示 toast：一张被拍在桌上的小纸条（直角撕边 + 投影 + 轻旋转），与印章同源 */
+.toast{position:fixed;left:50%;top:calc(env(safe-area-inset-top,0px) + 70px);transform:translate(-50%,-10px) rotate(-1.5deg);z-index:200;
+  background:linear-gradient(180deg,var(--paper-hi),var(--paper));color:var(--ink);font-size:12.5px;font-weight:500;
+  padding:9px 15px 10px;border-radius:2px;border-left:3px solid var(--brass);
+  box-shadow:0 8px 22px rgba(0,0,0,.45),0 1px 0 rgba(120,96,64,.3);opacity:0;pointer-events:none;
   transition:opacity .3s,transform .3s;white-space:nowrap}
-.toast.show{opacity:1;transform:translate(-50%,0)}
+.toast::after{content:"";position:absolute;left:0;right:0;bottom:-4px;height:4px;background:inherit;
+  -webkit-mask:repeating-linear-gradient(90deg,#000 0 5px,transparent 5px 8px);mask:repeating-linear-gradient(90deg,#000 0 5px,transparent 5px 8px)}
+.toast.show{opacity:1;transform:translate(-50%,0) rotate(-1.5deg)}
 
 @media (max-width:374px){
   .wrap{padding:0 13px}
@@ -390,14 +475,13 @@ body::after{
   .card-kcal b{font-size:22px}
   .rc-total .v{font-size:40px}
   .result-hero .rh-kcal b{font-size:46px}
-  .meal-row{grid-template-columns:50px 1fr;gap:9px}
   .week-strip{gap:4px}
   .wk-card{height:11px}
   .wk-bar{height:112px}
   .topbar{padding-top:14px}
 }
 @media (prefers-reduced-motion:reduce){
-  .dish-card,.chip,.btn-ghost,.shutter,.mini-item,.dt-body,.nav button,.wk-card,.tape-wrap,.toast{transition-duration:.01ms!important}
+  .dish-card,.chip,.btn-ghost,.shutter,.dt-body,.nav button,.wk-card,.tape-wrap,.toast,.tcard{transition-duration:.01ms!important}
   .dish-card{will-change:auto}
 }
 </style>
@@ -450,7 +534,7 @@ body::after{
       </div>
       <div class="rule"></div>
       <div class="stage" id="stage">
-        <div class="deck-more" id="deck-more"></div>
+        <div class="deck-slab" id="deck-slab"></div>
         <div class="deck" id="deck"></div>
         <div class="deck-empty" id="deck-empty">
           <div style="text-align:center;color:var(--cream-72);font-size:12.5px;line-height:1.7;padding-bottom:10px">
@@ -609,6 +693,7 @@ function go(name){
   Array.prototype.forEach.call(el('nav').children, function(b){ b.classList.toggle('on', b.getAttribute('data-go')===name); });
   el('scr-'+name).scrollTop = 0;
   if(name==='today') renderToday();
+  if(name==='new') renderNew();
   if(name==='week') renderWeek();
   if(name==='result') renderResult();
 }
@@ -630,13 +715,14 @@ function macroBars(it){
     + '</div>';
 }
 
-function cardHTML(it, v, realIdx){
+function cardHTML(it, v, realIdx, ty, band){
   var cat = catColor(it.cat);
   var pending = it.pending;
   var kcalHTML = pending
     ? '<div class="card-kcal pending"><b>待估算</b><span>无热量数据</span></div>'
     : '<div class="card-kcal"><b>'+it.n[0]+'</b><span>千卡</span></div>';
-  return '<article class="dish-card'+(v>0?' is-deep':' is-front')+'" data-i="'+v+'" data-real="'+realIdx+'" style="--i:'+v+';--cat:'+cat+'">'
+  return '<article class="dish-card'+(v>0?' is-deep':' is-front')+'" data-i="'+v+'" data-real="'+realIdx+'" '
+    + 'style="--i:'+v+';--cat:'+cat+';--ty:'+ty+'px;--band:'+band+'px">'
     + '<div class="tape"></div><div class="peel"></div>'
     + '<div class="card-in">'
     +   '<div class="card-head"><div>'
@@ -658,21 +744,44 @@ function cardHTML(it, v, realIdx){
 function renderNew(){
   var deck = el('deck'), empty = el('deck-empty');
   var n = state.draft.length;
+  el('new-slot').textContent = SLOT_LABEL[state.slot] + ' · 今天';
   empty.style.display = n? 'none':'flex';
-  el('deck-more').textContent = n>4 ? '上面还压着 '+(n-3)+' 道，顶上是最新一张' : '';
-  // 最多渲染 4 层（第 4 层起汇总成「上面还压着 N 道」），超出部分不再绘制，保证性能。
-  // 最新加入的菜永远在顶上（视觉层 0），最老的沉到后面。
+  // 最多绘制 4 层；更老的菜汇总成一摞加厚侧边（仍属于这叠卡，不是浮字），保性能不改承诺。
   var shown = Math.min(n,4);
+  var hidden = n - shown;
+  // 卡厚：band(px) = 30 + 千卡*0.095，钳在 30–74；越靠后的卡按「前面所有卡的 band 之和」向上抬升，
+  // 于是每张被压的卡在顶部露出一条 band 高的表头，整摞总高 ∝ 整餐热量。
+  function band(it){ if(it.pending||it.n[0]==null) return 46; return Math.max(30, Math.min(74, 30 + it.n[0]*0.095)); }
   var html = '';
-  for(var v=shown-1; v>=0; v--){
-    var realIdx = n-1-v;           // 视觉层 v 对应的真实数组下标
-    html += cardHTML(state.draft[realIdx], v, realIdx);
+  // 先算每张的 band（按视觉层 0=最新顶卡）
+  var bands = [];
+  for(var vv=0; vv<shown; vv++){ bands.push(band(state.draft[n-1-vv])); }
+  var prefix = 0; // 已露出条带的累加；顶卡(vis0)整张可见，之后每张按自身 band 上抬，露出条带=自身厚度
+  var maxRise = 0;
+  for(var vis = 0; vis < shown; vis++){
+    var realIdx = n-1-vis;
+    var it = state.draft[realIdx];
+    if(vis>0){ prefix += bands[vis]; maxRise = prefix; }
+    var ty = -prefix;         // 顶卡 ty=0，后面的卡依次按自身厚度上抬
+    html += cardHTML(it, vis, realIdx, ty, bands[vis]);
   }
   deck.innerHTML = html;
+  // 隐藏层的加厚侧边：画在最底层卡的左侧，写成“共 N 道”露角折标
+  var slab = el('deck-slab');
+  if(hidden>0){
+    slab.style.display='block';
+    slab.style.height = (46 + hidden*10) + 'px';
+    slab.dataset.n = hidden;
+    slab.innerHTML = '<span>下面还垫着 '+hidden+' 道</span>';
+  } else { slab.style.display='none'; }
+  // 抬升量决定舞台顶部留白，保证最上层卡不被顶栏切
+  el('stage').style.setProperty('--rise', (maxRise + 10)+'px');
   for(var k=0;k<shown;k++){ mountPortions(n-1-k); }
   renderReceipt();
   el('btn-save').disabled = n===0;
   el('save-sub').textContent = n? (n+' 道 · '+sumKlass(state.draft)) : '先加菜';
+  el('btn-save').querySelector('b').textContent = n? '结账' : '保存';
+  document.querySelector('#scr-new .dock').classList.toggle('has-items', n>0);
   applyPress();
 }
 
@@ -739,31 +848,64 @@ function renderToday(){
     return;
   }
   el('today-empty').style.display='none';
-  var all=[], html='';
+  var html='';
+  // band 高度：基础 60px + 千卡系数，钳在 64–120px；卡面容纳「名+千卡+宏量」三行，整摞总高随整餐热量增长
+  function bandOf(it){ if(it.pending||it.n[0]==null) return 70; return Math.max(64, Math.min(120, 58 + it.n[0]*0.10)); }
   meals.forEach(function(m){
     var s = summarize(m.items);
-    all.push(m);
-    html += '<div class="meal-row" data-meal="'+m.id+'">'
-      + '<div class="when"><b>'+SLOT_LABEL[m.slot]+'</b><span>'+m.time+'</span></div>'
-      + '<div class="mini-stack">';
+    html += '<div class="meal-block" data-meal="'+m.id+'">'
+      + '<div class="mb-head"><b>'+SLOT_LABEL[m.slot]+'</b><span>'+m.time+'</span>'
+      + '<span class="mb-sum">'+(s.pendingCount?('± '+s.kcal):s.kcal)+'<b>千卡</b></span></div>'
+      + '<div class="tstack">';
     m.items.forEach(function(it,j){
       var pend = it.pending;
-      html += '<div class="mini-item" style="--j:'+j+';--cat:'+catColor(it.cat)+'">'
-        + '<span class="nm">'+esc(it.name)+' <i>'+fmtG(it.grams)+'g · '+esc(it.label)+'</i></span>'
-        + '<span class="kc'+(pend?' na':'')+'">'+(pend?'待估算':it.n[0]+' 千卡')+'</span></div>';
+      var mac = pend? '' :
+        '<div class="tmac"><span>蛋白<b>'+it.n[1]+'</b></span><span>脂肪<b>'+it.n[2]+'</b></span><span>碳水<b>'+it.n[3]+'</b></span></div>';
+      html += '<div class="tcard" style="--cat:'+catColor(it.cat)+';--bh:'+bandOf(it)+'px;z-index:'+(20-j)+'">'
+        + '<div class="trow"><span class="tname">'+esc(it.name)+'<i>'+fmtG(it.grams)+'g · '+esc(it.label)+'</i></span>'
+        + '<span class="tkc'+(pend?' na':'')+'">'+(pend?'待估算':it.n[0]+' 千卡')+'</span></div>'
+        + mac + '</div>';
     });
     html += '</div>'
-      + '<div class="meal-total"><span class="t">'+(s.pendingCount?('含 '+s.pendingCount+' 道待估算'):'合计')+'<b>'+s.kcal+' 千卡</b></span>'
-      + '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="rgba(246,239,225,.5)" stroke-width="1.6"><path d="m9 6 6 6-6 6"/></svg></div>'
+      + '<div class="mb-foot"><span class="ft">这一餐合计<b>'+s.kcal+' 千卡</b></span>'
+      + '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m9 6 6 6-6 6"/></svg></div>'
+      + '</div>';
+  });
+  // 未记录的餐次：用同一餐次栏目占位，给出「还能往桌上叠」的留白，而不是纯黑空桌
+  var SLOT_ORDER=['breakfast','lunch','dinner','snack'];
+  var recorded={}; meals.forEach(function(m){ recorded[m.slot]=1; });
+  SLOT_ORDER.forEach(function(sl){
+    if(recorded[sl]) return;
+    html += '<div class="meal-block is-empty" data-slot="'+sl+'">'
+      + '<div class="mb-head"><b>'+SLOT_LABEL[sl]+'</b><span>未记录</span></div>'
+      + '<div class="slot-invite"><span class="si-plus">+</span>拍下'+SLOT_LABEL[sl]+'，一道一道叠上来</div>'
       + '</div>';
   });
   list.innerHTML = html;
-  var tot=0,pc=0; meals.forEach(function(m){var s=summarize(m.items);tot+=s.kcal;pc+=s.pendingCount;});
+  // 今日合力落款：把整天的合计印在卡摞下方（有记录才有）
+  var allItems=[]; meals.forEach(function(m){ allItems=allItems.concat(m.items); });
+  var dayS = summarize(allItems);
+  if(meals.length){
+    list.insertAdjacentHTML('beforeend',
+      '<div class="today-ledger">'
+      + '<span class="tl-k">今日合力</span>'
+      + '<span class="tl-v">'+dayS.kcal+'<small>千卡</small></span></div>'
+      + '<div class="today-ledger" style="border-top:0;margin-top:8px;padding-top:0;justify-content:flex-end">'
+      + '<div class="tl-mac">'
+      +   '<div'+(dayS.protein==null?' class="na"':'')+'><b>'+(dayS.protein==null?'—':dayS.protein)+'</b><span>蛋白 g</span></div>'
+      +   '<div'+(dayS.fat==null?' class="na"':'')+'><b>'+(dayS.fat==null?'—':dayS.fat)+'</b><span>脂肪 g</span></div>'
+      +   '<div'+(dayS.carbs==null?' class="na"':'')+'><b>'+(dayS.carbs==null?'—':dayS.carbs)+'</b><span>碳水 g</span></div>'
+      + '</div></div>'
+    );
+  }
+  var tot=dayS.kcal, pc=dayS.pendingCount;
   el('today-kcal').textContent = tot;
   el('today-count').textContent = meals.length+' 餐 · '+pc+' 道待估算';
-  // 点餐次行 → 打开明细
-  Array.prototype.forEach.call(list.querySelectorAll('.meal-row'), function(row){
+  // 点餐次行 → 打开明细；点未记录的虚线留位 → 以该餐次开新建
+  Array.prototype.forEach.call(list.querySelectorAll('.meal-block'), function(row){
     row.addEventListener('click', function(){
+      if(row.dataset.slot){ state.slot=row.dataset.slot; }
+      if(row.classList.contains('is-empty')){ state.draft=[]; go('new'); return; }
       var m = meals.filter(function(x){return x.id===row.dataset.meal;})[0];
       state.viewMeal = m; state.isDraft=false; go('result');
     });
@@ -813,7 +955,7 @@ function renderResult(){
   hero.innerHTML =
     '<div class="rh-top"><span>'+SLOT_LABEL[m.slot]+' · '+items.length+' 道菜</span><span>'+(s.pendingCount?('± '+s.pendingCount+' 待估算'):'已估算')+'</span></div>'
     + '<div class="rh-kcal"><b>'+s.kcal+'</b><small>千卡'+(s.pendingCount?'（部分）':'')+'</small></div>'
-    + (range?'<div class="rh-range">热量区间参考 '+range[0]+'–'+range[1]+' 千卡，差异来自用油量与配比</div>':'')
+    + (range?'<div class="rh-range">热量区间参考 <b>'+range[0]+'–'+range[1]+' 千卡</b>，差异主要来自用油量与配比。</div>':'')
     + macroH
     + (items.length?'<div class="rh-analysis">'+tips.join('；')+'。</div>':'<div class="rh-analysis">还没有菜品。</div>')
     + (items.length?'<div class="rh-advice"><span class="lbl">膳食建议</span>'+ (hasVeg&&hasStaple?'这餐蔬菜与主食都到位，继续保持；可注意蛋白质来源是否足量。':'按校园食堂常见搭配，补足缺少的一类即可，不必推翻这餐。') +'</div>':'');
@@ -830,8 +972,8 @@ function renderResult(){
       + (it.range?'<dt>区间</dt><dd>'+it.range[0]+'–'+it.range[1]+' 千卡</dd>':'')
       + '</div>'
       + '<div class="dt-src"><b>营养出处</b> '+esc(it.src)+'<br><b>份量出处</b> '+esc(it.psrc)+(it.rnote?'<br>'+esc(it.rnote):'')+'</div>';
-    dh += '<div class="dt-item'+(idx===0 && items.length<=3?' open':'')+'" data-dt="'+idx+'">'
-      + '<div class="dt-head"><span class="dt-swatch" style="--cat:'+catColor(it.cat)+'"></span>'
+    dh += '<div class="dt-item'+(idx===0 && items.length<=3?' open':'')+'" data-dt="'+idx+'" style="--cat:'+catColor(it.cat)+'">'
+      + '<div class="dt-head">'
       + '<span class="nm"><b>'+esc(it.name)+'</b><span>'+fmtG(it.grams)+'g · '+esc(it.label)+'</span></span>'
       + '<span class="kc'+(pend?' na':'')+'">'+(pend?'待估算':it.n[0]+' 千卡')+'</span>'
       + '<svg class="arw" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></div>'
@@ -847,12 +989,12 @@ function renderResult(){
 // 固定七天（今天=11-23 周一）：含完整、未记录、数据不完整
 function weekData(){
   return [
-    {d:'11-17',wd:'一', meals:[{slot:'lunch',items:[BY_ID['rice'],BY_ID['tomatoegg'],BY_ID['greens']]}]},
-    {d:'11-18',wd:'二', meals:[{slot:'lunch',items:[BY_ID['noodle'],BY_ID['braised']]},{slot:'dinner',items:[BY_ID['tofu']]}]},
-    {d:'11-19',wd:'三', meals:[]},
-    {d:'11-20',wd:'四', meals:[{slot:'lunch',items:[BY_ID['rice'],BY_ID['chicken'],BY_ID['potato'],BY_ID['soup']]}]},
-    {d:'11-21',wd:'五', meals:[{slot:'lunch',items:[BY_ID['rice'],BY_ID['mystery']]}]}, // 不完整
-    {d:'11-22',wd:'六', meals:[{slot:'dinner',items:[BY_ID['fish'],BY_ID['pumpkin'],BY_ID['greens']]}]},
+    {d:'11-17',wd:'二', meals:[{slot:'lunch',items:[BY_ID['rice'],BY_ID['tomatoegg'],BY_ID['greens']]}]},
+    {d:'11-18',wd:'三', meals:[{slot:'lunch',items:[BY_ID['noodle'],BY_ID['braised']]},{slot:'dinner',items:[BY_ID['tofu']]}]},
+    {d:'11-19',wd:'四', meals:[]},
+    {d:'11-20',wd:'五', meals:[{slot:'lunch',items:[BY_ID['rice'],BY_ID['chicken'],BY_ID['potato'],BY_ID['soup']]}]},
+    {d:'11-21',wd:'六', meals:[{slot:'lunch',items:[BY_ID['rice'],BY_ID['mystery']]}]}, // 不完整
+    {d:'11-22',wd:'日', meals:[{slot:'dinner',items:[BY_ID['fish'],BY_ID['pumpkin'],BY_ID['greens']]}]},
     {d:'11-23',wd:'一', meals:[{slot:'breakfast',items:[BY_ID['pumpkin'],BY_ID['tomatoegg']]}], today:true}
   ];
 }
@@ -898,7 +1040,7 @@ function renderWeek(){
 /* ---------- 拖动推开卡：横向甩开顶卡即移除 ---------- */
 function bindDeckDrag(){
   var deck = el('deck');
-  var startX=0, dragging=false, active=null, moved=0, baseW=0;
+  var startX=0, dragging=false, active=null, moved=0, baseW=0, lastT=0, lastX=0, vx=0;
   deck.addEventListener('pointerdown', function(e){
     var card = e.target.closest('.dish-card');
     if(!card) return;
@@ -906,6 +1048,7 @@ function bindDeckDrag(){
     if(card.classList.contains('is-deep')) return; // 只拖顶卡
     active=card; dragging=true; startX=e.clientX; moved=0;
     baseW = deck.clientWidth || 340;
+    lastT = performance.now(); lastX = e.clientX; vx = 0; card.__vx = 0;
     try{ card.setPointerCapture(e.pointerId); }catch(_){}
     card.style.transition='none';
     card.style.cursor='grabbing';
@@ -913,6 +1056,8 @@ function bindDeckDrag(){
   deck.addEventListener('pointermove', function(e){
     if(!dragging||!active) return;
     var dx = e.clientX - startX; moved=Math.abs(dx);
+    var now = performance.now(), dt = now - lastT;
+    if(dt > 8){ vx = Math.abs(e.clientX - lastX) / dt; lastX = e.clientX; lastT = now; active.__vx = vx; }
     active.style.setProperty('--dx', dx+'px');
     active.style.setProperty('--dry', (dx/baseW*18)+'deg');
     active.style.opacity = String(Math.max(0.35, 1 - Math.abs(dx)/baseW*0.9));
@@ -923,15 +1068,22 @@ function bindDeckDrag(){
     var idx = parseInt(active.dataset.real,10);
     active.style.transition='';
     active.style.cursor='';
-    if(Math.abs(dx) > (deck.clientWidth||340)*0.34){
+    // 阈值提到 40%，并需真正的“甩”速（最近 90ms 内位移速度），慢拖到位不算，降低误删
+    var vel = Math.abs(active.__vx||0);
+    var flung = Math.abs(dx) > (deck.clientWidth||340)*0.40 && vel > 0.35;
+    if(flung){
+      var it = state.draft[idx];
       // 甩出：先滑走再移除
       active.style.setProperty('--dx',(dx>0?1:-1)*480+'px');
       active.style.setProperty('--dry',(dx>0?1:-1)*30+'deg');
       active.style.opacity='0';
-      var removed = active;
       setTimeout(function(){
         state.draft.splice(idx,1);
         renderNew();
+        // 可撤销纸条，停留约 4 秒
+        toastAction('已移出「'+it.name+'」','撤销',function(){
+          state.draft.splice(idx,0,it); renderNew();
+        });
       }, 230);
     } else {
       // 弹回
@@ -977,19 +1129,13 @@ function shoot(){
   var item = computeItem(pick, p[1], p[0]);
   state.draft.push(item);
   renderNew();
-  // 入场：新顶卡从更低位翻起
+  // 入场：新顶卡从下方浮起并淡入（只动 transform/opacity）
   var top = el('deck').querySelector('.dish-card[data-i="0"]');
   if(top){
-    top.style.transition='none';
-    top.style.setProperty('--i','2');
-    top.style.opacity='0';
-    requestAnimationFrame(function(){
-      requestAnimationFrame(function(){
-        top.style.transition='';
-        top.style.setProperty('--i','0');
-        top.style.opacity='';
-      });
-    });
+    top.animate(
+      [{transform:'translateY(46px) scale(.96)',opacity:0},{transform:'translateY(0) scale(1)',opacity:1}],
+      {duration:460, easing:'cubic-bezier(.2,1.05,.32,1)'}
+    );
   }
   toast('已叠上「'+pick.name+'」'+(item.pending?' · 待估算':(' · '+item.n[0]+' 千卡')));
   // 相机快门白闪
@@ -1010,17 +1156,17 @@ function openSearch(){
   var wrap = document.createElement('div');
   wrap.style.cssText='position:fixed;inset:0;z-index:250;display:flex;align-items:flex-end;background:rgba(10,8,6,.5);backdrop-filter:blur(2px)';
   var panel = document.createElement('div');
-  panel.style.cssText='width:100%;max-width:440px;margin:0 auto;background:linear-gradient(180deg,#2b2621,#1c1916);border-radius:16px 16px 0 0;padding:14px 16px calc(18px + var(--safe-b));max-height:72vh;overflow:auto;box-shadow:0 -10px 40px rgba(0,0,0,.5)';
-  var h = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">'
-    + '<b style="font-size:15px;color:var(--cream)">搜一道菜加进来</b>'
-    + '<button id="sp-close" style="border:0;background:none;color:var(--cream-72);font-size:13px;cursor:pointer">关闭</button></div>';
+  // 搜索面板也走纸面母语：一张从底部抽上来的长条纸卡，撕齿上缘，不用暗色圆角弹层
+  panel.style.cssText='position:relative;width:100%;max-width:440px;margin:0 auto;background:linear-gradient(180deg,#fbf7ec,#f4ecda 70%,#eee3cd);color:var(--ink);border-radius:2px 2px 0 0;padding:16px 16px calc(20px + var(--safe-b));max-height:74vh;overflow:auto;box-shadow:0 -8px 26px rgba(0,0,0,.5),0 1px 0 rgba(255,255,255,.6) inset';
+  var h = '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">'
+    + '<b style="font-family:&quot;Songti SC&quot;,serif;font-size:17px;color:var(--ink)">搜一道菜加进来</b>'
+    + '<button id="sp-close" style="border:0;background:none;color:var(--ink-3);font-size:13px;cursor:pointer">关闭</button></div>';
   list.forEach(function(d){
     var pend = d.per[0]==null;
-    h += '<button class="sp-item" data-add="'+d.id+'" style="display:flex;width:100%;align-items:center;gap:10px;text-align:left;border:1px solid rgba(201,162,95,.2);background:rgba(243,236,221,.04);border-radius:9px;padding:10px 11px;margin-bottom:7px;color:var(--cream);cursor:pointer">'
-      + '<span style="width:6px;height:26px;border-radius:2px;background:'+catColor(d.cat)+';flex:none"></span>'
-      + '<span style="flex:1"><b style="font-size:13.5px;font-weight:600">'+esc(d.name)+'</b>'
-      + '<span style="display:block;font-size:11px;color:var(--cream-72);margin-top:1px">'+esc(d.cook)+' · '+esc(d.cat)+' · '+(pend?'暂无热量数据':d.per[0]+' 千卡/100g')+'</span></span>'
-      + '<span style="font-family:var(--mono);font-size:12px;color:var(--brass)">'+d.portions[0][1]+'g</span></button>';
+    h += '<button class="sp-item" data-add="'+d.id+'" style="display:flex;width:100%;align-items:center;gap:10px;text-align:left;border:1px solid rgba(120,96,64,.28);border-left:5px solid '+catColor(d.cat)+';background:linear-gradient(180deg,#fbf7ec,#f3ecd9);border-radius:2px 7px 7px 2px;padding:10px 11px;margin-bottom:7px;color:var(--ink);cursor:pointer;box-shadow:0 1px 0 rgba(120,96,64,.25)">'
+      + '<span style="flex:1"><b style="font-size:13.5px;font-weight:600;font-family:&quot;Songti SC&quot;,serif">'+esc(d.name)+'</b>'
+      + '<span style="display:block;font-size:11px;color:var(--ink-3);margin-top:1px">'+esc(d.cook)+' · '+esc(d.cat)+' · '+(pend?'暂无热量数据':d.per[0]+' 千卡/100g')+'</span></span>'
+      + '<span style="font-family:var(--mono);font-size:12px;color:var(--ink-2)">'+d.portions[0][1]+'g</span></button>';
   });
   panel.innerHTML = h;
   wrap.appendChild(panel);
@@ -1053,9 +1199,24 @@ function saveMeal(){
 /* ---------- toast ---------- */
 var toastTimer=null;
 function toast(msg){
-  var t = el('toast'); t.textContent=msg; t.classList.add('show');
+  var t = el('toast'); t.innerHTML=''; t.textContent=msg; t.classList.add('show');
+  t.style.cursor='default'; t.style.pointerEvents='none';
   clearTimeout(toastTimer);
   toastTimer=setTimeout(function(){ t.classList.remove('show'); }, 1800);
+}
+/* 带撤销按钮的纸条，停留约 4 秒 */
+function toastAction(msg, actionLabel, onAction){
+  var t = el('toast');
+  t.innerHTML = '<span style="display:inline-flex;align-items:center;gap:12px">'+esc(msg)
+    + '<button id="toast-act" style="border:0;background:var(--ink);color:var(--paper);font-size:12px;font-weight:600;'
+    + 'border-radius:4px;padding:5px 11px;cursor:pointer;letter-spacing:.05em">'+esc(actionLabel)+'</button></span>';
+  t.style.pointerEvents='auto'; t.style.cursor='default';
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  var hide=function(){ t.classList.remove('show'); t.style.pointerEvents='none'; };
+  toastTimer=setTimeout(hide, 4000);
+  var btn = el('toast-act');
+  btn.addEventListener('click', function(){ clearTimeout(toastTimer); onAction(); hide(); });
 }
 
 /* ---------- 绑定 ---------- */
