@@ -1,0 +1,856 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F6F5F1">
+<title>卡路里拍立得</title>
+<style>
+/* ============================================================
+   量度体系：以「尺」为根，一尺 = 屏宽 / 3，一寸 = 一尺 / 10，
+   「間」= 二寸 = 横向留白与纵向节奏的基数。390 宽时 尺 130 / 寸 13 / 間 26。
+   字阶 1.26 倍：11、13、15.5、19.5、24.5、31、44 像素。
+   ============================================================ */
+:root{
+  --shaku:130px; --u:13px; --ma:26px;
+  --paper:#F6F5F1;
+  --paper-2:#EDEBE4;
+  --ink:#1B1A17;
+  --ink-2:#57544E;
+  --ink-3:#7A766F;
+  --hair:#D9D6CE;
+  --hair-2:#E6E3DB;
+  --shu:#A93A2C;
+  --f-sans:-apple-system,"PingFang SC","Hiragino Sans GB","Noto Sans CJK SC","Source Han Sans SC","Microsoft YaHei",system-ui,sans-serif;
+  --f-serif:"Noto Serif CJK SC","Source Han Serif SC","Songti SC","STSong","Hiragino Mincho ProN","Noto Serif CJK JP",serif;
+  --ease:cubic-bezier(.22,.72,.16,1);
+}
+@media (max-width:379px){:root{--shaku:120px;--u:12px;--ma:24px}}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{
+  background:var(--paper);color:var(--ink);
+  font-family:var(--f-sans);
+  font-size:15.5px;line-height:1.9;letter-spacing:.02em;
+  -webkit-font-smoothing:antialiased;
+  overscroll-behavior-y:none;
+}
+body::after{ /* 纸纤维：feTurbulence 一次生成，multiply 极低不透明度 */
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:60;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  opacity:.045;mix-blend-mode:multiply;
+}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;margin:0;text-align:inherit;cursor:pointer}
+h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
+
+/* ---------- 骨架 ---------- */
+.app{max-width:440px;margin:0 auto;padding-bottom:calc(92px + env(safe-area-inset-bottom))}
+.wrap{padding-left:var(--ma);padding-right:var(--ma)}
+.screen{display:none;animation:none}
+.screen.on{display:block}
+
+/* ---------- 页眉 ---------- */
+.hd{
+  display:flex;align-items:baseline;justify-content:space-between;gap:var(--u);
+  padding:calc(var(--u) * 1.35) var(--ma) 0;
+}
+.hd h1{display:block;font-size:19.5px;line-height:1.35;letter-spacing:.06em;font-weight:400}
+.hd--stack{display:block;position:relative}
+.hd--stack h1{margin-top:.42em}
+.hd--stack .hd-a{position:absolute;right:var(--ma);bottom:.1em}
+.hd .hd-r{font-size:13px;color:var(--ink-3);letter-spacing:.04em;font-variant-numeric:tabular-nums;white-space:nowrap}
+.hd .hd-a{font-size:15.5px;color:var(--ink-2);letter-spacing:.06em}
+.hd .hd-a:active{color:var(--ink)}
+.hd-note{font-size:13px;color:var(--ink-3);letter-spacing:.03em}
+
+/* 双罫线：日本装帧里区分段落的两条细线 */
+.rule-d{height:3px;border-top:1px solid var(--ink);border-bottom:1px solid var(--hair);margin:calc(var(--u) * 1.5) var(--ma) 0}
+.rule{height:0;border-top:1px solid var(--hair);margin:0 var(--ma)}
+.rule-m{margin-top:var(--ma)}
+
+/* ---------- 遮罩文字揭示（Split Text / Masked Heading） ---------- */
+.rv{display:inline-block;overflow:hidden;vertical-align:bottom}
+.rv>i{
+  display:inline-block;font-style:normal;
+  transform:translateY(115%);opacity:0;
+  transition:transform .86s var(--ease),opacity .6s linear;
+  transition-delay:calc(var(--i,0) * 46ms);
+}
+.screen.on .rv>i{transform:none;opacity:1}
+.rise{transform:translateY(9px);opacity:0;transition:transform .8s var(--ease),opacity .7s linear;transition-delay:var(--d,0ms)}
+.screen.on .rise{transform:none;opacity:1}
+
+@media (prefers-reduced-motion:reduce){
+  .rv>i,.rise{transform:none!important;opacity:1!important;transition:none!important}
+  *{animation-duration:.001ms!important;transition-duration:.001ms!important}
+}
+
+/* ---------- 数字（Number Ticker：整列 0-9 竖向位移，只动 transform） ---------- */
+.num{display:inline-flex;align-items:flex-start;font-variant-numeric:tabular-nums;line-height:1;letter-spacing:-.01em}
+.dg{display:inline-block;height:1em;overflow:hidden;width:1ch;vertical-align:top}
+.dg .col{
+  display:block;
+  transform:translateY(calc(var(--d,0) * -1em));
+  transition:transform .62s var(--ease);
+  transition-delay:calc(var(--k,0) * 48ms);
+}
+.dg b{display:block;height:1em;line-height:1;font-weight:inherit;text-align:center}
+.cm{padding:0 .03em;opacity:.55}
+.dash{opacity:.4}
+.num-xl{font-size:44px;font-weight:200;letter-spacing:-.02em}
+.num-l{font-size:24.5px;font-weight:300}
+.num-m{font-size:19.5px;font-weight:300}
+.num-s{font-size:15.5px;font-weight:400}
+.unit{font-size:11px;letter-spacing:.08em;color:var(--ink-3);margin-left:.35em;align-self:flex-end;padding-bottom:.15em}
+
+/* ---------- 底部坞 ---------- */
+.dock{
+  position:fixed;left:0;right:0;bottom:0;z-index:40;
+  height:calc(84px + env(safe-area-inset-bottom));
+  padding-bottom:env(safe-area-inset-bottom);
+  background:var(--paper);
+  border-top:1px solid var(--hair);
+  display:grid;grid-template-columns:1fr 56px 1fr;align-items:center;
+}
+.dock::before{ /* Progressive Blur：两层递增模糊，内容滚到坞后是溶解而非切断 */
+  content:"";position:absolute;left:0;right:0;top:-26px;height:26px;pointer-events:none;
+  backdrop-filter:blur(4px);
+  -webkit-mask-image:linear-gradient(to top,#000 0%,rgba(0,0,0,.35) 55%,transparent 100%);
+  mask-image:linear-gradient(to top,#000 0%,rgba(0,0,0,.35) 55%,transparent 100%);
+}
+.dock::after{
+  content:"";position:absolute;left:0;right:0;top:-13px;height:13px;pointer-events:none;
+  backdrop-filter:blur(1.5px);
+  -webkit-mask-image:linear-gradient(to top,rgba(0,0,0,.5),transparent 100%);
+  mask-image:linear-gradient(to top,rgba(0,0,0,.5),transparent 100%);
+}
+.dock-i{
+  justify-self:center;font-size:13px;letter-spacing:.08em;color:var(--ink-3);
+  padding:calc(var(--u) * .8) calc(var(--u) * .9);position:relative;
+}
+.dock-i[aria-current="page"]{color:var(--ink)}
+.dock-i[aria-current="page"]::after{
+  content:"";position:absolute;left:calc(var(--u) * .9);right:calc(var(--u) * .9);bottom:2px;height:1px;background:var(--ink);
+}
+/* 朱印：全站唯一的实色。语义 = 「此刻」。
+   印章是刻出来的：外缘留刀口、内圈一道细刻线、印面有极淡的印泥浓淡。 */
+.seal{
+  justify-self:center;width:46px;height:46px;position:relative;display:grid;place-items:center;
+  transition:transform .22s var(--ease);
+}
+.seal .face{position:absolute;inset:0}
+.seal .cam{position:relative;width:22px;height:22px;display:block}
+.seal:active{transform:scale(.93) rotate(-1.5deg)}
+.seal .cam path,.seal .cam circle{stroke:#F6F5F1}
+
+/* ---------- 今日 ---------- */
+/* 日系留白：弧尺与数字纵向分家，弧只做刻度，数字与说明在弧下依次落位 */
+.gauge-wrap{position:relative;margin:calc(var(--u) * .7) auto 0;width:264px;max-width:84vw}
+.gauge{display:block;width:100%;height:auto;overflow:visible}
+.gauge-mid{display:flex;flex-direction:column;align-items:center;margin-top:calc(var(--u) * -.5)}
+.gauge-mid .cap{font-size:11px;letter-spacing:.12em;color:var(--ink-3);margin-top:.5em}
+.gauge-mid .rng{font-size:13px;letter-spacing:.03em;color:var(--ink-2);margin-top:.55em;font-variant-numeric:tabular-nums}
+.gauge-ref{text-align:center;font-size:11px;letter-spacing:.07em;color:var(--ink-3);margin-top:calc(var(--u) * .55);font-variant-numeric:tabular-nums}
+
+.meals{padding:0 var(--ma)}
+.meal{
+  width:100%;display:flex;align-items:stretch;gap:var(--u);
+  padding:calc(var(--u) * 1.35) 0;border-top:1px solid var(--hair-2);
+  position:relative;
+}
+.meal:first-child{border-top:0}
+.mk{width:calc(var(--u) * 1.9);flex:none;display:flex;flex-direction:column;align-items:center;gap:calc(var(--u)*.22)}
+.mk-c{font-family:var(--f-serif);font-size:19.5px;line-height:1;letter-spacing:0;color:var(--ink);writing-mode:vertical-rl}
+.mk-t{font-size:11px;letter-spacing:-.01em;color:var(--ink-3);font-variant-numeric:tabular-nums;line-height:1;white-space:nowrap}
+.mc{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:.18em}
+.mc-1{font-size:15.5px;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mc-2{font-size:13px;letter-spacing:.02em;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mk-cal{flex:none;font-size:19.5px;font-weight:300;font-variant-numeric:tabular-nums;letter-spacing:-.01em;align-self:center}
+.mk-cal em{font-style:normal;font-size:11px;color:var(--ink-3);margin-left:.25em;letter-spacing:0}
+.meal.is-empty .mc-1{color:var(--ink-3)}
+.meal.is-empty .mk-c{color:var(--ink-3)}
+.meal:active{background:var(--paper-2)}
+.mk-plus{flex:none;align-self:center;font-size:15.5px;color:var(--ink-3);width:1.2em;text-align:center}
+.foot-note{padding:calc(var(--u)*.9) var(--ma) 0;font-size:11px;letter-spacing:.06em;color:var(--ink-3);font-variant-numeric:tabular-nums;display:flex;justify-content:space-between}
+.foot-note b{font-weight:400;color:var(--ink-2)}
+
+/* 空状态：一屏一主行动，不重复 CTA */
+.empty-note{padding:calc(var(--ma) * 1.4) var(--ma);text-align:center}
+.empty-note .en-1{font-family:var(--f-serif);font-size:19.5px;letter-spacing:.1em;color:var(--ink-2)}
+.empty-note .en-2{font-size:13px;letter-spacing:.03em;color:var(--ink-3);margin-top:.7em}
+
+/* ---------- 新建一餐 ---------- */
+.back{font-size:13px;letter-spacing:.06em;color:var(--ink-3);display:inline-flex;align-items:center;gap:.4em}
+.back:active{color:var(--ink)}
+.slotpick{display:flex;gap:0;margin:calc(var(--u)*1.25) var(--ma) 0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+.slotpick button{
+  flex:1;padding:.62em 0;font-size:13px;letter-spacing:.12em;color:var(--ink-3);position:relative;
+  font-family:var(--f-serif);
+}
+.slotpick button.on{color:var(--ink);font-weight:400}
+.slotpick button.on::after{content:"";position:absolute;left:22%;right:22%;bottom:-1px;height:1px;background:var(--ink)}
+.slotpick button+button{border-left:1px solid var(--hair-2)}
+
+/* 拍照位：角トンボ + 器皿线稿（借 Tear Ticket 的「沿边界走一圈」节奏，此处降为静态角标） */
+.shooter{
+  display:block;width:calc(100% - var(--ma) * 2);margin:calc(var(--u) * 1.15) var(--ma) 0;
+  position:relative;padding:calc(var(--u) * .9) 0 calc(var(--u) * .8);
+  transition:transform .2s var(--ease);
+}
+.shooter:active{transform:scale(.988)}
+.shooter .cn{position:absolute;width:13px;height:13px;border:0 solid var(--ink);opacity:.72}
+.shooter .cn.tl{top:0;left:0;border-top-width:1px;border-left-width:1px}
+.shooter .cn.tr{top:0;right:0;border-top-width:1px;border-right-width:1px}
+.shooter .cn.bl{bottom:0;left:0;border-bottom-width:1px;border-left-width:1px}
+.shooter .cn.br{bottom:0;right:0;border-bottom-width:1px;border-right-width:1px}
+.shooter .box{display:block;margin:0 auto;width:86px;height:auto}
+.shooter .sh-1{display:block;text-align:center;font-size:15.5px;letter-spacing:.09em;margin-top:calc(var(--u)*.85)}
+.shooter .sh-2{display:block;text-align:center;font-size:13px;letter-spacing:.04em;color:var(--ink-3);margin-top:.32em}
+
+.band-h{display:flex;align-items:baseline;justify-content:space-between;gap:var(--u);margin:calc(var(--u)*1.5) var(--ma) 0}
+.band-h .bh-1{font-size:13px;letter-spacing:.14em;color:var(--ink-2)}
+.band-h .bh-2{font-size:13px;letter-spacing:.02em;color:var(--ink-3);font-variant-numeric:tabular-nums}
+
+/* 菜品行 */
+.dish{display:flex;align-items:center;gap:calc(var(--u)*.7);padding:calc(var(--u)*.78) 0;border-top:1px solid var(--hair-2)}
+.dish:first-of-type{border-top:1px solid var(--hair)}
+.dw{flex:1;min-width:0}
+.dw-1{font-size:15.5px;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dw-2{font-size:11px;letter-spacing:.04em;color:var(--ink-3);margin-top:.12em;font-variant-numeric:tabular-nums}
+/* 份量：细线分段，选中项下方一道实线（非药丸） */
+.seg{display:flex;flex:none;border-top:1px solid var(--hair-2);border-bottom:1px solid var(--hair-2)}
+.seg button{font-size:11px;letter-spacing:.06em;color:var(--ink-3);padding:.3em .5em;position:relative;line-height:1.5}
+.seg button.on{color:var(--ink)}
+.seg button.on::after{content:"";position:absolute;left:.34em;right:.34em;bottom:-1px;height:1px;background:var(--ink)}
+.seg button+button{border-left:1px solid var(--hair-2)}
+.dcal{flex:none;min-width:3.1em;text-align:right;font-size:15.5px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.dcal em{font-style:normal;font-size:11px;color:var(--ink-3);margin-left:.2em}
+.dx{flex:none;width:28px;height:28px;display:grid;place-items:center;color:var(--ink-3);margin-left:-4px}
+.dx:active{color:var(--shu)}
+.dx svg{width:13px;height:13px}
+
+/* 合計条 + 保存 */
+.sum{
+  margin-top:calc(var(--u)*1.3);background:var(--paper);
+}
+.sum-in{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--u);
+  padding:calc(var(--u)*.9) var(--ma) calc(var(--u)*.9)}
+.sum-l{font-size:13px;letter-spacing:.14em;color:var(--ink-2);line-height:1.6;padding-bottom:.35em}
+.sum-l small{display:block;font-size:11px;letter-spacing:.02em;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.save{
+  display:block;width:calc(100% - var(--ma)*2);margin:0 var(--ma) 0;
+  padding:.8em 0;text-align:center;font-size:15.5px;letter-spacing:.14em;
+  border:1px solid var(--ink);color:var(--ink);transition:background .2s var(--ease),color .2s var(--ease);
+}
+.save:active{background:var(--ink);color:var(--paper)}
+.save[disabled]{border-color:var(--hair);color:var(--ink-3);pointer-events:none}
+
+/* ---------- 单餐结果 ---------- */
+.res-hero{padding:calc(var(--ma)*.7) var(--ma) 0;display:flex;align-items:flex-end;justify-content:space-between;gap:var(--u)}
+.res-hero .rh-1{font-size:13px;letter-spacing:.14em;color:var(--ink-3);line-height:1.7}
+.res-hero .rh-1 b{display:block;font-weight:400;font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums;letter-spacing:.02em}
+/* 展开明细：左侧一道细竖界线（日式注釈的界） */
+.dish.open{background:var(--paper-2)}
+.detail{padding:calc(var(--u)*.7) var(--ma) calc(var(--u)*1.1) calc(var(--ma) + var(--u));
+  margin:0 var(--ma);border-left:1px solid var(--ink-3);position:relative}
+.detail dl{display:grid;grid-template-columns:5.2em 1fr;gap:.34em var(--u);font-size:13px;letter-spacing:.02em}
+.detail dt{color:var(--ink-3);font-family:var(--f-serif);letter-spacing:.06em}
+.detail dd{font-variant-numeric:tabular-nums;color:var(--ink-2)}
+.detail .src{font-size:11px;line-height:1.75;color:var(--ink-3);margin-top:calc(var(--u)*.6);letter-spacing:.02em}
+/* 区间条：一根 1px 轨，区间实段 + 两端细刻 + 折算点 */
+.range{margin-top:calc(var(--u)*.8)}
+.rb{position:relative;height:18px;margin:0 2px}
+.rb .track{position:absolute;left:0;right:0;top:9px;height:1px;background:var(--hair)}
+.rb .band{position:absolute;top:7px;height:5px;background:var(--ink-2);opacity:.2}
+.rb .cap{position:absolute;top:4px;width:1px;height:11px;background:var(--ink-3)}
+.rb .pt{position:absolute;top:5px;width:1px;height:9px;background:var(--shu)}
+.rb-l{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.02em;color:var(--ink-3);font-variant-numeric:tabular-nums;margin-top:.3em}
+.rb-l b{font-weight:400;color:var(--shu)}
+
+/* ---------- 周视图 ---------- */
+.week-dots{margin:calc(var(--ma)*.95) var(--ma) 0}
+.wd-head,.wd-body,.wd-foot{display:grid;grid-template-columns:repeat(7,1fr);gap:0}
+.wd-head div{text-align:center;font-size:13px;letter-spacing:.02em;color:var(--ink-2);font-variant-numeric:tabular-nums;padding-bottom:.5em}
+.wd-head div i{display:block;font-style:normal;font-size:11px;color:var(--ink-3);letter-spacing:.04em;margin-top:.1em}
+.wd-head div.today{color:var(--ink)}
+.wd-col{display:flex;flex-direction:column;align-items:center;gap:9px;padding:calc(var(--u)*.7) 0;position:relative}
+.wd-col .pt{/* cf-justify: 正圆本义，点阵的最小单位；6px 圆点在 390 宽下是可辨的最小刻度 */width:6px;height:6px;border-radius:50%;border:1px solid var(--hair);background:transparent}
+.wd-col .pt.on{background:var(--ink);border-color:var(--ink)}
+.wd-col .pt.est{background:var(--ink);border-color:var(--ink);opacity:.34}
+.wd-col .pt.none{background:transparent;border-color:var(--hair);opacity:.55}
+.wd-col.blank .pt{border-color:var(--hair-2);opacity:.4}
+.wd-col.today::before{content:"";position:absolute;top:0;bottom:0;left:50%;width:1px;background:var(--shu);opacity:.5;transform:translateX(-.5px);z-index:-1}
+.wd-line{border-top:1px solid var(--hair)}
+.wd-foot div{text-align:center;font-size:11px;font-variant-numeric:tabular-nums;letter-spacing:-.01em;color:var(--ink-2);padding-top:.6em}
+.wd-foot div.blank{color:var(--ink-3);opacity:.62}
+.wd-foot div em{font-style:normal;font-size:11px;color:var(--ink-3);display:block;letter-spacing:.06em;margin-top:.1em}
+.legend{display:flex;gap:calc(var(--u)*1.1);justify-content:center;margin-top:calc(var(--u)*1.15);font-size:11px;letter-spacing:.04em;color:var(--ink-3)}
+.legend span{display:inline-flex;align-items:center;gap:.42em}
+.legend i{/* cf-justify: 图例与点阵同形，必须与 .wd-col .pt 完全一致才是真图例 */width:6px;height:6px;border-radius:50%;border:1px solid var(--hair);display:inline-block;font-style:normal}
+.legend i.on{background:var(--ink);border-color:var(--ink)}
+.legend i.est{background:var(--ink);border-color:var(--ink);opacity:.34}
+
+.stat3{display:grid;grid-template-columns:repeat(3,1fr);margin-top:calc(var(--ma)*1.1);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
+.stat3>div{padding:calc(var(--u)*1) 0 calc(var(--u)*.95);text-align:center}
+.stat3>div+div{border-left:1px solid var(--hair-2)}
+.stat3 .k{font-size:11px;letter-spacing:.1em;color:var(--ink-3)}
+.stat3 .v{margin-top:.2em;display:flex;justify-content:center;align-items:baseline}
+.stat3 .t{font-size:11px;letter-spacing:.05em;color:var(--ink-3);margin-left:.2em}
+
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ========== 今日 ========== -->
+<section class="screen on" id="s-today" aria-label="今日">
+  <header class="hd">
+    <h1 class="rv"><i style="--i:0">今日</i></h1>
+    <div class="hd-r rise" style="--d:90ms" id="todayDate">十一月廿三 · 日</div>
+  </header>
+
+  <div class="gauge-wrap rise" style="--d:160ms">
+    <svg class="gauge" id="gauge" viewBox="0 0 264 168" role="img" aria-label="今日热量刻度尺"></svg>
+  </div>
+  <div class="gauge-mid">
+    <span class="num num-xl" id="todayTotal"></span>
+    <span class="cap">千卡 · 今日</span>
+  </div>
+  <div class="gauge-ref rise" style="--d:240ms"><span id="todayRange">估算 718 – 1,040</span><br><span style="opacity:.75">参考区间 1,800 – 2,200</span></div>
+
+  <div class="rule-d"></div>
+  <div class="meals" id="todayMeals"></div>
+
+  <div class="empty-note rise" style="--d:320ms" id="todayEmpty" hidden>
+    <div class="en-1">尚无记录</div>
+    <div class="en-2">今天的食欲，值得被认真记下。<br>点下方朱印，拍下第一餐。</div>
+  </div>
+
+  <div class="rule rule-m" id="todayFootRule"></div>
+  <div class="foot-note" id="todayFoot"></div>
+</section>
+
+<!-- ========== 新建一餐 ========== -->
+<section class="screen" id="s-new" aria-label="新建一餐">
+  <header class="hd hd--stack">
+    <button class="back" data-go="today" type="button">← 今日</button>
+    <h1 class="rv"><i style="--i:0">新建一餐</i></h1>
+    <div class="hd-a rise" style="--d:90ms" id="newTime">12:18</div>
+  </header>
+
+  <div class="slotpick rise" style="--d:150ms" id="slotPick" role="tablist" aria-label="选择餐次"></div>
+
+  <button class="shooter rise" style="--d:200ms" type="button" id="shoot" aria-label="拍摄这一餐">
+    <span class="cn tl"></span><span class="cn tr"></span><span class="cn bl"></span><span class="cn br"></span>
+    <svg class="box" viewBox="0 0 104 78" fill="none" aria-hidden="true">
+      <!-- 一只饭碗 + 一双筷，用一条开放弧线示意口径 -->
+      <path d="M14 34h76" stroke="#1B1A17" stroke-width="1.1"/>
+      <path d="M17 34c1.5 21 14 32 35 32s33.5-11 35-32" stroke="#1B1A17" stroke-width="1.2"/>
+      <path d="M17 34c0 2.4 15.6 4.3 35 4.3S87 36.4 87 34" stroke="#1B1A17" stroke-opacity=".55" stroke-width=".9"/>
+      <path d="M20 37.5c2.6 17 13 26.5 32 26.5s29.4-9.5 32-26.5" stroke="#1B1A17" stroke-opacity=".14" stroke-width="1"/>
+      <!-- 筷架在碗沿，两根细线，末端入朱 -->
+      <path d="M62 30 96 6M67 32 101 10" stroke="#1B1A17" stroke-width="1.1" stroke-linecap="round"/>
+      <circle cx="96" cy="6" r="1.6" fill="#A93A2C"/>
+      <circle cx="101" cy="10" r="1.6" fill="#A93A2C"/>
+      <!-- 碗底圈足 -->
+      <path d="M44 66v3M60 66v3M43 69h18" stroke="#1B1A17" stroke-opacity=".6" stroke-width="1"/>
+    </svg>
+    <span class="sh-1">拍照记一餐</span>
+    <span class="sh-2">识别菜品与份量，也可手动补录</span>
+  </button>
+
+  <div class="band-h rise" style="--d:250ms">
+    <span class="bh-1">本餐菜品 <span class="bh-2" id="newCount" style="margin-left:.5em">0 道</span></span>
+    <button class="back" type="button" id="manualAdd" style="letter-spacing:.04em">＋ 补录</button>
+  </div>
+  <div class="wrap" id="newList"></div>
+  <div id="newEmpty" class="empty-note" style="padding-top:calc(var(--ma)*.8)">
+    <div class="en-2">还没有菜品。拍照或点「补录」添加。</div>
+  </div>
+
+  <div class="sum rise" style="--d:300ms">
+    <div class="rule"></div>
+    <div class="sum-in">
+      <div class="sum-l">本餐合计<small id="sumMeta">0 道 · 估算区间 0 – 0</small></div>
+      <div style="display:flex;align-items:baseline"><span class="num num-m" id="sumKcal"></span><span class="unit">千卡</span></div>
+    </div>
+    <button class="save" type="button" id="save" disabled>保存这一餐</button>
+    <div style="height:calc(var(--u)*.8)"></div>
+  </div>
+</section>
+<!-- ========== 单餐结果 ========== -->
+<section class="screen" id="s-result" aria-label="单餐结果">
+  <header class="hd hd--stack">
+    <button class="back" data-go="today" type="button">← 今日</button>
+    <h1 class="rv"><i style="--i:0">午餐 · 结果</i></h1>
+    <div class="hd-a rise" style="--d:90ms" id="resDate">12:18</div>
+  </header>
+
+  <div class="res-hero rise" style="--d:150ms">
+    <div class="rh-1">本餐合计<b id="resSub">3 道 · 参考区间 493 – 699</b></div>
+    <div style="display:flex;align-items:baseline"><span class="num num-l" id="resKcal"></span><span class="unit">千卡</span></div>
+  </div>
+
+  <div class="rule-m rule"></div>
+  <div class="wrap" id="resList" style="padding-top:calc(var(--u)*.3)"></div>
+  <div class="wrap" style="text-align:center;margin-top:calc(var(--ma)*.7)">
+    <span class="hd-note">点任一道菜，展开份量与出处</span>
+  </div>
+
+  <div class="rule-m rule"></div>
+  <div class="wrap" style="padding-top:calc(var(--u)*.8)">
+    <div class="hd-note" style="line-height:1.85">营养值由菜品库按克重折算，非实测。<br>区间来自食堂用油量差异，取中值记录。</div>
+  </div>
+</section>
+
+<!-- ========== 周视图 ========== -->
+<section class="screen" id="s-week" aria-label="周视图">
+  <header class="hd">
+    <h1 class="rv"><i style="--i:0">近七日</i></h1>
+    <div class="hd-r rise" style="--d:90ms" id="weekSpan">11.17 – 11.23</div>
+  </header>
+
+  <div class="week-dots rise" style="--d:150ms">
+    <div class="wd-head" id="wdHead"></div>
+    <div class="wd-line"></div>
+    <div class="wd-body" id="wdBody"></div>
+    <div class="wd-line"></div>
+    <div class="wd-foot" id="wdFoot"></div>
+  </div>
+  <div class="legend rise" style="--d:200ms">
+    <span><i class="on"></i>已记录</span>
+    <span><i class="est"></i>含估算</span>
+    <span><i></i>未记录</span>
+  </div>
+
+  <div class="wrap">
+    <div class="stat3 rise" style="--d:260ms">
+      <div><div class="k">记录天数</div><div class="v"><span class="num num-m" id="wDays"></span><span class="t">/ 7</span></div></div>
+      <div><div class="k">日均</div><div class="v"><span class="num num-m" id="wAvg"></span><span class="t">千卡</span></div></div>
+      <div><div class="k">数据缺</div><div class="v"><span class="num num-m" id="wGap"></span><span class="t">天</span></div></div>
+    </div>
+  </div>
+
+  <div class="wrap" style="margin-top:calc(var(--ma)*.9)">
+    <div class="hd-note" style="line-height:1.9">日均只计已完成的五天，今天只记了早午，不计入。<br>「含估算」指当天有菜品缺营养数据，总数偏低。</div>
+  </div>
+</section>
+
+</div><!-- /app -->
+
+<nav class="dock" aria-label="主导航">
+  <button class="dock-i" type="button" data-go="today" aria-current="page">今日</button>
+  <button class="seal" type="button" data-go="new" aria-label="记录一餐">
+    <svg class="face" viewBox="0 0 46 46" aria-hidden="true">
+      <defs>
+        <filter id="ink" x="-20%" y="-20%" width="140%" height="140%">
+          <feTurbulence type="fractalNoise" baseFrequency="1.3" numOctaves="3" result="n"/>
+          <feColorMatrix in="n" type="saturate" values="0" result="g"/>
+          <feComponentTransfer in="g" result="t"><feFuncA type="linear" slope=".16" intercept=".87"/></feComponentTransfer>
+          <feComposite in="SourceGraphic" in2="t" operator="in"/>
+        </filter>
+      </defs>
+      <!-- 手刻边：四边各带一点不齐，右下角一处刀口 -->
+      <path filter="url(#ink)" fill="#A93A2C" d="M4.2 3.1c11.8-.9 23.9-.7 37.6-.2.9 11.4 1 24.8.3 38.1-12.3.9-25.2 1-38.2.4C3 29.9 3.4 16.8 4.2 3.1Z"/>
+      <!-- 内圈细刻线，离边 2.6，不闭合，仿刻刀起止 -->
+      <path fill="none" stroke="#F6F5F1" stroke-width=".8" stroke-opacity=".5" d="M7.2 6.3c9.9-.6 20.1-.5 31.4-.1.7 9.7.8 21 .2 32.3-10.3.7-21.1.8-32 .3-.6-10.5-.3-21.8.4-32.5Z"/>
+    </svg>
+    <svg class="cam" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+      <path d="M3 7.5h2.4L7 4.6h8l1.6 2.9H19V18H3z" stroke-width="1.25" stroke-linejoin="round"/>
+      <circle cx="11" cy="11.6" r="3.4" stroke-width="1.25"/>
+    </svg>
+  </button>
+  <button class="dock-i" type="button" data-go="week">近七日</button>
+</nav>
+
+<script>
+/* ============================================================
+   S39O-j-data: 单一数据库。四屏所有数字由 DB 与记录模型算出，
+   总数永远等于明细之和；缺失用 null / pending，绝不用 0 冒充。
+   ============================================================ */
+const DB=[
+["tomato-egg","番茄炒蛋","蛋豆","炒",105,5.6,7.5,4,88,128,"按常见配比（鸡蛋约六成、番茄约四成）折算，含油量取食堂标准偏高一档","食堂常见炒菜盘估重，非实测","差异主要来自用油量与蛋菜比例",[["半份","90"],["标准份","180"],["大份","270"]]],
+["greens","清炒青菜","蔬菜","炒",55,1.8,4.2,3,40,72,"以小油菜为基础，按食堂清炒用油量折算","食堂常见蔬菜盘估重，非实测","差异主要来自油量与是否叶菜",[["半份","90"],["标准份","170"],["大份","250"]]],
+["rice","米饭","主食","蒸",116,2.6,0.3,25.9,100,130,"蒸制白米饭，水分约七成，采用米饭条目","食堂常见饭碗去餐具后估重，非实测","差异主要来自加水量与米种",[["半份","100"],["标准份","200"],["大份","300"]]],
+["seaweed-soup","紫菜蛋花汤","汤","煮",35,2.5,1.8,2.5,22,48,"以紫菜、鸡蛋按食堂清汤配比折算，含少量香油","食堂汤碗估重，非实测","差异主要来自蛋量与是否勾芡",[["半碗","150"],["标准份","250"],["大碗","350"]]],
+["mapo-tofu","麻婆豆腐","蛋豆","烧",130,9,8,5.5,105,160,"以南豆腐加少量肉末、豆瓣酱与红油折算","食堂常见豆腐盘估重，非实测","差异主要来自肉末比例与红油用量",[["半份","90"],["标准份","180"],["大份","270"]]],
+["kungpao","宫保鸡丁","荤菜","炒",230,15,15,9,180,280,"以鸡胸肉、花生米按常见配比折算，含糖醋汁与红油","食堂常见荤菜盘估重，非实测","差异主要来自花生用量与用油量",[["半份","80"],["标准份","160"],["大份","240"]]],
+["soy-milk","豆浆","蛋豆","煮",48,2.8,1.5,6,35,65,"以黄豆磨浆（含少量糖）折算，按食堂常见浓度","食堂常见杯估重，非实测","差异主要来自浓度与加糖量",[["小杯","200"],["标准份","300"],["大杯","400"]]],
+["hua-juan","花卷","主食","蒸",217,6.4,1,45.6,200,235,"蒸制花卷，采用面条类条目折算，含少量葱油","食堂常见个重，非实测","差异主要来自面坯大小与抹油量",[["小个","60"],["标准份","100"],["大个","150"]]],
+["steamed-bun","馒头","主食","蒸",223,7,1.1,47,205,240,"蒸制白面馒头，采用馒头条目","食堂常见个重，非实测","差异主要来自面坯大小与含水率",[["小个","60"],["标准份","100"],["大个","150"]]],
+["braised-pork","红烧肉","荤菜","炖",470,12,44,6,400,540,"以五花肉炖制折算，含糖色与汤汁油脂","食堂常见小份荤菜估重，非实测","差异主要来自肥瘦比例与收汁程度",[["半份","60"],["标准份","120"],["大份","180"]]],
+["eggplant","红烧茄子","蔬菜","烧",160,2,13,9,120,200,"茄子吸油明显，按过油做法折算，含酱油糖汁","食堂常见蔬菜盘估重，非实测","差异主要来自是否先炸，油量差别很大",[["半份","90"],["标准份","170"],["大份","250"]]],
+["tomato-soup","西红柿鸡蛋汤","汤","煮",30,1.8,1.5,2.2,18,42,"以西红柿、鸡蛋按清汤配比折算，含少量油与淀粉","食堂汤碗估重，非实测","差异主要来自蛋量与是否勾芡",[["半碗","150"],["标准份","250"],["大碗","350"]]]
+].map(r=>({id:r[0],name:r[1],cat:r[2],cook:r[3],kcal:r[4],p:r[5],f:r[6],c:r[7],lo:r[8],hi:r[9],
+  src:r[10],psrc:r[11],note:r[12],ports:r[13].map(x=>({label:x[0],g:+x[1]}))}));
+const DBX=Object.fromEntries(DB.map(d=>[d.id,d]));
+const REF=[1800,2200];
+const R=Math.round;
+const kcalAt=(d,g)=>R(d.kcal*g/100);
+const rangeAt=(d,g)=>[R(d.lo*g/100),R(d.hi*g/100)];
+const portOf=(d,i)=>d.ports[i]||d.ports[1]||d.ports[0];
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const comma=n=>n.toLocaleString('en-US');
+/* ISO 周数：真实日期算出来，不写死 */
+function isoWeek(d){
+  const t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));
+  const day=t.getUTCDay()||7; t.setUTCDate(t.getUTCDate()+4-day);
+  const y0=new Date(Date.UTC(t.getUTCFullYear(),0,1));
+  return Math.ceil(((t-y0)/86400000+1)/7);
+}
+
+/* S39O-j-model: 记录模型。meals[slot] = {items:[{id,port}], pending:[{name}]} | null */
+function blankDay(){return {breakfast:null,lunch:null,dinner:null}}
+
+function mealStat(m){
+  if(!m) return null;
+  let kcal=0,lo=0,hi=0,p=0,f=0,c=0,known=0;
+  for(const it of m.items){
+    const d=DBX[it.id]; if(!d) continue;
+    const pt=portOf(d,it.port); known++;
+    kcal+=kcalAt(d,pt.g);
+    const rg=rangeAt(d,pt.g); lo+=rg[0]; hi+=rg[1];
+    p+=d.p*pt.g/100; f+=d.f*pt.g/100; c+=d.c*pt.g/100;
+  }
+  return {kcal,lo,hi,p,f,c,known,pend:m.pending.length,items:m.items,pending:m.pending};
+}
+function dayStat(day){
+  let kcal=0,lo=0,hi=0,pend=0,logged=0;
+  for(const k of ["breakfast","lunch","dinner"]){
+    const m=day[k]; if(!m) continue;
+    const st=mealStat(m); if(!st) continue;
+    logged++; kcal+=st.kcal; lo+=st.lo; hi+=st.hi; pend+=st.pend;
+  }
+  if(!logged) return {status:"none",kcal:null,lo:null,hi:null,pend:0,logged:0};
+  return {status:pend>0?"est":"ok",kcal,lo,hi,pend,logged};
+}
+
+/* 本周数据：11/17 周一起，11/23 今天（周日）。今天只有早、午已记，晚餐空。 */
+const SLOTS=["breakfast","lunch","dinner"];
+const SLOT_CN={breakfast:"早餐",lunch:"午餐",dinner:"晚餐"};
+const WEEK=[
+  {d:"11.17",w:"一",meals:{breakfast:mk([["steamed-bun",1],["soy-milk",1]]),lunch:mk([["rice",1],["braised-pork",0],["greens",1]]),dinner:mk([["rice",0],["kungpao",1]])}},
+  {d:"11.18",w:"二",meals:{breakfast:mk([["soy-milk",0],["hua-juan",1]]),lunch:mk([["rice",0],["tomato-egg",1],["greens",0]]),dinner:mk([["rice",0],["mapo-tofu",1]])}},
+  {d:"11.19",w:"三",meals:{breakfast:null,lunch:null,dinner:null}},
+  {d:"11.20",w:"四",meals:{breakfast:mk([["soy-milk",1],["hua-juan",0]]),lunch:mk([["rice",1],["kungpao",1],["greens",1]]),dinner:mk([["rice",0],["eggplant",1]])}},
+  {d:"11.21",w:"五",meals:{breakfast:mk([["soy-milk",1],["hua-juan",1]]),lunch:{items:[["rice",0],["kungpao",1]].map(x=>mkItem(x)),pending:[{name:"自选窗口 炸鸡排"}]},dinner:mk([["steamed-bun",0],["tomato-soup",1]])}},
+  {d:"11.22",w:"六",meals:{breakfast:mk([["soy-milk",1],["steamed-bun",1]]),lunch:mk([["rice",0],["mapo-tofu",1],["eggplant",0]]),dinner:mk([["rice",0],["greens",1]])}},
+  {d:"11.23",w:"日",today:true,meals:{breakfast:mk([["soy-milk",1],["hua-juan",1]]),lunch:mk([["rice",1],["tomato-egg",1],["seaweed-soup",1]]),dinner:null}}
+];
+function mkItem(x){return {id:x[0],port:+x[1]}}
+function mk(items){return {items:items.map(mkItem),pending:[]}}
+
+/* 今日屏对象 = 本周今天 */
+const TODAY=WEEK[WEEK.length-1];
+
+/* 当前编辑态：预置三道菜，演示实时汇总；拍照/补录可继续加 */
+const EDIT={slot:"lunch",items:[{id:"rice",port:1},{id:"tomato-egg",port:1},{id:"seaweed-soup",port:1}],pending:[]};
+
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+const $=s=>document.querySelector(s);
+const $$=s=>[...document.querySelectorAll(s)];
+
+/* ---------- 数字滚动：每位数一列 0-9 竖向位移 ---------- */
+function ticker(el,value,cls){
+  const str=String(value);
+  if(el.dataset.v===str) return;
+  el.dataset.v=str;
+  const prevDigits=el._digits||[];
+  el.innerHTML='';
+  el.className='num '+(cls||'');
+  el.setAttribute('aria-label',comma(value));
+  el.setAttribute('role','text');
+  el._digits=[];
+  let di=0;
+  for(const ch of str){
+    if(/[0-9]/.test(ch)){
+      const w=document.createElement('span'); w.className='dg'; w.setAttribute('aria-hidden','true');
+      const col=document.createElement('span'); col.className='col';
+      col.style.setProperty('--k',di);
+      col.innerHTML='0 1 2 3 4 5 6 7 8 9'.split(' ').map(n=>'<b>'+n+'</b>').join('');
+      const from = prevDigits[di];
+      if(from==null){ col.style.transition='none'; col.style.setProperty('--d',ch);
+        requestAnimationFrame(()=>{col.style.transition='';}); }
+      else { col.style.setProperty('--d', ch); }
+      w.appendChild(col); el.appendChild(w); el._digits.push(ch); di++;
+    }else if(ch===','){
+      const s=document.createElement('span'); s.className='cm'; s.textContent=','; s.setAttribute('aria-hidden','true'); el.appendChild(s);
+      el._digits.push(',');
+    }
+  }
+}
+function setNum(el,value,cls){
+  el.textContent=comma(value);
+  el.className='num '+(cls||'');
+}
+
+/* ============================================================
+   S39O-j-gauge: 今日量尺。2400 千卡铺满半圆，每 20 千卡一根细刻，
+   0、600、1200、1800、2400 为长刻带数字；1800–2200 参考带浅灰弧，
+   当前值朱红针。全部由运行时总量计算，不写死。
+   ============================================================ */
+const GAUGE_MAX=2400, GAUGE_STEP=20;
+const CX=132, CY=148, RAD=96;
+const ang=v=>Math.PI+ (Math.min(v,GAUGE_MAX)/GAUGE_MAX)*Math.PI;
+const pt=(v,r)=>{const a=ang(v);return [CX+r*Math.cos(a), CY+r*Math.sin(a)];};
+
+function buildGauge(){
+  let s='';
+  // 参考区间：贴在梳齿外缘的一段 5px 弧，不与刻度交叉
+  const b0=pt(REF[0],RAD+5), b1=pt(REF[1],RAD+5);
+  s+=`<path d="M${b0[0].toFixed(2)} ${b0[1].toFixed(2)} A${RAD+5} ${RAD+5} 0 0 1 ${b1[0].toFixed(2)} ${b1[1].toFixed(2)}" stroke="#C9C5BA" stroke-width="4.5" fill="none" stroke-linecap="butt"/>`;
+  // 细刻梳：一律向内，端头不外伸，避免在 0 / 2400 处变成横线
+  for(let v=GAUGE_STEP;v<GAUGE_MAX;v+=GAUGE_STEP){
+    const major=v%600===0;
+    const key=v%200===0;
+    const len=major?8:(key?4.6:2.6);
+    const [x1,y1]=pt(v,RAD);
+    const [x2,y2]=pt(v,RAD-len);
+    s+=`<line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="#1B1A17" stroke-width="${major?.9:.55}" opacity="${major?.7:(key?.3:.15)}"/>`;
+  }
+  // 两端收口：竖短线，像量尺的端挡
+  for(const v of [0,GAUGE_MAX]){
+    const [x,y]=pt(v,RAD);
+    s+=`<line x1="${x.toFixed(2)}" y1="${(y-4).toFixed(2)}" x2="${x.toFixed(2)}" y2="${(y+4).toFixed(2)}" stroke="#1B1A17" stroke-width=".9" opacity=".7"/>`;
+  }
+  // 刻度数字：中段在弧外；两端 0 与 2400 落在端挡正下方，避免与横轴撞
+  for(const v of [600,1200,1800]){
+    const [x,y]=pt(v,RAD+17);
+    s+=`<text x="${x.toFixed(2)}" y="${(y+3.3).toFixed(2)}" font-size="9.5" fill="#7A766F" text-anchor="middle" letter-spacing=".02em">${comma(v)}</text>`;
+  }
+  s+=`<text x="${CX-RAD}" y="${CY+16}" font-size="9.5" fill="#7A766F" text-anchor="middle" letter-spacing=".02em">0</text>`;
+  s+=`<text x="${CX+RAD}" y="${CY+16}" font-size="9.5" fill="#7A766F" text-anchor="middle" letter-spacing=".02em">2,400</text>`;
+  // 已用量弧（墨）叠在梳齿外侧，读数一眼分出「已到哪」
+  s+=`<path id="gArc" d="" stroke="#1B1A17" stroke-width="1.5" fill="none" stroke-linecap="round"/>`;
+  // 当前值：一根朱针 + 针尖一点
+  s+=`<line id="gNeedle" x1="0" y1="0" x2="0" y2="0" stroke="#A93A2C" stroke-width="1.7" stroke-linecap="round"/>`;
+  s+=`<circle id="gTip" cx="0" cy="0" r="2.1" fill="#A93A2C"/>`;
+  $('#gauge').innerHTML=s;
+}
+
+function paintGauge(v){
+  const arc=$('#gArc'), nd=$('#gNeedle'), tip=$('#gTip');
+  if(v==null||v<=0){ arc.setAttribute('d',''); nd.setAttribute('x2',nd.getAttribute('x1')); tip.setAttribute('cx','0'); tip.setAttribute('cy','0'); return; }
+  const [sx,sy]=pt(0,RAD+5), [ex,ey]=pt(v,RAD+5);
+  const large = v/GAUGE_MAX>0.5 ? 1 : 0;
+  arc.setAttribute('d',`M${sx.toFixed(2)} ${sy.toFixed(2)} A${RAD+5} ${RAD+5} 0 ${large} 1 ${ex.toFixed(2)} ${ey.toFixed(2)}`);
+  const [ax,ay]=pt(v,RAD+6), [bx,by]=pt(v,RAD-15);
+  nd.setAttribute('x1',ax.toFixed(2)); nd.setAttribute('y1',ay.toFixed(2));
+  nd.setAttribute('x2',bx.toFixed(2)); nd.setAttribute('y2',by.toFixed(2));
+  const [tx,ty]=pt(v,RAD+6);
+  tip.setAttribute('cx',tx.toFixed(2)); tip.setAttribute('cy',ty.toFixed(2));
+}
+
+/* ============================================================
+   S39O-j-today: 今日屏渲染
+   ============================================================ */
+function renderToday(){
+  const st=dayStat(TODAY.meals);
+  if(st.kcal==null){
+    $('#todayTotal').textContent='—'; $('#todayTotal').className='num num-xl dash'; $('#todayTotal').dataset.v='—';
+  } else {
+    ticker($('#todayTotal'), st.kcal, 'num-xl');
+  }
+  $('#todayRange').textContent = st.kcal==null ? '尚未记录' : `估算 ${comma(st.lo)} – ${comma(st.hi)} 千卡`;
+  paintGauge(st.kcal);
+
+  const empty = st.logged===0;
+  $('#todayEmpty').hidden = !empty;
+  $('#todayMeals').hidden = empty;
+  $('#todayFootRule').hidden = true; $('#todayFoot').hidden = true;
+  if(empty) return;
+
+  let dishes=0;
+  for(const k of SLOTS){ const m=TODAY.meals[k]; if(!m) continue; const s=mealStat(m); dishes+=s.known+s.pend; }
+  $('#todayFoot').innerHTML = `<span>已记 <b>${st.logged}</b> / 3 餐 · <b>${dishes}</b> 道</span><span>第 ${isoWeek(new Date(2026,10,23))} 周</span>`;
+  $('#todayFootRule').hidden = false; $('#todayFoot').hidden = false;
+
+  $('#todayMeals').innerHTML = SLOTS.map(slot=>{
+    const m=TODAY.meals[slot];
+    if(!m){
+      return `<button class="meal is-empty" data-add="${slot}" type="button">
+        <span class="mk"><span class="mk-c">${SLOT_CN[slot][0]}</span></span>
+        <span class="mc"><span class="mc-1">${SLOT_CN[slot]} · 未记录</span><span class="mc-2">点此记下这一餐</span></span>
+        <span class="mk-plus" aria-hidden="true">＋</span>
+      </button>`;
+    }
+    const s=mealStat(m);
+    const names=m.items.map(i=>DBX[i.id].name).concat(m.pending.map(p=>p.name));
+    const sub=names.join(' · ');
+    return `<button class="meal" data-res="${slot}" type="button">
+      <span class="mk"><span class="mk-c">${SLOT_CN[slot][0]}</span><span class="mk-t">${slot==='lunch'?'12:18':(slot==='breakfast'?'07:42':'—')}</span></span>
+      <span class="mc"><span class="mc-1">${esc(sub)}</span><span class="mc-2">${s.known} 道${s.pend?` · ${s.pend} 道待估算`:''} · ${comma(s.lo)}–${comma(s.hi)} 千卡</span></span>
+      <span class="mk-cal">${comma(s.kcal)}<em>千卡</em></span>
+    </button>`;
+  }).join('');
+}
+
+/* ============================================================
+   S39O-j-new: 新建一餐
+   ============================================================ */
+function editStat(){
+  let kcal=0,lo=0,hi=0,pend=EDIT.pending.length;
+  for(const it of EDIT.items){
+    const d=DBX[it.id]; const p=portOf(d,it.port);
+    kcal+=kcalAt(d,p.g); const r=rangeAt(d,p.g); lo+=r[0]; hi+=r[1];
+  }
+  return {kcal,lo,hi,pend,known:EDIT.items.length};
+}
+function renderNew(){
+  $('#slotPick').innerHTML = SLOTS.map(s=>
+    `<button type="button" data-slot="${s}" class="${EDIT.slot===s?'on':''}" role="tab" aria-selected="${EDIT.slot===s}">${SLOT_CN[s]}</button>`
+  ).join('');
+
+  const list=EDIT.items.map((it,i)=>{
+    const d=DBX[it.id]; const p=portOf(d,it.port);
+    return `<div class="dish rise" style="--d:${i*40}ms">
+      <div class="dw"><div class="dw-1">${esc(d.name)}</div><div class="dw-2">${esc(d.cat)} · ${esc(p.label)} ${p.g}g</div></div>
+      <div class="seg">${d.ports.map((o,j)=>`<button type="button" data-port="${i}" data-pi="${j}" class="${it.port===j?'on':''}" aria-pressed="${it.port===j}">${o.label.replace('份','')}</button>`).join('')}</div>
+      <div class="dcal">${comma(kcalAt(d,p.g))}<em></em></div>
+      <button class="dx" type="button" data-del="${i}" aria-label="删除 ${esc(d.name)}">
+        <svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M2 2l10 10M12 2 2 12"/></svg>
+      </button>
+    </div>`;
+  }).join('');
+  EDIT.pending.forEach((p,i)=>{
+    /* 待估算项：有名字、没有数字，写明「待估算」 */
+  });
+  $('#newList').innerHTML=list;
+  $('#newEmpty').hidden = EDIT.items.length>0;
+  $('#newCount').textContent = `${EDIT.items.length} 道${EDIT.pending.length?` + ${EDIT.pending.length} 待估算`:''}`;
+
+  const st=editStat();
+  ticker($('#sumKcal'), st.kcal, 'num-m');
+  $('#sumMeta').textContent = `${st.known} 道${st.pend?` · ${st.pend} 道待估算`:''} · 估算区间 ${comma(st.lo)} – ${comma(st.hi)}`;
+  $('#save').disabled = st.known===0 && st.pend===0;
+  $('#save').textContent = (st.known||st.pend) ? '保存这一餐' : '先添加菜品';
+  $('#newTime').textContent = EDIT.slot==='lunch'?'12:18':(EDIT.slot==='breakfast'?'07:42':'18:30');
+}
+
+/* ============================================================
+   S39O-j-result: 单餐结果（以今日午餐为对象）
+   ============================================================ */
+let openDish=0;
+function renderResult(){
+  const m=TODAY.meals.lunch; const st=mealStat(m);
+  ticker($('#resKcal'), st.kcal, 'num-l');
+  $('#resSub').textContent = `${st.known} 道 · 参考区间 ${comma(st.lo)} – ${comma(st.hi)}`;
+  $('#resList').innerHTML = m.items.map((it,idx)=>{
+    const d=DBX[it.id]; const p=portOf(d,it.port);
+    const k=kcalAt(d,p.g), rg=rangeAt(d,p.g);
+    const open=idx===openDish;
+    let html=`<div class="dish${open?' open':''}" data-dish="${idx}" role="button" tabindex="0" aria-expanded="${open}">
+      <div class="dw"><div class="dw-1">${esc(d.name)}</div><div class="dw-2">${esc(p.label)} ${p.g}g · ${d.kcal} 千卡/100克</div></div>
+      <div class="dcal">${comma(k)}<em>千卡</em></div>
+      <div style="flex:none;width:18px;text-align:right;color:var(--ink-3);font-size:11px">${open?'−':'＋'}</div>
+    </div>`;
+    if(open){
+      const lo=rg[0], hi=rg[1];
+      const minAll=Math.min(lo, k, st.lo), maxAll=Math.max(hi, k, st.hi);
+      const span=Math.max(maxAll-minAll,1);
+      const pct=v=>((v-minAll)/span*100).toFixed(1);
+      html+=`<div class="detail">
+        <dl>
+          <dt>份量</dt><dd>${esc(p.label)} · ${p.g} 克</dd>
+          <dt>每百克</dt><dd>${d.kcal} 千卡 · 蛋白 ${d.p}g / 脂肪 ${d.f}g / 碳水 ${d.c}g</dd>
+          <dt>本处折算</dt><dd>${comma(k)} 千卡</dd>
+          <dt>区间</dt><dd>${comma(lo)} – ${comma(hi)} 千卡</dd>
+        </dl>
+        <div class="range">
+          <div class="rb">
+            <span class="track"></span>
+            <span class="band" style="left:${pct(lo)}%;width:${(pct(hi)-pct(lo)).toFixed(1)}%"></span>
+            <span class="cap" style="left:${pct(lo)}%"></span>
+            <span class="cap" style="left:${pct(hi)}%"></span>
+            <span class="pt" style="left:${pct(k)}%"></span>
+          </div>
+          <div class="rb-l"><span>${comma(lo)}</span><b>折算 ${comma(k)}</b><span>${comma(hi)}</span></div>
+        </div>
+        <div class="src">出处：${esc(d.src)}<br>份量来源：${esc(d.psrc)}<br>差异：${esc(d.note)}</div>
+      </div>`;
+    }
+    return html;
+  }).join('');
+}
+
+/* ============================================================
+   S39O-j-week: 近七日点阵 + 数字
+   ============================================================ */
+function renderWeek(){
+  const cols=WEEK.map(day=>{
+    const st=dayStat(day.meals);
+    const dots=SLOTS.map(slot=>{
+      const m=day.meals[slot];
+      if(!m) return `<span class="pt none"></span>`;
+      const s=mealStat(m);
+      return `<span class="pt ${s.pend?'est':'on'}"></span>`;
+    }).join('');
+    const label = st.status==='none' ? '—' : `<span class="${st.status==='est'?'':''}">${comma(st.kcal)}${st.status==='est'?'≈':''}</span>`;
+    return {day,st,dots,label};
+  });
+  $('#wdHead').innerHTML = cols.map(c=>
+    `<div class="${c.day.today?'today':''}">${c.day.d}<i>${c.day.w}</i></div>`).join('');
+  $('#wdBody').innerHTML = cols.map(c=>
+    `<div class="wd-col${c.st.status==='none'?' blank':''}${c.day.today?' today':''}" role="img" aria-label="${c.day.d} ${c.st.status==='none'?'未记录':(c.st.status==='est'?'含估算 '+c.st.kcal:'')}">${c.dots}</div>`).join('');
+  $('#wdFoot').innerHTML = cols.map(c=>
+    `<div class="${c.st.status==='none'?'blank':''}">${c.label}${c.st.status==='est'?'<em>含估算</em>':''}</div>`).join('');
+
+  const logged=cols.filter(c=>c.st.status!=='none'&&!c.day.today);
+  const sum=logged.reduce((a,c)=>a+c.st.kcal,0);
+  const avg=logged.length?Math.round(sum/logged.length):0;
+  const gaps=cols.filter(c=>c.st.status==='est').length;
+  ticker($('#wDays'), logged.length, 'num-m');
+  ticker($('#wAvg'), avg, 'num-m');
+  ticker($('#wGap'), gaps, 'num-m');
+}
+
+/* ============================================================
+   S39O-j-nav: 四屏切换
+   ============================================================ */
+function go(name){
+  $$('.screen').forEach(s=>s.classList.toggle('on', s.id==='s-'+name));
+  $$('.dock-i').forEach(b=>{
+    const on=b.dataset.go===name || (name==='new'&&b.dataset.go==='new') || (name==='result'&&b.dataset.go==='today');
+    if(name==='today'||name==='week'){ b.setAttribute('aria-current', b.dataset.go===name?'page':'false'); }
+  });
+  if(name==='today') renderToday();
+  if(name==='new') renderNew();
+  if(name==='result') renderResult();
+  if(name==='week') renderWeek();
+  window.scrollTo(0,0);
+}
+
+document.addEventListener('click',e=>{
+  const goEl=e.target.closest('[data-go]');
+  if(goEl){ go(goEl.dataset.go); return; }
+  const add=e.target.closest('[data-add]');
+  if(add){ EDIT.slot=add.dataset.add; EDIT.items=[]; EDIT.pending=[]; go('new'); return; }
+  const res=e.target.closest('[data-res]');
+  if(res){ go('result'); return; }
+  const slot=e.target.closest('[data-slot]');
+  if(slot){ EDIT.slot=slot.dataset.slot; renderNew(); return; }
+  const port=e.target.closest('[data-port]');
+  if(port){ EDIT.items[+port.dataset.port].port=+port.dataset.pi; renderNew(); return; }
+  const del=e.target.closest('[data-del]');
+  if(del){ EDIT.items.splice(+del.dataset.del,1); renderNew(); return; }
+  const dish=e.target.closest('[data-dish]');
+  if(dish){ openDish = openDish===+dish.dataset.dish ? -1 : +dish.dataset.dish; renderResult(); return; }
+});
+
+$('#shoot').addEventListener('click',()=>{
+  $('#shoot').classList.add('shot');
+  setTimeout(()=>$('#shoot').classList.remove('shot'),180);
+  EDIT.items.push({id:'kungpao',port:1});
+  renderNew();
+});
+$('#manualAdd').addEventListener('click',()=>{
+  EDIT.items.push({id:'greens',port:1});
+  renderNew();
+});
+$('#save').addEventListener('click',()=>go('result'));
+
+buildGauge();
+go('today');
+</script>
+</body>
+</html>

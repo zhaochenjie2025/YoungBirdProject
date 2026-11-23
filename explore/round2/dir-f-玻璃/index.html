@@ -86,37 +86,38 @@ body{
    光源恒定左上，因此高光永远在左上、厚度暗边永远在右下。
    cf-justify: 圆角是「光学玻璃皿」本体——连续大圆角模拟 iOS 26 液态玻璃与磨边镜片的真实折边
    ============================================================ */
-.glass{/* cf-justify: 玻璃原语：圆角是光学玻璃皿本体，厚度由顶亮斜面+底部玻璃壁+色散边环构成 */
+.glass{/* cf-justify: 玻璃原语：圆角是光学玻璃皿本体，厚度由顶亮斜面+底部玻璃壁+色散边环构成；体芯近乎透明以透出背景光 */
   position:relative;
   border-radius:var(--r-lg);
-  border:1px solid rgba(255,255,255,.68);
-  /* 背板真的折射：低不透明填充 + 高饱和 backdrop，让背景彩色光透上来，不是白片 */
-  -webkit-backdrop-filter:blur(10px) saturate(230%) brightness(1.05);
-  backdrop-filter:blur(10px) saturate(230%) brightness(1.05);
+  border:1px solid rgba(255,255,255,.62);
+  /* 真透光：高通饱和 backdrop 采样背景彩色，体芯只有极淡染色（≤0.12），光能透上来 */
+  -webkit-backdrop-filter:blur(11px) saturate(240%) brightness(1.04);
+  backdrop-filter:blur(11px) saturate(240%) brightness(1.04);
   background:
-    linear-gradient(150deg, rgba(206,236,226,.32), rgba(255,255,255,.05) 42%, rgba(236,220,200,.22));
-  /* 厚度靠四件事：① 顶部一条厚实亮斜面 ② 底部一道深色玻璃壁 ③ 壁下一条反光细线 ④ 底层压深的接触暗 */
+    linear-gradient(150deg, rgba(200,232,222,.14), rgba(255,255,255,.02) 46%, rgba(236,220,200,.12));
+  /* 厚度只靠四条边，不靠体芯：① 顶部厚亮斜面 ② 底部深色玻璃壁 + 反光唇 ③ 左右薄壁 ④ 接触暗 */
   box-shadow:
-    inset 0 3px 0 -0.5px rgba(255,255,255,1),
-    inset 0 9px 12px -8px rgba(255,255,255,.95),
-    inset 2.5px 0 0 rgba(255,255,255,.42),
-    inset -2.5px 0 0 rgba(255,255,255,.2),
-    inset 0 -7px 0 -3px rgba(74,104,96,.55),
-    inset 0 -34px 32px -26px rgba(40,72,64,.6),
-    0 1px 0 rgba(255,255,255,.7),
+    inset 0 2.5px 0 -0.5px rgba(255,255,255,1),
+    inset 0 7px 10px -8px rgba(255,255,255,.9),
+    inset 2px 0 0 rgba(255,255,255,.38),
+    inset -2px 0 0 rgba(255,255,255,.18),
+    inset 0 -6px 0 -3px rgba(74,104,96,.6),
+    inset 0 -1px 0 rgba(255,255,255,.5),
+    inset 0 -30px 30px -28px rgba(40,72,64,.5),
+    0 1px 0 rgba(255,255,255,.65),
     0 1px 3px rgba(var(--sh),.12),
-    0 28px 52px -22px rgba(var(--sh),.54),
-    0 9px 18px -11px rgba(var(--sh),.34);
+    0 26px 50px -22px rgba(var(--sh),.52),
+    0 9px 18px -11px rgba(var(--sh),.32);
   overflow:hidden;
   isolation:isolate;
 }
 .glass>*{position:relative;z-index:2}
-.glass::before{ /* 左上镜面高光团（更大更亮，是厚度的高光来源） */
+.glass::before{ /* 左上镜面高光：只覆盖左上角约 45%，不遮满，让右侧背景光透出 */
   content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1;
   background:
-    radial-gradient(120% 40% at 8% -8%, rgba(255,255,255,.85), rgba(255,255,255,0) 42%),
-    radial-gradient(80% 30% at 50% 0%, rgba(255,255,255,.4), rgba(255,255,255,0) 60%);
-  opacity:.95;
+    radial-gradient(58% 42% at 6% -6%, rgba(255,255,255,.72), rgba(255,255,255,0) 60%),
+    radial-gradient(34% 20% at 50% 0%, rgba(255,255,255,.28), rgba(255,255,255,0) 70%);
+  opacity:.9;
 }
 .glass::after{ /* 折射边环 + 色散：上左亮、右下回光，青/品红薄膜色差（加厚到 2px，390 宽可见） */
   content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:1;
@@ -198,18 +199,17 @@ h1,h2,h3,p{margin:0}
   box-shadow:inset 0 1px 0 rgba(255,255,255,.9), inset 0 -10px 22px -12px rgba(60,92,84,.5), 0 1px 0 rgba(255,255,255,.6);
   opacity:.9;
 }
-.aperture .dish{ /* 里层承光玻璃盘：与卡片同一材质（透明玻璃折射背景光），不是实心蛋液 */
+.aperture .dish{ /* 里层承光玻璃盘：强透光（体芯近透明），光从盘底透上来，不是实心蛋液 */
   position:absolute;inset:28px;border-radius:999px;
   background:
-    linear-gradient(150deg, rgba(210,236,228,.26), rgba(255,255,255,.02) 46%, rgba(236,222,204,.18));
-  -webkit-backdrop-filter:blur(9px) saturate(215%) brightness(1.05);backdrop-filter:blur(9px) saturate(215%) brightness(1.05);
-  border:1px solid rgba(255,255,255,.62);
+    linear-gradient(150deg, rgba(200,232,224,.05), rgba(255,255,255,.0) 46%, rgba(236,222,204,.05));
+  -webkit-backdrop-filter:blur(7px) saturate(200%) brightness(1.0);backdrop-filter:blur(7px) saturate(200%) brightness(1.0);
+  border:1px solid rgba(255,255,255,.5);
   box-shadow:
-    inset 0 2.5px 0 -0.5px rgba(255,255,255,1),
-    inset 0 8px 12px -8px rgba(255,255,255,.9),
-    inset 0 -7px 0 -3px rgba(74,104,96,.5),
-    inset 0 -22px 28px -22px rgba(40,72,64,.5),
-    0 1px 0 rgba(255,255,255,.7);
+    inset 0 2px 0 -0.5px rgba(255,255,255,.95),
+    inset 0 -6px 0 -3px rgba(74,104,96,.42),
+    inset 0 -1px 0 rgba(255,255,255,.5),
+    inset 0 -20px 26px -22px rgba(40,72,64,.4);
   display:grid;place-items:center;overflow:hidden;
 }
 /* 盘内一圈镜面环：玻璃盘的倒角内沿 + 色散，和卡片的边环同一门语 */
@@ -230,16 +230,16 @@ h1,h2,h3,p{margin:0}
 /* 承光玻璃层：每记一餐叠一片带真实厚度的玻璃圆片，层数=餐数，一眼可数 */
 .aperture .layers{position:absolute;inset:0;border-radius:999px;pointer-events:none;z-index:1;display:grid;place-items:center}
 .aperture .layers .layer{position:absolute;border-radius:999px;
-  border:1px solid rgba(255,255,255,.72);
+  border:1px solid rgba(255,255,255,.62);
   background:
-    radial-gradient(circle at 36% 30%, rgba(255,255,255,.5), rgba(255,255,255,.05) 46%, rgba(255,255,255,.16) 72%);
-  -webkit-backdrop-filter:blur(3px) saturate(150%);backdrop-filter:blur(3px) saturate(150%);
+    radial-gradient(circle at 36% 30%, rgba(255,255,255,.22), rgba(255,255,255,0) 50%, rgba(255,255,255,.06) 76%);
+  -webkit-backdrop-filter:blur(2px) saturate(150%);backdrop-filter:blur(2px) saturate(150%);
   /* 上沿受光 + 下沿增厚暗折成「厚度」，片间投影压向下方 */
   box-shadow:
-    inset 0 1.5px 0 rgba(255,255,255,.98),
-    inset 0 -2px 0 rgba(120,150,140,.34),
-    inset 0 -14px 20px -14px rgba(60,92,84,.5),
-    0 5px 12px -6px rgba(var(--sh),.4);
+    inset 0 1.5px 0 rgba(255,255,255,.95),
+    inset 0 -2px 0 rgba(120,150,140,.32),
+    inset 0 -12px 18px -14px rgba(60,92,84,.42),
+    0 4px 10px -6px rgba(var(--sh),.32);
   animation:layerIn .5s cubic-bezier(.2,1.1,.3,1) both}
 @keyframes layerIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:none}}
 .aperture .read{position:relative;text-align:center;z-index:3}
@@ -353,7 +353,9 @@ h1,h2,h3,p{margin:0}
 .dock .tab svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .dock .tab span{font-size:11px;font-weight:600;letter-spacing:.02em}
 .dock .tab{position:relative}
-.dock .tab.on{color:var(--teal-deep);background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,.4));box-shadow:inset 0 1px 0 #fff,0 6px 14px -8px rgba(var(--sh),.5)}
+.dock .tab.on{color:var(--teal-deep);
+  background:linear-gradient(180deg,rgba(210,238,228,.5),rgba(255,255,255,.14));
+  box-shadow:inset 0 1.5px 0 -0.5px rgba(255,255,255,.95),inset 0 -3px 0 -1.5px rgba(74,104,96,.4),inset 0 -14px 14px -12px rgba(47,122,104,.4),0 3px 8px -6px rgba(var(--sh),.4)}
 .dock .tab.on svg{/* cf-justify: 保存键是玻璃坞内的实体凸键，带 Border Beam 与厚度 */filter:drop-shadow(0 1px 0 rgba(255,255,255,.8))}
 
 /* 新建一餐时坞右端出现「保存」按钮：Border Beam 沿边绕行光点作为签名 */
@@ -490,7 +492,9 @@ h1,h2,h3,p{margin:0}
 .plate .val b.na{color:var(--ink-4);font-size:12.5px;font-family:var(--font);font-weight:600}
 .plate .val span{font-size:11px;color:var(--ink-3);letter-spacing:.03em}
 .plate .minus{width:30px;height:30px;border-radius:999px;border:0;cursor:pointer;flex:none;margin-left:8px;position:relative;
-  background:rgba(255,255,255,.55);color:var(--ink-2);font-size:17px;line-height:1;box-shadow:inset 0 1px 0 #fff,0 3px 8px -5px rgba(var(--sh),.6)}
+  background:radial-gradient(circle at 50% 34%, rgba(255,255,255,.5), rgba(210,224,218,.28) 60%, rgba(80,110,102,.34));
+  color:var(--ink-2);font-size:17px;line-height:1;
+  box-shadow:inset 0 2px 3px rgba(40,72,64,.4),inset 0 -1px 1px rgba(255,255,255,.7),0 1px 0 rgba(255,255,255,.5)}
 /* 触控热区撑到 44px，视觉仍是 30px（critic 项 10） */
 .plate .minus::after{content:"";position:absolute;inset:-7px;border-radius:999px}
 .plate.pending{background:linear-gradient(155deg,rgba(255,255,255,.5),rgba(245,225,205,.34))}
@@ -566,7 +570,9 @@ h1,h2,h3,p{margin:0}
 .dish-detail .kv .k{color:var(--ink-3)}
 .dish-detail .kv .v{color:var(--ink);font-weight:600;font-family:var(--num)}
 .dish-detail .kv .v.txt{font-family:var(--font);font-weight:500;color:var(--ink-2);text-align:right;max-width:62%}
-.dish-detail .math{/* cf-justify: 算式框是玻璃蚀刻公式条，与前文数据同一材质 */margin-top:10px;padding:11px 13px;border-radius:var(--r-2);background:rgba(255,255,255,.45);border:1px solid rgba(255,255,255,.55);font-size:12px;color:var(--ink-2);line-height:1.6;box-shadow:inset 0 1px 0 rgba(255,255,255,.85)}
+.dish-detail .math{/* cf-justify: 算式条是玻璃蚀刻凹槽，与前文菜品槽同门语，不是嵌进来的白胶囊 */margin-top:10px;padding:11px 13px;border-radius:var(--r-xs);font-size:12px;color:var(--ink-2);line-height:1.6;
+  background:linear-gradient(180deg,rgba(60,92,84,.12),rgba(255,255,255,.20));
+  box-shadow:inset 0 1.5px 3px rgba(40,72,64,.3),inset 0 -1px 0 rgba(255,255,255,.55)}
 .dish-detail .math b{color:var(--honey-deep);font-family:var(--num)}
 .dish-detail .prov{margin-top:9px;font-size:11px;color:var(--ink-4);line-height:1.5}
 
@@ -636,12 +642,14 @@ h1,h2,h3,p{margin:0}
 .week-legend i{display:inline-block;width:13px;height:13px;border-radius:5px;margin-right:5px;vertical-align:-2px}
 .week-legend span{/* cf-justify: toast 是悬浮玻璃片，厚度由亮边与投影构成 */font-size:11.5px;color:var(--ink-2);display:inline-flex;align-items:center}
 
-/* toast */
+/* toast：薄玻璃片（低不透明 + 边环 + 顶亮唇 + 底暗壁），不是白圆角块 */
 .toast{/* cf-justify: toast 是悬浮玻璃片，厚度由亮边与投影构成 */position:fixed;left:50%;transform:translate(-50%,20px);bottom:calc(96px + var(--safe-b));z-index:60;
   padding:11px 17px;border-radius:var(--r-4);font-size:13px;font-weight:600;color:var(--ink);opacity:0;pointer-events:none;
   transition:opacity .3s,transform .3s;max-width:86vw;text-align:center;
-  background:rgba(255,255,255,.8);-webkit-backdrop-filter:blur(14px) saturate(150%);backdrop-filter:blur(14px) saturate(150%);
-  border:1px solid rgba(255,255,255,.7);box-shadow:0 12px 30px -14px rgba(var(--sh),.7),inset 0 1px 0 #fff}
+  background:linear-gradient(150deg,rgba(255,255,255,.30),rgba(255,255,255,.10));
+  -webkit-backdrop-filter:blur(16px) saturate(220%);backdrop-filter:blur(16px) saturate(220%);
+  border:1px solid rgba(255,255,255,.62);
+  box-shadow:0 14px 32px -16px rgba(var(--sh),.62),inset 0 2px 0 -0.5px #fff,inset 0 -4px 0 -2px rgba(74,104,96,.5),inset 0 -1px 0 rgba(255,255,255,.5)}
 .toast.on{opacity:1;transform:translate(-50%,0)}
 
 /* 内容底部留白：允许内容滚到坞后（让 Progressive Blur 真的有用），又不遮最后一条 */
@@ -748,7 +756,7 @@ h1,h2,h3,p{margin:0}
       </div>
       <div class="plate-list" id="plate-list"></div>
 
-      <button class="btn-add" id="btn-add" style="width:100%;margin-top:12px;border:0;cursor:pointer;font-family:var(--font);font-size:13.5px;font-weight:600;color:var(--teal-deep);padding:13px;border-radius:var(--r-4);background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.6);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 5px 12px -8px rgba(var(--sh),.5);display:flex;align-items:center;justify-content:center;gap:8px">
+      <button class="btn-add" id="btn-add" style="width:100%;margin-top:12px;border:0;cursor:pointer;font-family:var(--font);font-size:13.5px;font-weight:600;color:var(--teal-deep);padding:13px;border-radius:var(--r-4);background:linear-gradient(150deg,rgba(210,236,228,.18),rgba(255,255,255,.04));border:1px solid rgba(255,255,255,.6);box-shadow:inset 0 2px 0 -0.5px rgba(255,255,255,.95),inset 0 -4px 0 -2px rgba(74,104,96,.42),inset 0 -1px 0 rgba(255,255,255,.5),0 8px 18px -12px rgba(var(--sh),.5);display:flex;align-items:center;justify-content:center;gap:8px">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
         从菜品库选一道
       </button>

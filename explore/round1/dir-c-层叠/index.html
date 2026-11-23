@@ -111,11 +111,12 @@ body::after{
     scale(calc(1 - var(--i) * .022));
   z-index:calc(60 - var(--i));
   --dz:calc(var(--i) * 1.3 + .45);
-  /* 侧壁厚度：两层硬偏移暗影 + 底缘亮线，让卡像"切出来的纸"而非画上的矩形（借 React Bits Tilted Card 的挤出做法） */
+  /* 侧壁厚度：三层硬偏移暗影 + 底缘亮线，让卡像"切出来的纸"而非画上的矩形（借 React Bits Tilted Card 的挤出做法） */
   box-shadow:
     var(--sh-a),
-    0 calc(2px + var(--i) * 0px) 0 rgba(120,96,64,.55),
-    0 calc(3px + var(--i) * 0px) 0 rgba(150,130,100,.9),
+    0 1px 0 rgba(255,250,238,.9),
+    0 3px 0 rgba(120,96,64,.62),
+    0 5px 0 rgba(176,150,112,.95),
     var(--sh-b),var(--sh-c);
   transition:transform .5s cubic-bezier(.2,1.12,.3,1), opacity .3s ease, box-shadow .5s ease;
   will-change:transform;
@@ -236,24 +237,26 @@ body::after{
   transition:transform .45s cubic-bezier(.2,1.1,.3,1),opacity .4s ease}
 .tape-wrap.tearing{transform:translateY(70%) rotate(2.5deg);opacity:0}
 /* cf-justify: 热敏小票纸带，形状由撕齿上缘与穿孔撕线定义，是本方向「一餐账单」的物理载体 */
+/* 撕齿直接切在纸体上（mask 作用于本体）：中段实心 + 上下两段只留齿列，并集即得锯齿轮廓；
+   wrapper 的 drop-shadow 便自然跟随这条锯齿轮廓落影，无「变色贴条」接缝 */
 .receipt{
-  position:relative;background:linear-gradient(180deg,#fbf7ec,#f4ecda 60%,#eee3cd);
-  color:var(--ink);border-radius:0;padding:16px 16px 14px;
+  position:relative;--tooth:7px;
+  background:linear-gradient(180deg,#fbf7ec,#f4ecda 60%,#eee3cd);
+  color:var(--ink);border-radius:0;
+  padding:calc(15px + var(--tooth)) 16px calc(13px + var(--tooth));
   box-shadow:0 1px 0 rgba(255,255,255,.6) inset;
   text-shadow:none;
+  -webkit-mask:
+    linear-gradient(#000,#000) center / 100% calc(100% - var(--tooth) * 2) no-repeat,
+    repeating-linear-gradient(90deg,#000 0 6px,transparent 6px 10px) center / 100% 100% no-repeat;
+  mask:
+    linear-gradient(#000,#000) center / 100% calc(100% - var(--tooth) * 2) no-repeat,
+    repeating-linear-gradient(90deg,#000 0 6px,transparent 6px 10px) center / 100% 100% no-repeat;
 }
-/* 上缘与下缘撕齿：实心同色纸，叠上下缘后由 wrapper 的 drop-shadow 统一勾出锯齿落影 */
-.receipt::before,.receipt::after{
-  content:"";position:absolute;left:0;right:0;height:8px;background:#f8f2e4;
-  -webkit-mask:repeating-linear-gradient(90deg,#000 0 6px,transparent 6px 10px);
-  mask:repeating-linear-gradient(90deg,#000 0 6px,transparent 6px 10px);
-}
-.receipt::before{top:-8px}
-.receipt::after{bottom:-8px}
-/* 穿孔撕线：两排打穿的孔+一条撕线，孔钉在线上（不是浮贴黑点） */
-.perf{height:0;border-top:1.5px dashed rgba(90,70,44,.55);position:relative;margin:12px -16px}
-.perf::before{content:"";position:absolute;left:0;right:0;top:-9px;height:18px;
-  background:radial-gradient(circle, var(--table) 0 2.2px, transparent 2.6px) 0 9px/13px 18px repeat-x}
+/* 穿孔撕线：一排打穿、钉在撕线中轴上的圆孔，孔即撕线本身（不再另画虚线） */
+.perf{height:0;border:0;position:relative;margin:20px -16px 18px}
+.perf::before{content:"";position:absolute;left:0;right:0;top:-5px;height:10px;
+  background:radial-gradient(circle, var(--table) 0 2.4px, transparent 2.9px) center/13px 10px repeat-x}
 .rc-head{display:flex;justify-content:space-between;align-items:baseline;font-size:11.5px;color:var(--ink-3);letter-spacing:.06em}
 .rc-total{display:flex;align-items:flex-end;justify-content:space-between;margin:6px 0 2px}
 .rc-total .k{font-size:12px;color:var(--ink-3);letter-spacing:.2em;align-self:center}
@@ -354,8 +357,8 @@ body::after{
   border:1px solid rgba(255,255,255,.55);border-left:6px solid var(--cat);border-radius:7px 7px 3px 3px; /* cf-justify: 今日小叠卡，菜卡切角 */
   padding:10px 40px 10px 14px;color:var(--ink);transform-origin:50% 0;
   transform:rotate(var(--rot,0deg));
-  /* 侧壁：硬偏移暗影 + 底缘受光亮线 */
-  box-shadow:0 1px 0 rgba(150,130,100,.9),0 2px 0 rgba(120,96,64,.45),0 6px 12px rgba(6,4,2,.34);
+  /* 侧壁：三层硬偏移暗影 + 底缘受光亮线，读作切出来的纸厚 */
+  box-shadow:0 1px 0 rgba(255,250,238,.9),0 3px 0 rgba(120,96,64,.55),0 5px 0 rgba(176,150,112,.9),0 8px 14px rgba(6,4,2,.34);
   transition:transform .3s cubic-bezier(.2,1.1,.3,1)}
 .tstack .tcard:first-child{margin-top:0}
 .tstack .tcard:nth-child(2){--rot:-.4deg}
@@ -407,13 +410,13 @@ body::after{
   box-shadow:0 3px 0 rgba(255,246,222,.4) inset,0 -3px 0 rgba(60,40,16,.5) inset,0 8px 20px rgba(0,0,0,.45)}
 .empty-deck .cam svg{width:26px;height:26px;stroke:#5a3f1c;stroke-width:1.7;fill:none}
 
-/* 今日合力：印在卡摞下方的桌面落款，把整天的合力落在桌上而不是浮空 */
-.today-ledger{margin-top:22px;padding:14px 2px 2px;border-top:1px solid rgba(201,162,95,.22);
-  display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
-.today-ledger .tl-k{font-size:12px;color:var(--cream-72);letter-spacing:.16em;align-self:center}
-.today-ledger .tl-v{font-family:var(--mono);font-size:40px;line-height:.84;font-weight:600;color:var(--brass);letter-spacing:-.03em}
+/* 今日合力：印在已录卡摞正下方的桌面落款，稳在首屏、不被底坞压 */
+.today-ledger{margin-top:18px;padding:13px 2px 0;border-top:1px solid rgba(201,162,95,.22);
+  display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.today-ledger .tl-k{font-size:12px;color:var(--cream-72);letter-spacing:.16em}
+.today-ledger .tl-v{font-family:var(--mono);font-size:38px;line-height:.84;font-weight:600;color:var(--brass);letter-spacing:-.03em}
 .today-ledger .tl-v small{font-size:13px;color:var(--cream-72);letter-spacing:.06em;margin-left:4px;font-weight:400}
-.today-ledger .tl-mac{display:flex;gap:0;margin-top:0;padding-top:0}
+.today-ledger .tl-mac{display:flex;gap:0;flex-basis:100%;justify-content:flex-end;margin-top:11px}
 .today-ledger .tl-mac div{padding:0 10px;border-left:1px solid rgba(201,162,95,.2);text-align:right}
 .today-ledger .tl-mac b{display:block;font-family:var(--mono);font-size:14px;color:var(--cream);font-weight:600}
 .today-ledger .tl-mac span{font-size:11px;color:var(--cream-72);letter-spacing:.1em}
@@ -561,7 +564,7 @@ body::after{
         <span class="ring"></span>
         <svg viewBox="0 0 24 24"><path d="M4 8h3l1.6-2h6.8L17 8h3a1 1 0 0 1 1 1v9a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1Z"/><circle cx="12" cy="13" r="3.4"/></svg>
       </button>
-      <div style="width:78px;text-align:right"><span style="font-size:11px;color:var(--cream-72);letter-spacing:.04em;line-height:1.4;display:inline-block">拍一拍<br>记一餐</span></div>
+      <div style="width:78px;text-align:right"><span style="font-size:11px;color:var(--cream-72);letter-spacing:.04em;line-height:1.4;display:inline-block">拍照<br>记一餐</span></div>
     </div>
   </section>
 
@@ -890,8 +893,8 @@ function renderToday(){
   el('today-empty').style.display='none';
   var html='';
   // 卡全高 ∝ 千卡（钳 74–130px）；相邻卡靠 margin-top:calc(--bh * -0.56) 压叠，露出的带面约 44% ≥ 40px，整摞总高随整餐热量增长。
-  // 与新建页共用同一「厚度∝热量」几何，只是横置成餐次摞（must-fix 2）。
-  function bandOf(it){ if(it.pending||it.n[0]==null) return 72; return Math.max(66, Math.min(110, 60 + it.n[0]*0.075)); }
+  // 卡全高 ∝ 千卡（斜率更陡使厚度差可见；钳 56–150px），与新建页同源思路「厚度∝热量」，横置成餐次摞（must-fix 2）
+  function bandOf(it){ if(it.pending||it.n[0]==null) return 64; return Math.max(56, Math.min(150, 40 + it.n[0]*0.28)); }
   meals.forEach(function(m){
     var s = summarize(m.items);
     html += '<div class="meal-block" data-meal="'+m.id+'">'
@@ -912,6 +915,19 @@ function renderToday(){
       + '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="m9 6 6 6-6 6"/></svg></div>'
       + '</div>';
   });
+  // 今日合力落款：紧跟已录卡摞（有记录才有），让合计稳在首屏、不被底坞压住
+  var allItems=[]; meals.forEach(function(m){ allItems=allItems.concat(m.items); });
+  var dayS = summarize(allItems);
+  if(meals.length){
+    html += '<div class="today-ledger">'
+      + '<span class="tl-k">今日合力</span>'
+      + '<span class="tl-v">'+dayS.kcal+'<small>千卡</small></span>'
+      + '<div class="tl-mac">'
+      +   '<div'+(dayS.protein==null?' class="na"':'')+'><b>'+(dayS.protein==null?'—':dayS.protein)+'</b><span>蛋白 g</span></div>'
+      +   '<div'+(dayS.fat==null?' class="na"':'')+'><b>'+(dayS.fat==null?'—':dayS.fat)+'</b><span>脂肪 g</span></div>'
+      +   '<div'+(dayS.carbs==null?' class="na"':'')+'><b>'+(dayS.carbs==null?'—':dayS.carbs)+'</b><span>碳水 g</span></div>'
+      + '</div></div>';
+  }
   // 未记录的餐次：用同一餐次栏目占位，给出「还能往桌上叠」的留白，而不是纯黑空桌
   var SLOT_ORDER=['breakfast','lunch','dinner','snack'];
   var recorded={}; meals.forEach(function(m){ recorded[m.slot]=1; });
@@ -923,22 +939,6 @@ function renderToday(){
       + '</div>';
   });
   list.innerHTML = html;
-  // 今日合力落款：把整天的合计印在卡摞下方（有记录才有）
-  var allItems=[]; meals.forEach(function(m){ allItems=allItems.concat(m.items); });
-  var dayS = summarize(allItems);
-  if(meals.length){
-    list.insertAdjacentHTML('beforeend',
-      '<div class="today-ledger">'
-      + '<span class="tl-k">今日合力</span>'
-      + '<span class="tl-v">'+dayS.kcal+'<small>千卡</small></span></div>'
-      + '<div class="today-ledger" style="border-top:0;margin-top:8px;padding-top:0;justify-content:flex-end">'
-      + '<div class="tl-mac">'
-      +   '<div'+(dayS.protein==null?' class="na"':'')+'><b>'+(dayS.protein==null?'—':dayS.protein)+'</b><span>蛋白 g</span></div>'
-      +   '<div'+(dayS.fat==null?' class="na"':'')+'><b>'+(dayS.fat==null?'—':dayS.fat)+'</b><span>脂肪 g</span></div>'
-      +   '<div'+(dayS.carbs==null?' class="na"':'')+'><b>'+(dayS.carbs==null?'—':dayS.carbs)+'</b><span>碳水 g</span></div>'
-      + '</div></div>'
-    );
-  }
   var tot=dayS.kcal, pc=dayS.pendingCount;
   el('today-kcal').textContent = tot;
   el('today-count').textContent = meals.length+' 餐 · '+pc+' 道待估算';
