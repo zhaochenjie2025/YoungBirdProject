@@ -1,0 +1,73 @@
+# 第二轮视觉探索 · 结果汇总
+
+生成于 2026-11-23。共 10 个方向，两轮制：
+第一轮 4 个自创母题方向（补做带技能质询），第二轮 6 个参考驱动方向。
+
+对比页：`explore/index.html`（`python3 -m http.server 8799` 后访问）。
+
+## 一、总表
+
+| 方向 | 轮次 | 大小 | P1 | 质询 | 借用机制 |
+|---|---|---|---|---|---|
+| E 现代简约 | 二轮 | 79 KB | **0** | 3 轮 6.5/10 | Progressive Blur、Number Ticker、Bento Grid、Dock |
+| F 玻璃拟态 | 二轮 | 85 KB | **0** | 4 轮 6.5/10 | Fluid Glass、Progressive Blur、Border Beam、Magic Card |
+| G 数据面板 | 二轮 | 72 KB | **0** | 2 轮 7.5/10 | Bento Grid、Number Ticker、Code Comparison、Dotted Map |
+| H 编辑杂志 | 二轮 | 75 KB | **0** | 3 轮 7/10 | Split Text、Number Ticker、Text Highlighter、Halftone Reveal、Rubber Segment |
+| I 新粗野 | 二轮 | 74 KB | **0** | 2 轮 7.5/10 | Sling Button、Slide Commit、Rubber Segment、Tear Ticket、Sticker Peel |
+| J 日系极简 | 二轮 | 60 KB | **0** | 2 轮 7/10 | Masked Heading、Curved Loop、Hold Button、Dotted Map、Number Ticker |
+| A 拍立得 | 一轮 | 57 KB | 16 | 2 轮 7.5/10 | Halftone Reveal、Glare（后补） |
+| B 仪表盘 | 一轮 | 87 KB | 13 | 2 轮 部分未修 | Tear Ticket、Sling Button、Lusion matcap（后补） |
+| C 层叠 | 一轮 | 79 KB | 20 | 2+1 轮 | Bounce Cards、Scroll Stack、Tilted Card、Tear Ticket（后补） |
+| D 手账 | 一轮 | 71 KB | 4 | 2 轮 8/10 | Tear Ticket、Split Text（后补） |
+
+**第二轮 6 个方向全部 P1=0；第一轮 4 个方向 P1 在 4~20 之间。**
+
+## 二、质询代理加载技能前后的差别（实测）
+
+同一个方向、同一档位（haiku），有无技能的前置：
+
+| 无技能时 | 有技能时 |
+|---|---|
+| "工艺密度不够" | "金属环是线性渐变，缺随弧移动的镜面热点——应改角向 26 段配色" |
+| "布局一般" | "面板与纸带是两张独立卡，谁都不是机身——结构层缺失" |
+| 没发现 | "主操作被页脚压掉，390 宽压 38px、360 宽压 91px"（可达性事故） |
+| 没发现 | "手写体栈前四项全是 macOS 字体，Linux/Android 静默降级" |
+| 没发现 | "菜品是 App 图标不是照片——母题最显眼的面积上不成立" |
+| 没发现 | "伪透光：卡内暖光透过率≈0，白胶囊只是迁移到了其他元素" |
+| 没发现 | "CSS 新粗野默认配方，不是印刷工艺" |
+
+## 三、从这轮里提炼的方法论
+
+1. **质询代理必须加载技能**（已存 `docs/memory/critic-must-load-skill.md`），否则只是多一层审查、不是多一层标准。
+2. **能测量的必须量化**。F 的「透光率≈0」、D 的「压掉 38px」、C 的「矩形相交表」都比肉眼判断可靠。
+3. **几何不相交 ≠ 视觉不重叠**。C 的矩形全不相交，但半透明坞让卡片透上来——材质问题伪装成布局问题。
+4. **P1 清零 ≠ 做对了**。F 第二轮就报过 P1=0，但那只是给每个圆角加了注释，白色胶囊还是白胶囊。
+5. **借机制的关键是它能否长出真实母题**。G 借 Code Comparison 长出数据工具、I 借 Tear Ticket 长出印刷台账、H 借 Split Text 长出杂志标题；F 一开始只借滤镜层，就落回模板。
+
+## 四、各方向的已知上限（都源于同一约束）
+
+所有方向都被「零外部依赖 + ≤120KB + 纯 CSS/SVG」限制：
+
+- **A**：菜品是手绘矢量不是实拍照片；快门滚花缺真车削高光
+- **B**：餐盘浮雕感距雕刻级有距离；金属环靠角向配色近似 matcap
+- **F**：到不了真透镜折射（需 `feDisplacementMap` 法线图或 WebGL 透射）
+- **H**：报头未用 Didone 高对比衬线（系统无此字族）
+- **J**：320 宽周屏需滚 19px（非设计基准）
+
+**共同解法**：引入 WebGL/Three.js 或内嵌位图资产，两者都会突破当前约束。需 Sou39O 拍板。
+
+## 五、字体问题（系统性风险）
+
+四个方向都依赖衬线/手写中文字体。实测：
+- A：手写栈前四项是 macOS 字体，Linux/Android 静默降级成宋体
+- D：改 Noto Serif CJK SC 打头，本机实测落到真衬线；原生 Android 会整体回退黑体
+- J：CDP 实测竖排餐次 → Noto Serif CJK SC，拉丁探针宽度差 32px 证明确实换字
+
+**在 Mac 截图上看效果，和 Android 用户机器上完全是两回事。** 若要保证气质，需内嵌子集字体（+100~300 KB，突破预算）。
+
+## 六、待决策项
+
+1. **选哪个方向**（10 选 1，或组合）
+2. **是否放宽约束上 WebGL / 位图资产**（影响 A/B/F 的上限）
+3. **是否内嵌子集字体**（影响所有依赖衬线的方向）
+4. 各方向 NOTES 里的局部待决项（见各 `explore/*/dir-*/NOTES.md` 末尾）
