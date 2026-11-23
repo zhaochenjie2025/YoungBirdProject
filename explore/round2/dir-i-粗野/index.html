@@ -291,7 +291,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webki
 .ledger .blank-slot .t{padding:9px 8px;font-size:12.5px;font-weight:800;color:var(--ink-2);display:flex;align-items:center;gap:7px}
 .ledger .blank-slot .t b{font-weight:900;color:var(--ink)}
 .ledger .blank-slot .go{
-  align-self:center;margin-right:7px;min-height:32px;padding:4px 10px;font-size:12px;
+  align-self:center;margin-right:7px;min-height:40px;padding:8px 12px;font-size:12.5px;
   border:2px solid var(--ink);background:var(--paper);font-weight:900;
   box-shadow:1.5px 1.5px 0 0 var(--paper),2px 2px 0 0 var(--ink-deep);
 }
@@ -337,9 +337,11 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webki
 .shutter .tx{text-align:left;min-width:0;position:relative;z-index:2}
 .shutter .tx b{display:block;font-size:21px;font-weight:900;letter-spacing:-.01em;line-height:1.1}
 .shutter .tx span{display:block;font-size:12px;font-weight:800;margin-top:4px;color:var(--ink)}
+/* cf-justify: 与全站同款的硬墨小签，不是独立软胶囊 */
 .shutter .hint{
-  position:absolute;right:12px;bottom:9px;font-size:11px;font-weight:900;letter-spacing:.02em;
-  color:var(--ink);background:rgba(255,255,255,.34);padding:1px 5px;
+  position:absolute;right:12px;bottom:9px;font-size:11px;font-weight:900;letter-spacing:.01em;
+  color:var(--ink);background:var(--paper);border:2px solid var(--ink);padding:1px 6px;
+  box-shadow:1.5px 1.5px 0 0 var(--ink-deep);
 }
 .shutter .prog{
   position:absolute;left:0;bottom:0;height:5px;width:0;background:var(--ink);z-index:2;
@@ -500,7 +502,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webki
   display:flex;flex-direction:column;align-items:center;padding:0 0 9px;min-width:0;
 }
 .wk-col:first-child{border-left:0}
-.wk-col .dow{font-size:11px;font-weight:900;letter-spacing:.02em;color:var(--ink-2);padding:6px 0 2px}
+.wk-col .dow{font-size:11px;font-weight:900;letter-spacing:.02em;color:var(--ink-2);padding:6px 15px 2px 3px;position:relative;z-index:4;align-self:stretch;text-align:left}
 .wk-col .dno{font-size:17px;font-weight:900;font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1.1}
 /* 柱：定高，柱内自下而上填墨 */
 .wk-col .colbar{
@@ -524,7 +526,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webki
 .wk-col.is-today .dno{color:var(--cobalt)}
 /* 可揭角标 */
 .wk-col .peel{
-  position:absolute;top:51px;right:0;width:20px;height:20px;z-index:3;cursor:grab;touch-action:none;
+  position:absolute;top:0;right:0;width:18px;height:18px;z-index:3;cursor:grab;touch-action:none;
 }
 .wk-col .peel .st{
   position:absolute;inset:0;background:var(--tomato);color:var(--ink);
@@ -532,7 +534,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webki
   display:grid;place-items:center;font-size:11px;font-weight:900;line-height:1;
   transform-origin:0 0;transition:transform .45s cubic-bezier(.3,1.3,.4,1),opacity .3s;
 }
-.wk-col .peel .st::before{content:"";position:absolute;right:0;bottom:0;width:8px;height:8px;background:var(--paper);clip-path:polygon(100% 0,100% 100%,0 100%);border-left:1.5px solid var(--ink);border-top:1.5px solid var(--ink)}
+.wk-col .peel .st::before{content:"";position:absolute;right:0;bottom:0;width:7px;height:7px;background:var(--paper);clip-path:polygon(100% 0,100% 100%,0 100%);border-left:1.5px solid var(--ink);border-top:1.5px solid var(--ink)}
 .wk-col.peeled .peel .st{transform:rotate(-26deg) translate(-40%,-46%) scale(.85);opacity:0}
 .wk-col .peel-note{
   display:none;position:absolute;left:1px;right:1px;bottom:0;background:var(--paper);
@@ -555,12 +557,12 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webki
 .stamp{
   position:absolute;transform:translate(-50%,-50%) rotate(-6deg) scale(1.32);opacity:0;
   border:5px solid var(--tomato);color:var(--tomato);
-  padding:10px 20px;font-size:26px;font-weight:900;letter-spacing:.02em;line-height:1.1;
+  padding:8px 16px;font-size:23px;font-weight:900;letter-spacing:.02em;line-height:1.1;
   background:transparent;
   -webkit-mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.22' numOctaves='2' seed='11'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='2.6' intercept='-.34'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='90' height='90' filter='url(%23m)'/%3E%3C/svg%3E");
   mask-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='m'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.22' numOctaves='2' seed='11'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3CfeComponentTransfer%3E%3CfeFuncA type='linear' slope='2.6' intercept='-.34'/%3E%3C/feComponentTransfer%3E%3C/filter%3E%3Crect width='90' height='90' filter='url(%23m)'/%3E%3C/svg%3E");
   transition:transform .16s cubic-bezier(.3,1.5,.5,1),opacity .12s;
-  mix-blend-mode:multiply;
+  mix-blend-mode:normal;
 }
 .stamp.show{transform:translate(-50%,-50%) rotate(-6deg) scale(1);opacity:.93}
 .stamp small{display:block;font-size:12px;letter-spacing:.02em;margin-top:2px;text-align:center;font-weight:900}
@@ -864,12 +866,27 @@ let draftSlot = "午餐";
 const PICKABLE = ["tomato_egg","soup","rice","greens","yu_xiang","kungpao","mapo","potato","broc","braised_pork","steamed_egg","hua_juan","soy_milk","mantou","chao_fan","unknown_dish"];
 
 function irisSVG(){
-  /* 六叶光圈：六片刀片从中心向外张开，刀片间留刃口横缝 */
-  let blades="";
+  /* 六叶光圈：六片刀片相互叠压，中央留一个六边形通光孔。
+     刀片 = 内六边形的两条相邻顶点 → 外圈的对应弧段，形成叠压刃口。 */
+  const cx=31, cy=31, hexR=13.2, outR=29;
+  const pt=(r,deg)=>{const a=deg*Math.PI/180;return [cx+r*Math.cos(a), cy+r*Math.sin(a)];};
+  let blades="", seams="";
   for(let i=0;i<6;i++){
-    blades+=`<path class="blade" transform="rotate(${i*60} 31 31)" d="M31 31 L31 5 A26 26 0 0 1 53.5 18 Z" stroke="#14120C" stroke-width="1.6"/>`;
+    const a0=i*60+30, a1=a0+60;
+    const [x0,y0]=pt(hexR,a0), [x1,y1]=pt(hexR,a1);
+    const [ox0,oy0]=pt(outR,a0+9), [ox1,oy1]=pt(outR,a1+9);
+    blades+=`<path class="blade" d="M${x0} ${y0} L${x1} ${y1} L${ox1} ${oy1} L${ox0} ${oy0} Z"/>`;
+    /* 刃口：相邻刀片的压边，一条细墨线 */
+    seams+=`<line x1="${x0}" y1="${y0}" x2="${ox0}" y2="${oy0}" stroke="#14120C" stroke-width="1.5"/>`;
   }
-  return `<svg viewBox="0 0 62 62" aria-hidden="true">${blades}<circle class="core" cx="31" cy="31" r="7.5"/><circle cx="31" cy="31" r="7.5" fill="none" stroke="#F6C324" stroke-width="2"/></svg>`;
+  let hex="";
+  for(let i=0;i<6;i++){const [x,y]=pt(hexR,i*60+30);hex+=`${x},${y} `;}
+  return `<svg viewBox="0 0 62 62" aria-hidden="true">
+    <circle cx="31" cy="31" r="29" fill="#14120C"/>
+    ${blades}${seams}
+    <polygon points="${hex}" fill="#E8503A" stroke="#14120C" stroke-width="2"/>
+    <polygon points="${hex}" fill="none" stroke="#F6C324" stroke-width="1.6"/>
+  </svg>`;
 }
 
 function renderNew(){
@@ -1041,7 +1058,7 @@ function renderWeek(){
       <div class="dno">${d.date.split("-")[1]}</div>
       <div class="colbar"><div class="f ${unrecorded?'none':(incomplete?'miss':'')}" style="height:${unrecorded?100:h.toFixed(1)}%"></div></div>
       <div class="val">${unrecorded?'<span class="q">—</span><span class="tag">未记录</span>':`${odo(m.kcal)}<span class="tag ${incomplete?'bad':''}">${incomplete?"不完整":"千卡"}</span>`}</div>
-      ${incomplete&&!unrecorded?`<div class="peel" data-peel="${idx}" role="button" tabindex="0" aria-pressed="false" aria-label="揭开数据不完整说明"><div class="st">?</div></div><div class="peel-note">含 ${m.unknown} 道待估</div>`:""}
+      ${incomplete&&!unrecorded?`<div class="peel" data-peel="${idx}" role="button" tabindex="0" aria-pressed="false" aria-label="揭开数据不完整说明"><div class="st" aria-hidden="true">!</div></div><div class="peel-note">含 ${m.unknown} 道待估</div>`:""}
     </div>`;
   });
   html+=`</div>`;
@@ -1223,9 +1240,11 @@ function commitMeal(){
   const max=Math.max(1,slot.clientWidth-knob.offsetWidth);
   knob.style.transition="transform .2s ease-out"; fill.style.transition="width .2s ease-out";
   knob.style.transform=`translateX(${max}px)`; fill.style.width="100%";
-  const r=slot.getBoundingClientRect();
-  stamp(tot.kcal, r.left+r.width/2, r.top+r.height/2);
-  sparkBurst(r.left+r.width-knob.offsetWidth/2, r.top+r.height/2);
+  /* 落点压在本餐合计纸块上（纸色区），不压黑储蓄条，红章不被 multiply 吞黑 */
+  const anchor=document.querySelector(".total-bar .in") || slot;
+  const r=anchor.getBoundingClientRect();
+  stamp(tot.kcal, r.left+r.width*0.5, r.top+r.height*0.34);
+  sparkBurst(r.left+r.width-knob.offsetWidth/2, r.top+r.height*0.5);
 }
 
 /* ---------- 印章：盖在触发点 ---------- */

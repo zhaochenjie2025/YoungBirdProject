@@ -21,6 +21,7 @@
   --hair:#D9D6CE;
   --hair-2:#E6E3DB;
   --shu:#A93A2C;
+  --mark:#C9C5BA; /* 参考区间弧：介于 hair 与 hair-2 之间的第四档中性色，集中登记以免散落 */
   --f-sans:-apple-system,"PingFang SC","Hiragino Sans GB","Noto Sans CJK SC","Source Han Sans SC","Microsoft YaHei",system-ui,sans-serif;
   --f-serif:"Noto Serif CJK SC","Source Han Serif SC","Songti SC","STSong","Hiragino Mincho ProN","Noto Serif CJK JP",serif;
   --ease:cubic-bezier(.22,.72,.16,1);
@@ -97,11 +98,14 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
 .dg b{display:block;height:1em;line-height:1;font-weight:inherit;text-align:center}
 .cm{padding:0 .03em;opacity:.55}
 .dash{opacity:.4}
+/* 空账页的「未记」：衬线、字距拉开，字号小于主数字，明确不是读数 */
+.empty-mark{font-family:var(--f-serif);font-size:24.5px;color:var(--ink-3);letter-spacing:.28em;padding-left:.28em;font-weight:400;align-items:baseline;height:auto}
+.empty-mark span{display:inline-block}
 .num-xl{font-size:44px;font-weight:200;letter-spacing:-.02em}
 .num-l{font-size:24.5px;font-weight:300}
 .num-m{font-size:19.5px;font-weight:300}
 .num-s{font-size:15.5px;font-weight:400}
-.unit{font-size:11px;letter-spacing:.08em;color:var(--ink-3);margin-left:.35em;align-self:flex-end;padding-bottom:.15em}
+.unit{font-size:11px;letter-spacing:.06em;color:var(--ink-3);margin-left:.35em;align-self:flex-end;padding-bottom:.15em}
 
 /* ---------- 底部坞 ---------- */
 .dock{
@@ -125,7 +129,7 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
   mask-image:linear-gradient(to top,rgba(0,0,0,.5),transparent 100%);
 }
 .dock-i{
-  justify-self:center;font-size:13px;letter-spacing:.08em;color:var(--ink-3);
+  justify-self:center;font-size:13px;letter-spacing:.06em;color:var(--ink-3);
   padding:calc(var(--u) * .8) calc(var(--u) * .9);position:relative;
 }
 .dock-i[aria-current="page"]{color:var(--ink)}
@@ -148,7 +152,7 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
 .gauge-wrap{position:relative;margin:calc(var(--u) * .7) auto 0;width:264px;max-width:84vw}
 .gauge{display:block;width:100%;height:auto;overflow:visible}
 .gauge-mid{display:flex;flex-direction:column;align-items:center;margin-top:calc(var(--u) * -.5)}
-.gauge-mid .cap{font-size:11px;letter-spacing:.12em;color:var(--ink-3);margin-top:.5em}
+.gauge-mid .cap{font-size:11px;letter-spacing:.08em;color:var(--ink-3);margin-top:.5em}
 .gauge-mid .rng{font-size:13px;letter-spacing:.03em;color:var(--ink-2);margin-top:.55em;font-variant-numeric:tabular-nums}
 .gauge-ref{text-align:center;font-size:11px;letter-spacing:.07em;color:var(--ink-3);margin-top:calc(var(--u) * .55);font-variant-numeric:tabular-nums}
 
@@ -176,7 +180,7 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
 
 /* 空状态：一屏一主行动，不重复 CTA */
 .empty-note{padding:calc(var(--ma) * 1.4) var(--ma);text-align:center}
-.empty-note .en-1{font-family:var(--f-serif);font-size:19.5px;letter-spacing:.1em;color:var(--ink-2)}
+.empty-note .en-1{font-family:var(--f-serif);font-size:19.5px;letter-spacing:.08em;color:var(--ink-2)}
 .empty-note .en-2{font-size:13px;letter-spacing:.03em;color:var(--ink-3);margin-top:.7em}
 
 /* ---------- 新建一餐 ---------- */
@@ -184,7 +188,7 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
 .back:active{color:var(--ink)}
 .slotpick{display:flex;gap:0;margin:calc(var(--u)*1.25) var(--ma) 0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
 .slotpick button{
-  flex:1;padding:.62em 0;font-size:13px;letter-spacing:.12em;color:var(--ink-3);position:relative;
+  flex:1;padding:.62em 0;font-size:13px;letter-spacing:.08em;color:var(--ink-3);position:relative;
   font-family:var(--f-serif);
 }
 .slotpick button.on{color:var(--ink);font-weight:400}
@@ -204,11 +208,11 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
 .shooter .cn.bl{bottom:0;left:0;border-bottom-width:1px;border-left-width:1px}
 .shooter .cn.br{bottom:0;right:0;border-bottom-width:1px;border-right-width:1px}
 .shooter .box{display:block;margin:0 auto;width:86px;height:auto}
-.shooter .sh-1{display:block;text-align:center;font-size:15.5px;letter-spacing:.09em;margin-top:calc(var(--u)*.85)}
+.shooter .sh-1{display:block;text-align:center;font-size:15.5px;letter-spacing:.06em;margin-top:calc(var(--u)*.85)}
 .shooter .sh-2{display:block;text-align:center;font-size:13px;letter-spacing:.04em;color:var(--ink-3);margin-top:.32em}
 
 .band-h{display:flex;align-items:baseline;justify-content:space-between;gap:var(--u);margin:calc(var(--u)*1.5) var(--ma) 0}
-.band-h .bh-1{font-size:13px;letter-spacing:.14em;color:var(--ink-2)}
+.band-h .bh-1{font-size:13px;letter-spacing:.06em;color:var(--ink-2)}
 .band-h .bh-2{font-size:13px;letter-spacing:.02em;color:var(--ink-3);font-variant-numeric:tabular-nums}
 
 /* 菜品行 */
@@ -218,11 +222,17 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
 .dw-1{font-size:15.5px;letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dw-2{font-size:11px;letter-spacing:.04em;color:var(--ink-3);margin-top:.12em;font-variant-numeric:tabular-nums}
 /* 份量：细线分段，选中项下方一道实线（非药丸） */
-.seg{display:flex;flex:none;border-top:1px solid var(--hair-2);border-bottom:1px solid var(--hair-2)}
-.seg button{font-size:11px;letter-spacing:.06em;color:var(--ink-3);padding:.3em .5em;position:relative;line-height:1.5}
-.seg button.on{color:var(--ink)}
-.seg button.on::after{content:"";position:absolute;left:.34em;right:.34em;bottom:-1px;height:1px;background:var(--ink)}
-.seg button+button{border-left:1px solid var(--hair-2)}
+/* 份量 = 三档刻位：未选档是一条短刻，选中档吃墨成实体块。
+   块面比未选档略高，形成「按下去」的物理差，而不是一根 1px 下划线。 */
+.seg{display:flex;flex:none;align-items:stretch;border:1px solid var(--hair)}
+.seg button{
+  font-size:11px;letter-spacing:.06em;color:var(--ink-3);padding:.36em .52em;position:relative;line-height:1.4;
+  display:flex;align-items:center;justify-content:center;transition:background .18s var(--ease),color .18s var(--ease);
+}
+.seg button.on{background:var(--ink);color:var(--paper)}
+.seg button+.seg button,.seg button+button{border-left:1px solid var(--hair)}
+.seg button.on+button,.seg button.on{border-left-color:transparent}
+.seg button.on+.seg button.on{border-left-color:rgba(246,245,241,.35)}
 .dcal{flex:none;min-width:3.1em;text-align:right;font-size:15.5px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 .dcal em{font-style:normal;font-size:11px;color:var(--ink-3);margin-left:.2em}
 .dx{flex:none;width:28px;height:28px;display:grid;place-items:center;color:var(--ink-3);margin-left:-4px}
@@ -235,19 +245,32 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
 }
 .sum-in{display:flex;align-items:flex-end;justify-content:space-between;gap:var(--u);
   padding:calc(var(--u)*.9) var(--ma) calc(var(--u)*.9)}
-.sum-l{font-size:13px;letter-spacing:.14em;color:var(--ink-2);line-height:1.6;padding-bottom:.35em}
+.sum-l{font-size:13px;letter-spacing:.06em;color:var(--ink-2);line-height:1.6;padding-bottom:.35em}
 .sum-l small{display:block;font-size:11px;letter-spacing:.02em;color:var(--ink-3);font-variant-numeric:tabular-nums}
+/* 保存 = 落款盖印：满宽不可省的主操作，外框刻四角刀口，内圈一道细刻线（印面语言），
+   按下整块吃墨。比默认描边按钮多一整套「刻」的证据，但不抢朱印。 */
 .save{
   display:block;width:calc(100% - var(--ma)*2);margin:0 var(--ma) 0;
-  padding:.8em 0;text-align:center;font-size:15.5px;letter-spacing:.14em;
-  border:1px solid var(--ink);color:var(--ink);transition:background .2s var(--ease),color .2s var(--ease);
+  position:relative;padding:1.02em 0;text-align:center;font-size:15.5px;letter-spacing:.08em;
+  color:var(--ink);transition:background .2s var(--ease),color .2s var(--ease),transform .16s var(--ease);
 }
-.save:active{background:var(--ink);color:var(--paper)}
-.save[disabled]{border-color:var(--hair);color:var(--ink-3);pointer-events:none}
+.save::before{content:"";position:absolute;inset:0;border:1px solid var(--ink)}
+/* 四角裁切标记：短直角，从框线拐角向内收 7px，像印刷的 crop mark，
+   比双层套框轻，也比纯描边多一道「这是一块被裁出来的印面」的证据 */
+.save .kn{position:absolute;width:7px;height:7px;border:0 solid var(--ink);z-index:1}
+.save .kn.tl{top:0;left:0;border-top-width:2px;border-left-width:2px}
+.save .kn.tr{top:0;right:0;border-top-width:2px;border-right-width:2px}
+.save .kn.bl{bottom:0;left:0;border-bottom-width:2px;border-left-width:2px}
+.save .kn.br{bottom:0;right:0;border-bottom-width:2px;border-right-width:2px}
+.save:active{background:var(--ink);color:var(--paper);transform:scale(.996)}
+.save:active .kn{border-color:var(--paper)}
+.save[disabled]{color:var(--ink-3);pointer-events:none}
+.save[disabled]::before{border-color:var(--hair)}
+.save[disabled] .kn{border-color:var(--hair)}
 
 /* ---------- 单餐结果 ---------- */
 .res-hero{padding:calc(var(--ma)*.7) var(--ma) 0;display:flex;align-items:flex-end;justify-content:space-between;gap:var(--u)}
-.res-hero .rh-1{font-size:13px;letter-spacing:.14em;color:var(--ink-3);line-height:1.7}
+.res-hero .rh-1{font-size:13px;letter-spacing:.06em;color:var(--ink-3);line-height:1.7}
 .res-hero .rh-1 b{display:block;font-weight:400;font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums;letter-spacing:.02em}
 /* 展开明细：左侧一道细竖界线（日式注釈的界） */
 .dish.open{background:var(--paper-2)}
@@ -256,15 +279,23 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
 .detail dl{display:grid;grid-template-columns:5.2em 1fr;gap:.34em var(--u);font-size:13px;letter-spacing:.02em}
 .detail dt{color:var(--ink-3);font-family:var(--f-serif);letter-spacing:.06em}
 .detail dd{font-variant-numeric:tabular-nums;color:var(--ink-2)}
-.detail .src{font-size:11px;line-height:1.75;color:var(--ink-3);margin-top:calc(var(--u)*.6);letter-spacing:.02em}
+/* 注釈三行：左标签成列、右正文悬挂缩进——断行永不破词，右缘齐整 */
+.detail .src{font-size:11px;line-height:1.8;color:var(--ink-3);margin-top:calc(var(--u)*.7);letter-spacing:.02em}
+.detail .sr{display:grid;grid-template-columns:2.4em 1fr;gap:0 .5em;padding-left:.2em}
+.detail .sk{font-family:var(--f-serif);letter-spacing:.04em;color:var(--ink-3);opacity:.85;white-space:nowrap}
+.detail .sv{word-break:normal;overflow-wrap:break-word;text-align:justify;text-justify:inter-ideograph;text-wrap:pretty}
 /* 区间条：一根 1px 轨，区间实段 + 两端细刻 + 折算点 */
-.range{margin-top:calc(var(--u)*.8)}
-.rb{position:relative;height:18px;margin:0 2px}
-.rb .track{position:absolute;left:0;right:0;top:9px;height:1px;background:var(--hair)}
-.rb .band{position:absolute;top:7px;height:5px;background:var(--ink-2);opacity:.2}
-.rb .cap{position:absolute;top:4px;width:1px;height:11px;background:var(--ink-3)}
-.rb .pt{position:absolute;top:5px;width:1px;height:9px;background:var(--shu)}
-.rb-l{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.02em;color:var(--ink-3);font-variant-numeric:tabular-nums;margin-top:.3em}
+/* 结果屏区间 = 一把迷你刻度尺：主弧的梳齿语言缩到 18px 高，
+   区间是实刻段、两端是端挡、折算值是朱针。同族同义，一眼可比。 */
+.range{margin-top:calc(var(--u)*.9)}
+.rb{position:relative;height:20px;margin:0 2px}
+.rb .track{position:absolute;left:0;right:0;top:14px;height:1px;background:var(--hair)}
+.rb .tick{position:absolute;top:11px;width:1px;height:3px;background:var(--ink-3);opacity:.35}
+.rb .tick.major{top:8px;height:6px;opacity:.6}
+.rb .band{position:absolute;top:6px;height:9px;background:var(--ink-2);opacity:.16}
+.rb .cap{position:absolute;top:3px;width:1px;height:12px;background:var(--ink-2);opacity:.7}
+.rb .pt{position:absolute;top:1px;width:1.6px;height:14px;background:var(--shu);border-radius:1px}
+.rb-l{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.02em;color:var(--ink-3);font-variant-numeric:tabular-nums;margin-top:.42em}
 .rb-l b{font-weight:400;color:var(--shu)}
 
 /* ---------- 周视图 ---------- */
@@ -277,13 +308,19 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
 .wd-col .pt{/* cf-justify: 正圆本义，点阵的最小单位；6px 圆点在 390 宽下是可辨的最小刻度 */width:6px;height:6px;border-radius:50%;border:1px solid var(--hair);background:transparent}
 .wd-col .pt.on{background:var(--ink);border-color:var(--ink)}
 .wd-col .pt.est{background:var(--ink);border-color:var(--ink);opacity:.34}
-.wd-col .pt.none{background:transparent;border-color:var(--hair);opacity:.55}
-.wd-col.blank .pt{border-color:var(--hair-2);opacity:.4}
-.wd-col.today::before{content:"";position:absolute;top:0;bottom:0;left:50%;width:1px;background:var(--shu);opacity:.5;transform:translateX(-.5px);z-index:-1}
+.wd-col .pt.none{background:transparent;border-color:var(--ink-3);opacity:.42}
+.wd-col.blank .pt{border-color:var(--ink-3);opacity:.26}
+/* 今天标记：一条朱线从点阵顶进到底，止于 .wd-body 的下界；数字在本身之外，不被穿过 */
+.wd-col.today::before{content:"";position:absolute;top:-6px;bottom:0;left:50%;width:1px;background:var(--shu);opacity:.55;transform:translateX(-.5px);z-index:0}
+.wd-body{position:relative}
+.wd-col .pt{position:relative;z-index:1}
 .wd-line{border-top:1px solid var(--hair)}
-.wd-foot div{text-align:center;font-size:11px;font-variant-numeric:tabular-nums;letter-spacing:-.01em;color:var(--ink-2);padding-top:.6em}
-.wd-foot div.blank{color:var(--ink-3);opacity:.62}
-.wd-foot div em{font-style:normal;font-size:11px;color:var(--ink-3);display:block;letter-spacing:.06em;margin-top:.1em}
+.wd-foot div{text-align:center;font-size:11px;font-variant-numeric:tabular-nums;letter-spacing:-.01em;color:var(--ink-2);padding-top:.8em;position:relative}
+.wd-foot div.blank{color:var(--ink-3);opacity:.7}
+/* 含估算：贴在数字右侧的 ≈，只在本身脚注出现，不再漂到两列之间 */
+.wd-foot div.est .tick{display:inline-block;margin-left:.15em;color:var(--ink-3)}
+.wd-foot div.est::after{content:"含估算";display:block;font-size:11px;letter-spacing:.04em;color:var(--ink-3);line-height:1.5;margin-top:.1em}
+.wd-foot div.today{color:var(--ink)}
 .legend{display:flex;gap:calc(var(--u)*1.1);justify-content:center;margin-top:calc(var(--u)*1.15);font-size:11px;letter-spacing:.04em;color:var(--ink-3)}
 .legend span{display:inline-flex;align-items:center;gap:.42em}
 .legend i{/* cf-justify: 图例与点阵同形，必须与 .wd-col .pt 完全一致才是真图例 */width:6px;height:6px;border-radius:50%;border:1px solid var(--hair);display:inline-block;font-style:normal}
@@ -293,7 +330,7 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
 .stat3{display:grid;grid-template-columns:repeat(3,1fr);margin-top:calc(var(--ma)*1.1);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
 .stat3>div{padding:calc(var(--u)*1) 0 calc(var(--u)*.95);text-align:center}
 .stat3>div+div{border-left:1px solid var(--hair-2)}
-.stat3 .k{font-size:11px;letter-spacing:.1em;color:var(--ink-3)}
+.stat3 .k{font-size:11px;letter-spacing:.08em;color:var(--ink-3)}
 .stat3 .v{margin-top:.2em;display:flex;justify-content:center;align-items:baseline}
 .stat3 .t{font-size:11px;letter-spacing:.05em;color:var(--ink-3);margin-left:.2em}
 
@@ -314,7 +351,7 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
   </div>
   <div class="gauge-mid">
     <span class="num num-xl" id="todayTotal"></span>
-    <span class="cap">千卡 · 今日</span>
+    <span class="cap" id="todayCap">千卡 · 今日</span>
   </div>
   <div class="gauge-ref rise" style="--d:240ms"><span id="todayRange">估算 718 – 1,040</span><br><span style="opacity:.75">参考区间 1,800 – 2,200</span></div>
 
@@ -374,7 +411,7 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
       <div class="sum-l">本餐合计<small id="sumMeta">0 道 · 估算区间 0 – 0</small></div>
       <div style="display:flex;align-items:baseline"><span class="num num-m" id="sumKcal"></span><span class="unit">千卡</span></div>
     </div>
-    <button class="save" type="button" id="save" disabled>保存这一餐</button>
+    <button class="save" type="button" id="save" disabled><span class="kn tl"></span><span class="kn tr"></span><span class="kn bl"></span><span class="kn br"></span><span id="saveTxt">保存这一餐</span></button>
     <div style="height:calc(var(--u)*.8)"></div>
   </div>
 </section>
@@ -596,49 +633,70 @@ const pt=(v,r)=>{const a=ang(v);return [CX+r*Math.cos(a), CY+r*Math.sin(a)];};
 
 function buildGauge(){
   let s='';
-  // 参考区间：贴在梳齿外缘的一段 5px 弧，不与刻度交叉
-  const b0=pt(REF[0],RAD+5), b1=pt(REF[1],RAD+5);
-  s+=`<path d="M${b0[0].toFixed(2)} ${b0[1].toFixed(2)} A${RAD+5} ${RAD+5} 0 0 1 ${b1[0].toFixed(2)} ${b1[1].toFixed(2)}" stroke="#C9C5BA" stroke-width="4.5" fill="none" stroke-linecap="butt"/>`;
-  // 细刻梳：一律向内，端头不外伸，避免在 0 / 2400 处变成横线
+  // 参考区间：内嵌进梳齿节奏的一段加粗刻度，而不是贴在外圈的胶带
+  const n0=REF[0]/GAUGE_STEP, n1=REF[1]/GAUGE_STEP;
+  for(let i=n0;i<=n1;i++){
+    const [x1,y1]=pt(i*GAUGE_STEP,RAD);
+    const [x2,y2]=pt(i*GAUGE_STEP,RAD-8);
+    s+=`<line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="#8E8A80" stroke-width="1.5" opacity=".55"/>`;
+  }
+  s+=`<path d="M${pt(REF[0],RAD-11.5).map(n=>n.toFixed(2)).join(' ')} A${RAD-11.5} ${RAD-11.5} 0 0 1 ${pt(REF[1],RAD-11.5).map(n=>n.toFixed(2)).join(' ')}" stroke="#8E8A80" stroke-width=".7" fill="none" opacity=".4"/>`;
+  // 主梳齿：一律向内
   for(let v=GAUGE_STEP;v<GAUGE_MAX;v+=GAUGE_STEP){
     const major=v%600===0;
     const key=v%200===0;
     const len=major?8:(key?4.6:2.6);
-    const [x1,y1]=pt(v,RAD);
-    const [x2,y2]=pt(v,RAD-len);
+    const [x1,y1]=pt(v,RAD), [x2,y2]=pt(v,RAD-len);
     s+=`<line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="#1B1A17" stroke-width="${major?.9:.55}" opacity="${major?.7:(key?.3:.15)}"/>`;
   }
-  // 两端收口：竖短线，像量尺的端挡
+  // 两端端挡（量尺收口）
   for(const v of [0,GAUGE_MAX]){
     const [x,y]=pt(v,RAD);
     s+=`<line x1="${x.toFixed(2)}" y1="${(y-4).toFixed(2)}" x2="${x.toFixed(2)}" y2="${(y+4).toFixed(2)}" stroke="#1B1A17" stroke-width=".9" opacity=".7"/>`;
   }
-  // 刻度数字：中段在弧外；两端 0 与 2400 落在端挡正下方，避免与横轴撞
+  // 刻度数字
   for(const v of [600,1200,1800]){
     const [x,y]=pt(v,RAD+17);
     s+=`<text x="${x.toFixed(2)}" y="${(y+3.3).toFixed(2)}" font-size="9.5" fill="#7A766F" text-anchor="middle" letter-spacing=".02em">${comma(v)}</text>`;
   }
   s+=`<text x="${CX-RAD}" y="${CY+16}" font-size="9.5" fill="#7A766F" text-anchor="middle" letter-spacing=".02em">0</text>`;
   s+=`<text x="${CX+RAD}" y="${CY+16}" font-size="9.5" fill="#7A766F" text-anchor="middle" letter-spacing=".02em">2,400</text>`;
-  // 已用量弧（墨）叠在梳齿外侧，读数一眼分出「已到哪」
-  s+=`<path id="gArc" d="" stroke="#1B1A17" stroke-width="1.5" fill="none" stroke-linecap="round"/>`;
-  // 当前值：一根朱针 + 针尖一点
-  s+=`<line id="gNeedle" x1="0" y1="0" x2="0" y2="0" stroke="#A93A2C" stroke-width="1.7" stroke-linecap="round"/>`;
-  s+=`<circle id="gTip" cx="0" cy="0" r="2.1" fill="#A93A2C"/>`;
+  // 已用量：笔锋弧（起笔细、收笔略粗），沿梳齿外侧走
+  s+=`<path id="gArc" d="" stroke="#1B1A17" fill="none" stroke-linecap="round"/>`;
+  // 指针：实体锥形（针尖细、针尾宽），带一个配重圆头
+  s+=`<g id="gPtr" style="display:none">
+      <path id="gPtrBody" d="" fill="#A93A2C"/>
+      <circle id="gPtrHub" cx="0" cy="0" r="2.6" fill="#A93A2C"/>
+    </g>`;
   $('#gauge').innerHTML=s;
 }
 
 function paintGauge(v){
-  const arc=$('#gArc'), nd=$('#gNeedle'), tip=$('#gTip');
-  if(v==null||v<=0){ arc.setAttribute('d',''); nd.setAttribute('x2',nd.getAttribute('x1')); tip.setAttribute('cx','0'); tip.setAttribute('cy','0'); return; }
-  const [sx,sy]=pt(0,RAD+5), [ex,ey]=pt(v,RAD+5);
+  const arc=$('#gArc'), ptr=$('#gPtr');
+  if(v==null||v<=0){
+    arc.setAttribute('d',''); arc.setAttribute('stroke-width','0'); ptr.style.display='none'; return;
+  }
+  const R=RAD+5;
+  const [sx,sy]=pt(0,R);
+  const [ex,ey]=pt(v,R);
   const large = v/GAUGE_MAX>0.5 ? 1 : 0;
-  arc.setAttribute('d',`M${sx.toFixed(2)} ${sy.toFixed(2)} A${RAD+5} ${RAD+5} 0 ${large} 1 ${ex.toFixed(2)} ${ey.toFixed(2)}`);
-  const [ax,ay]=pt(v,RAD+6), [bx,by]=pt(v,RAD-15);
-  nd.setAttribute('x1',ax.toFixed(2)); nd.setAttribute('y1',ay.toFixed(2));
-  nd.setAttribute('x2',bx.toFixed(2)); nd.setAttribute('y2',by.toFixed(2));
-  const [tx,ty]=pt(v,RAD+6);
-  tip.setAttribute('cx',tx.toFixed(2)); tip.setAttribute('cy',ty.toFixed(2));
+  arc.setAttribute('d',`M${sx.toFixed(2)} ${sy.toFixed(2)} A${R} ${R} 0 ${large} 1 ${ex.toFixed(2)} ${ey.toFixed(2)}`);
+  arc.setAttribute('stroke-width', (1.1 + Math.min(v/GAUGE_MAX,1)*0.9).toFixed(2));
+  // 锥形针：以当前角为轴，针长 15，根宽 3.2，尖宽 0.5
+  const a=ang(v);
+  const UX=Math.cos(a), UY=Math.sin(a);     // 径向外
+  const PX=-UY, PY=UX;                      // 切向
+  const rootR=RAD+5, tipR=RAD-13;
+  const rx=CX+rootR*UX, ry=CY+rootR*UY;
+  const tx=CX+tipR*UX, ty=CY+tipR*UY;
+  const hw=1.7, hw2=0.35;
+  const p1=[rx+PX*hw, ry+PY*hw], p2=[rx-PX*hw, ry-PY*hw];
+  const p3=[tx-PX*hw2, ty-PY*hw2], p4=[tx+PX*hw2, ty+PY*hw2];
+  $('#gPtrBody').setAttribute('d',
+    `M${p1[0].toFixed(2)} ${p1[1].toFixed(2)} L${p4[0].toFixed(2)} ${p4[1].toFixed(2)} L${p3[0].toFixed(2)} ${p3[1].toFixed(2)} L${p2[0].toFixed(2)} ${p2[1].toFixed(2)} Z`);
+  $('#gPtrHub').setAttribute('cx',rx.toFixed(2));
+  $('#gPtrHub').setAttribute('cy',ry.toFixed(2));
+  ptr.style.display='';
 }
 
 /* ============================================================
@@ -646,19 +704,32 @@ function paintGauge(v){
    ============================================================ */
 function renderToday(){
   const st=dayStat(TODAY.meals);
-  if(st.kcal==null){
-    $('#todayTotal').textContent='—'; $('#todayTotal').className='num num-xl dash'; $('#todayTotal').dataset.v='—';
+  const empty = st.logged===0;
+  const totalEl=$('#todayTotal');
+
+  if(empty){
+    /* 空账页：数字位不写 0 也不留灰杠，改用衬线「未记」两字，读作一页还没落笔的账 */
+    totalEl.className='num empty-mark'; totalEl.dataset.v='';
+    totalEl.innerHTML='<span>未</span><span>记</span>';
+    $('#todayCap').textContent='今日尚无记录';
+    $('#todayRange').innerHTML='<span style="opacity:.75">参考区间 1,800 – 2,200</span>';
   } else {
-    ticker($('#todayTotal'), st.kcal, 'num-xl');
+    totalEl.classList.remove('empty-mark');
+    ticker(totalEl, st.kcal, 'num-xl');
+    $('#todayCap').textContent='千卡 · 今日';
+    $('#todayRange').innerHTML = `估算 ${comma(st.lo)} – ${comma(st.hi)} 千卡<br><span style="opacity:.75">参考区间 1,800 – 2,200</span>`;
   }
-  $('#todayRange').textContent = st.kcal==null ? '尚未记录' : `估算 ${comma(st.lo)} – ${comma(st.hi)} 千卡`;
   paintGauge(st.kcal);
 
-  const empty = st.logged===0;
   $('#todayEmpty').hidden = !empty;
   $('#todayMeals').hidden = empty;
-  $('#todayFootRule').hidden = true; $('#todayFoot').hidden = true;
-  if(empty) return;
+
+  if(empty){
+    /* 页脚跟着空态走，绝不在无记录时印「已记 2/3 餐」 */
+    $('#todayFoot').innerHTML = `<span>今日空白 · 尚未起笔</span><span>第 ${isoWeek(new Date(2026,10,23))} 周</span>`;
+    $('#todayFootRule').hidden = false; $('#todayFoot').hidden = false;
+    return;
+  }
 
   let dishes=0;
   for(const k of SLOTS){ const m=TODAY.meals[k]; if(!m) continue; const s=mealStat(m); dishes+=s.known+s.pend; }
@@ -723,7 +794,7 @@ function renderNew(){
   ticker($('#sumKcal'), st.kcal, 'num-m');
   $('#sumMeta').textContent = `${st.known} 道${st.pend?` · ${st.pend} 道待估算`:''} · 估算区间 ${comma(st.lo)} – ${comma(st.hi)}`;
   $('#save').disabled = st.known===0 && st.pend===0;
-  $('#save').textContent = (st.known||st.pend) ? '保存这一餐' : '先添加菜品';
+  $('#saveTxt').textContent = (st.known||st.pend) ? '保存这一餐' : '先添加菜品';
   $('#newTime').textContent = EDIT.slot==='lunch'?'12:18':(EDIT.slot==='breakfast'?'07:42':'18:30');
 }
 
@@ -746,7 +817,9 @@ function renderResult(){
     </div>`;
     if(open){
       const lo=rg[0], hi=rg[1];
-      const minAll=Math.min(lo, k, st.lo), maxAll=Math.max(hi, k, st.hi);
+      /* 刻度尺只覆盖这道菜自己的区间（两端各留 8% 余量），不并整餐区间——否则右端标签会与「区间」行打架 */
+      const pad=Math.max((hi-lo)*0.08, 4);
+      const minAll=Math.min(lo,k)-pad, maxAll=Math.max(hi,k)+pad;
       const span=Math.max(maxAll-minAll,1);
       const pct=v=>((v-minAll)/span*100).toFixed(1);
       html+=`<div class="detail">
@@ -757,16 +830,22 @@ function renderResult(){
           <dt>区间</dt><dd>${comma(lo)} – ${comma(hi)} 千卡</dd>
         </dl>
         <div class="range">
-          <div class="rb">
+          <div class="rb">${(()=>{let t='';
+            for(let q=0;q<=10;q++){ const v=minAll+span*q/10; t+=`<span class="tick${q%5===0?' major':''}" style="left:${(q*10).toFixed(1)}%"></span>`; }
+            return t;})()}
             <span class="track"></span>
             <span class="band" style="left:${pct(lo)}%;width:${(pct(hi)-pct(lo)).toFixed(1)}%"></span>
             <span class="cap" style="left:${pct(lo)}%"></span>
             <span class="cap" style="left:${pct(hi)}%"></span>
             <span class="pt" style="left:${pct(k)}%"></span>
           </div>
-          <div class="rb-l"><span>${comma(lo)}</span><b>折算 ${comma(k)}</b><span>${comma(hi)}</span></div>
+          <div class="rb-l"><span>${comma(Math.round(minAll))}</span><b>折算 ${comma(k)}</b><span>${comma(Math.round(maxAll))}</span></div>
         </div>
-        <div class="src">出处：${esc(d.src)}<br>份量来源：${esc(d.psrc)}<br>差异：${esc(d.note)}</div>
+        <div class="src">
+          <div class="sr"><span class="sk">出处</span><span class="sv">${esc(d.src)}</span></div>
+          <div class="sr"><span class="sk">份量</span><span class="sv">${esc(d.psrc)}</span></div>
+          <div class="sr"><span class="sk">差异</span><span class="sv">${esc(d.note)}</span></div>
+        </div>
       </div>`;
     }
     return html;
@@ -785,15 +864,18 @@ function renderWeek(){
       const s=mealStat(m);
       return `<span class="pt ${s.pend?'est':'on'}"></span>`;
     }).join('');
-    const label = st.status==='none' ? '—' : `<span class="${st.status==='est'?'':''}">${comma(st.kcal)}${st.status==='est'?'≈':''}</span>`;
+    const label = st.status==='none' ? '—' : comma(st.kcal);
     return {day,st,dots,label};
   });
   $('#wdHead').innerHTML = cols.map(c=>
     `<div class="${c.day.today?'today':''}">${c.day.d}<i>${c.day.w}</i></div>`).join('');
   $('#wdBody').innerHTML = cols.map(c=>
     `<div class="wd-col${c.st.status==='none'?' blank':''}${c.day.today?' today':''}" role="img" aria-label="${c.day.d} ${c.st.status==='none'?'未记录':(c.st.status==='est'?'含估算 '+c.st.kcal:'')}">${c.dots}</div>`).join('');
-  $('#wdFoot').innerHTML = cols.map(c=>
-    `<div class="${c.st.status==='none'?'blank':''}">${c.label}${c.st.status==='est'?'<em>含估算</em>':''}</div>`).join('');
+  $('#wdFoot').innerHTML = cols.map(c=>{
+    const cls=[c.st.status==='none'?'blank':'', c.st.status==='est'?'est':'', c.day.today?'today':''].filter(Boolean).join(' ');
+    const txt = c.st.status==='none' ? '—' : comma(c.st.kcal)+(c.st.status==='est'?'<span class="tick">≈</span>':'');
+    return `<div class="${cls}">${txt}</div>`;
+  }).join('');
 
   const logged=cols.filter(c=>c.st.status!=='none'&&!c.day.today);
   const sum=logged.reduce((a,c)=>a+c.st.kcal,0);
