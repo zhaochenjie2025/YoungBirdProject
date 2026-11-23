@@ -32,8 +32,9 @@
   --r1:3px; --r2:2px;
   --s1:4px; --s2:8px; --s3:12px; --s4:16px; --s5:20px; --s6:24px; --s7:32px; --s8:40px;
   --shotFrame:10px;
-  /* 字体：手写/楷 用于标注与日期，无衬线用于数据 */
-  --f-hand:"Hannotate SC","HanziPen SC","Kaiti SC","STKaiti","KaiTi","Noto Serif CJK SC","Noto Serif SC",Georgia,serif;
+  /* 字体：标注走“凸版宋体压印”路线（不假装手写——无自带手写字体时手写栈会静默降级成宋体，
+     三端观感不一；改用宋体 + 压印质感，温度由油墨决定）。无衬线用于数据 */
+  --f-hand:"Songti SC","STSong","Noto Serif CJK SC","Noto Serif SC","Source Han Serif SC",Georgia,serif;
   --f-sans:system-ui,-apple-system,"PingFang SC","Noto Sans CJK SC","Noto Sans SC","Segoe UI",Roboto,sans-serif;
   /* 技术层：时间戳/帧号/边码/参数，打字机等宽 */
   --f-mono:"SFMono-Regular",ui-monospace,"Menlo","Consolas","Noto Sans Mono CJK SC","Roboto Mono",monospace;
@@ -75,7 +76,7 @@ img{display:block;max-width:100%}
   content:"";position:absolute;left:0;top:2px;width:7px;height:7px;border-radius:50%;
   background:var(--amber);box-shadow:0 0 10px 2px var(--amberGlow);
 }
-.brand .b1{display:block;font:600 11px/1 var(--f-mono);letter-spacing:.26em;color:var(--cream2)}
+.brand .b1{display:block;font:600 11px/1 var(--f-mono);letter-spacing:.08em;color:var(--cream2)}
 .brand .b2{display:block;margin-top:3px;font:700 26px/1 var(--f-hand);color:var(--cream);letter-spacing:.02em}
 .dateink{text-align:right;font:500 12px/1.5 var(--f-mono);color:var(--cream2);letter-spacing:.06em}
 .dateink b{display:block;font:600 15px/1.3 var(--f-hand);color:var(--cream);letter-spacing:.02em}
@@ -90,28 +91,32 @@ main{
 }
 .screen[hidden]{display:none}
 
-/* ============ 底部导航：暗房台面的一条黑色仪表面板，选中项像背光刻字亮起 ============ */
+/* ============ 底部导航：暗房台面金属条上的一排背光刻字窗口 ============ */
 .tabbar{
   position:fixed;left:0;right:0;bottom:0;z-index:50;
-  display:flex;justify-content:center;gap:clamp(4px,3vw,20px);
-  padding:9px 14px calc(9px + var(--safe-b));
+  display:flex;justify-content:center;gap:clamp(3px,2.4vw,14px);
+  padding:9px 12px calc(9px + var(--safe-b));
   background:
-    linear-gradient(180deg,rgba(20,16,11,0) 0%,rgba(16,11,7,.94) 40%,#0c0805 100%);
-  /* 台面金属边：一道受光细线压在上沿 */
+    linear-gradient(180deg,rgba(20,16,11,0) 0%,rgba(16,11,7,.95) 38%,#0a0704 100%);
   box-shadow:inset 0 1px 0 rgba(255,210,160,.08);
 }
 .tab{
-  position:relative;padding:9px 12px 7px;font:500 14px/1 var(--f-hand);letter-spacing:.04em;
-  color:rgba(239,230,210,.46);transition:color .2s ease;
-  /* 未选中像刻在金属上的暗字，带一点压印阴影 */
-  text-shadow:0 1px 0 rgba(0,0,0,.6);
+  position:relative;padding:9px 13px 8px;font:500 14px/1 var(--f-hand);letter-spacing:.04em;
+  color:rgba(239,230,210,.42);transition:color .2s ease;
+  border-radius:1px;
+  /* 未选中：刻进金属的暗字（不加框，避免读成四个描边按钮） */
+  text-shadow:0 1px 0 rgba(0,0,0,.7);
 }
-.tab[aria-selected="true"]{color:var(--amber);text-shadow:0 0 9px var(--amberGlow)}
-/* 选中 = 背光窗口亮起：底部一小段被点亮的光带 + 溢光 */
+/* 选中 = 槽口背后的安全灯漏光：字亮起 + 从底部缝隙渗出光，带溢光，无下划线、无外框 */
+.tab[aria-selected="true"]{
+  color:var(--amber);
+  text-shadow:0 0 10px var(--amberGlow),0 1px 0 rgba(0,0,0,.4);
+}
+/* 漏光缝：一条极短的光缝从槽底透出，而非通栏下划线 */
 .tab[aria-selected="true"]::after{
-  content:"";position:absolute;left:50%;bottom:-2px;width:22px;height:2px;transform:translateX(-50%);
-  background:var(--amber);border-radius:1px;
-  box-shadow:0 0 10px 2px var(--amberGlow),0 3px 14px 3px rgba(255,139,61,.4);
+  content:"";position:absolute;left:30%;right:30%;bottom:0;height:1.5px;
+  background:var(--amber);border-radius:2px;
+  box-shadow:0 0 8px 2px var(--amberGlow),0 2px 12px 3px rgba(255,139,61,.35);
 }
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.001ms !important;animation-iteration-count:1 !important;transition-duration:.001ms !important}
@@ -133,10 +138,15 @@ main{
     0 4px 9px -3px rgba(0,0,0,.55);
   isolation:isolate;
 }
-/* 纸的厚度：右/下沿一道受光细边（侧光打在纸芯上） */
+/* 纸的厚度：三层纸芯边（外受光细边 / 纤维本色 / 背光暗边）+ 下沿 1.5px 实体厚度 */
 .print::before{
   content:"";position:absolute;inset:0;z-index:2;pointer-events:none;border-radius:inherit;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.7), inset -1.5px -1.5px 0 rgba(150,120,80,.25);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.8),        /* 上沿受光 */
+    inset 1.5px 0 0 rgba(214,196,158,.7),        /* 左纸芯 */
+    inset -1.5px 0 0 rgba(150,124,84,.35),       /* 右背光 */
+    inset 0 -2.5px 0 rgba(176,150,108,.55),      /* 下沿纸芯厚度 */
+    inset 0 -3px 1px rgba(90,64,32,.25);         /* 下沿接触暗边 */
 }
 .print::after{ /* 相纸纤维颗粒 */
   content:"";position:absolute;inset:0;z-index:3;pointer-events:none;border-radius:inherit;
@@ -176,7 +186,20 @@ main{
 .print__chin{
   position:relative;padding:15px 6px 22px;color:var(--ink);
 }
+/* 凸版压印：相纸上的字像被油墨压进纸里——下沿受光微反光、上沿背光暗边。
+   直接作用到 chin 内所有字（菜名、克数、日期、手写行），无需逐处加类 */
+.print__chin{
+  text-shadow:
+    0 1px 0 rgba(255,250,235,.5),
+    0 -0.5px 0 rgba(40,26,10,.28);
+}
 .print__chin .hand{transform:rotate(-.3deg);transform-origin:left center}
+.press{
+  color:var(--ink);
+  text-shadow:
+    0 1px 0 rgba(255,250,235,.55),
+    0 -0.5px 0 rgba(40,26,10,.35);
+}
 /* 即时成像自带的相片内日期压印（浅色，印在显影区内右下）——真实相机特征 */
 .date-imprint{
   position:absolute;right:8px;bottom:7px;z-index:4;
@@ -234,7 +257,7 @@ main{
 }
 .dishlist .dishrow:nth-child(odd){transform:rotate(-.55deg)}
 .dishlist .dishrow:nth-child(even){transform:rotate(.5deg)}
-.dishrow+.dishrow{border-top:1px dashed rgba(60,44,24,.3)}
+.dishrow+.dishrow{border-top:0;background-image:linear-gradient(90deg,transparent,rgba(60,44,24,.28) 12%,rgba(60,44,24,.28) 88%,transparent);background-repeat:no-repeat;background-position:0 0;background-size:100% 1px}
 .dishrow__name{flex:1;min-width:0;font-size:15.5px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dishrow__qty{font-size:12px;color:var(--ink2);white-space:nowrap}
 .dishrow__kcal{font-variant-numeric:tabular-nums;font-size:15px;font-weight:600;white-space:nowrap;min-width:48px;text-align:right}
@@ -255,20 +278,24 @@ main{
 /* 显影接触印相条（本餐已拍的菜；与周视图共用 35mm 齿孔语法） */
 .contact{
   display:flex;align-items:center;gap:7px;min-height:70px;
-  padding:12px 22px;margin:0;overflow-x:auto;overflow-y:hidden;
-  background:
-    linear-gradient(90deg,rgba(0,0,0,.5) 0 12px,rgba(0,0,0,0) 12px calc(100% - 12px),rgba(0,0,0,.5) calc(100% - 12px)),
-    linear-gradient(180deg,#1c1812,#12100b);
-  background-image:
-    linear-gradient(90deg,rgba(0,0,0,.5) 0 12px,rgba(0,0,0,0) 12px calc(100% - 12px),rgba(0,0,0,.5) calc(100% - 12px)),
-    var(--sprocket), var(--sprocket);
-  background-repeat:no-repeat,repeat-y,repeat-y;
-  background-position:0 0,left 3px top,right 3px top;
-  background-size:100% 100%,12px 25px,12px 25px;
+  padding:12px 18px;margin:0;overflow-x:auto;overflow-y:hidden;
+  background-image:var(--sprocket),var(--sprocket);
+  background-repeat:repeat-y,repeat-y;
+  background-position:left 5px top,right 5px top;
+  background-size:11px 25px,11px 25px;
+  background-color:#14110b;
   border-radius:var(--r1) var(--r1) 0 0;
   scrollbar-width:none;
   box-shadow:inset 0 0 0 1px rgba(0,0,0,.5);
 }
+/* 两端胶片引导舌：斜切口 + 一道引导槽，让滚动边界成为胶片结构而非灰遮罩 */
+.contact::before,.contact::after{
+  content:"";position:absolute;top:0;bottom:0;width:9px;pointer-events:none;z-index:2;
+  background:linear-gradient(180deg,#241d14,#181209);
+}
+.contact::before{left:0;clip-path:polygon(0 0,100% 6%,100% 94%,0 100%)}
+.contact::after{right:0;clip-path:polygon(0 6%,100% 0,100% 100%,0 94%)}
+.contact{position:relative}
 .contact::-webkit-scrollbar{display:none}
 .contact__empty{font:500 11.5px/1.4 var(--f-hand);color:rgba(239,230,210,.5);letter-spacing:.02em;padding:0 2px}
 .contact__cell{
@@ -277,18 +304,39 @@ main{
 }
 .contact__cell svg{width:100%;height:100%;display:block}
 .contact__cell.is-developing svg{animation:develop 1.1s cubic-bezier(.2,.7,.2,1) both}
+/* 半调网点显影（借 React Bits Halftone Reveal 机制）：一层静态网点从大缩到无，像显影液里浮出画面 */
+.contact__cell.is-developing::after{
+  content:"";position:absolute;inset:0;z-index:3;pointer-events:none;
+  background-image:radial-gradient(circle,#f4ebd7 1.4px,transparent 1.6px);
+  background-size:5px 5px;
+  animation:halftone 1.1s cubic-bezier(.4,.1,.2,1) both;
+}
+@keyframes halftone{
+  0%{opacity:.9;transform:scale(1.4);-webkit-mask:radial-gradient(circle,#000 40%,transparent 42%);mask:radial-gradient(circle,#000 40%,transparent 42%)}
+  100%{opacity:0;transform:scale(1);-webkit-mask:radial-gradient(circle,#000 150%,transparent 152%);mask:radial-gradient(circle,#000 150%,transparent 152%)}
+}
 .contact__cell--todo{display:grid;place-items:center}
 .contact__cell--todo span{font:600 11px/1.2 var(--f-hand);color:var(--warn);text-align:center;border:1.4px dashed var(--warn);border-radius:50% 46% 52% 48%;padding:6px 5px;transform:rotate(-4deg)}
-/* 未曝光空槽：中灰片基 + 竖排刻字，填满印相条不留黑洞 */
+/* 未曝光空槽：真实未曝光片基——半透灰绿乳剂 + 银盐斑驳 + 边缘轻卷高光，不是 skeleton */
 .contact__ghost{
   flex:0 0 auto;width:56px;height:56px;border-radius:1px;position:relative;
-  background:repeating-linear-gradient(135deg,#211d17 0 6px,#191611 6px 12px);
-  box-shadow:inset 0 0 0 1px rgba(255,230,200,.06);
-  display:grid;place-items:center;
+  background:
+    radial-gradient(70% 60% at 30% 25%, rgba(120,140,120,.22), transparent 60%),
+    radial-gradient(60% 50% at 72% 80%, rgba(70,90,80,.3), transparent 62%),
+    linear-gradient(150deg,#2a302a,#1b201c 72%);
+  box-shadow:inset 0 0 0 1px rgba(255,230,200,.05), inset 0 0 12px -3px rgba(120,150,120,.25);
+  display:grid;place-items:end center;
+  overflow:hidden;
+}
+/* 片基边缘一道卷曲高光 */
+.contact__ghost::before{
+  content:"";position:absolute;inset:0;pointer-events:none;
+  background:linear-gradient(120deg,rgba(220,230,215,.14) 0 1px,transparent 1px 60%,rgba(220,230,215,.08) 60% 62%,transparent 62%);
 }
 .contact__ghost::after{
-  content:"未曝光";font:600 9.5px/1.05 var(--f-mono);letter-spacing:.02em;
-  color:rgba(239,230,210,.26);writing-mode:vertical-rl;text-orientation:upright;
+  content:"未曝光";font:600 10px/1 var(--f-mono);letter-spacing:.04em;
+  color:rgba(226,236,222,.72);writing-mode:horizontal-tb;
+  margin-bottom:6px;
 }
 
 /* 快门：屏幕最强焦点 —— 车削机械快门，滚花边 + 车纹金属环 + 光圈刻度 + 按压行程 */
@@ -327,7 +375,7 @@ main{
   opacity:.75;
 }
 .shutter__glass{
-  position:absolute;inset:20px;border-radius:50%;
+  position:absolute;inset:20px;border-radius:50%;overflow:hidden;
   background:
     radial-gradient(circle at 50% 32%, #ffb972 0%, var(--amber) 30%, var(--amber2) 58%, #6f260a 100%);
   box-shadow:
@@ -344,6 +392,15 @@ main{
   background:radial-gradient(circle at 50% 0,rgba(255,250,235,.9),transparent 70%);
   filter:blur(.4px);
 }
+/* 镜面扫光（借 Magic UI Glare 机制）：一块比镜面宽的高光条，用 transform 横过，只走合成器 */
+.shutter__glass::before{
+  content:"";position:absolute;top:-10%;bottom:-10%;left:0;width:55%;z-index:1;
+  background:linear-gradient(105deg,transparent,rgba(255,250,235,.55),transparent);
+  mix-blend-mode:screen;pointer-events:none;
+  animation:glare 5.5s ease-in-out infinite;
+  will-change:transform;
+}
+@keyframes glare{0%,100%{transform:translateX(-60%) rotate(0deg)}50%{transform:translateX(260%)}}
 .shutter__label{position:relative;z-index:2;font:700 17px/1 var(--f-hand);color:#2a1405;letter-spacing:.08em;text-shadow:0 1px 0 rgba(255,235,205,.55),0 0 1px rgba(0,0,0,.2)}
 /* 按压：内圈真的陷下去（深 inset 阴影 + 缩放），松手回弹 */
 .shutter:active .shutter__glass{
@@ -374,7 +431,7 @@ main{
 .res-print .print__chin{padding-bottom:10px}
 
 /* 可展开菜品条目（图章式行 + 铅笔档案） */
-.entry{border-top:1px dashed rgba(60,44,24,.3)}
+.entry{border-top:0}
 .entry:first-of-type{border-top:0}
 .entry__btn{display:flex;align-items:baseline;gap:9px;width:100%;padding:10px 2px;text-align:left;color:var(--ink);font-family:var(--f-hand)}
 .entry__name{flex:1;min-width:0;font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -436,15 +493,15 @@ main{
   background-position:left 6px top,right 6px top;
   background-size:12px 25px,12px 25px;
 }
-/* 胶卷边缘印字（只占右侧内缘，左侧留给“今日”蜡笔标记） */
+/* 胶卷边缘印字：承载本页真实信息（日期与张数），只占顶部右内缘，不侵入帧内文字 */
 .film::before{
-  content:"CNS 11/23 ▸ 400";position:absolute;right:17px;top:8px;
-  font:600 8px/1 var(--f-mono);letter-spacing:.12em;color:rgba(255,190,120,.34);
+  content:"11/17—11/23";position:absolute;right:15px;top:7px;
+  font:600 8px/1 var(--f-mono);letter-spacing:.08em;color:rgba(255,190,120,.38);
   writing-mode:vertical-rl;
 }
 .film::after{
-  content:"KODAK 5222";position:absolute;right:17px;bottom:8px;
-  font:600 8px/1 var(--f-mono);letter-spacing:.12em;color:rgba(255,190,120,.34);
+  content:"CALORIE SNAP 5";position:absolute;right:15px;bottom:7px;
+  font:600 8px/1 var(--f-mono);letter-spacing:.08em;color:rgba(255,190,120,.32);
   writing-mode:vertical-rl;transform:rotate(180deg);
 }
 .frame{
@@ -453,9 +510,9 @@ main{
 }
 /* 帧号：印在缩略图左上角的片基小字（11A/12A…） */
 .frame__no{
-  position:absolute;left:0;top:5px;z-index:2;
-  font:600 8.5px/1 var(--f-mono);letter-spacing:.04em;color:rgba(255,200,140,.6);
-  text-shadow:0 1px 1px rgba(0,0,0,.8);
+  position:absolute;left:0;top:4px;z-index:2;
+  font:600 10px/1 var(--f-mono);letter-spacing:.04em;color:rgba(255,206,150,.85);
+  text-shadow:0 1px 1px rgba(0,0,0,.85);
 }
 .frame+.frame{border-top:1px solid rgba(255,220,180,.07)}
 .frame__thumb{
@@ -465,13 +522,15 @@ main{
   box-shadow:0 0 0 2px #050403, inset 0 0 0 1px rgba(255,230,200,.08);
 }
 .frame__thumb svg{width:100%;height:100%;display:block}
-/* 未曝光空帧：中灰半透片基 + 刻字，而不是脏绿占位 */
+/* 未曝光空帧：半透灰绿乳剂片基，与印相条空槽同一语言 */
 .frame__thumb.blank{
-  background:repeating-linear-gradient(135deg,#26221c 0 6px,#1c1813 6px 12px);
+  background:
+    radial-gradient(70% 60% at 30% 25%, rgba(120,140,120,.2), transparent 60%),
+    linear-gradient(150deg,#2a302a,#191e1a 74%);
 }
 .frame__thumb.blank::after{
   content:"未曝光";position:absolute;inset:0;display:grid;place-items:center;
-  font:600 10px/1.1 var(--f-mono);letter-spacing:.04em;color:rgba(239,230,210,.34);
+  font:600 10px/1.1 var(--f-mono);letter-spacing:.03em;color:rgba(226,236,222,.72);
   writing-mode:vertical-rl;text-orientation:upright;
 }
 .frame__mid{min-width:0}
@@ -503,33 +562,6 @@ main{
 .dayrule::before,.dayrule::after{content:"";height:1px;background:rgba(239,230,210,.14);flex:1}
 .screen-enter{animation:screenIn .34s cubic-bezier(.2,.7,.2,1) both}
 @keyframes screenIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-
-/* 样张切换：一张挂在暗房钩上的打孔小标签，孔里的安全灯随状态亮灭 */
-.switch{
-  position:relative;display:inline-flex;align-items:center;gap:8px;margin-top:2px;
-  font:600 11px/1 var(--f-mono);color:var(--cream3);letter-spacing:.06em;
-  padding:7px 11px 7px 20px;border-radius:1px;
-  background:linear-gradient(180deg,rgba(52,42,30,.9),rgba(30,24,17,.9));
-  box-shadow:inset 0 0 0 1px rgba(255,210,160,.16), inset 0 1px 0 rgba(255,225,190,.14), 0 2px 5px -2px #000;
-}
-/* 左缘打孔齿（像票根/胶片头） */
-.switch::after{
-  content:"";position:absolute;left:4px;top:50%;transform:translateY(-50%);
-  width:3px;height:60%;
-  background:repeating-linear-gradient(180deg,rgba(0,0,0,.6) 0 3px,transparent 3px 6px);
-  border-radius:1px;opacity:.6;
-}
-/* 打孔眼：状态灯 */
-.switch::before{
-  content:"";position:absolute;left:10px;top:50%;transform:translateY(-50%);
-  width:6px;height:6px;border-radius:50%;
-  background:radial-gradient(circle at 40% 35%,rgba(239,230,210,.5),rgba(20,14,8,.9));
-  box-shadow:inset 0 0 2px rgba(0,0,0,.8);
-  transition:background .2s, box-shadow .2s;
-}
-.switch[aria-pressed="true"]{color:var(--cream);box-shadow:inset 0 0 0 1px rgba(255,139,61,.45),0 0 10px -2px var(--amberGlow)}
-.switch[aria-pressed="true"]::before{background:radial-gradient(circle at 40% 35%,#ffd9a8,var(--amber));box-shadow:0 0 8px 2px var(--amberGlow)}
-.switch__track,.switch__dot{display:none}
 
 /* 360 窄屏适配 */
 @media (max-width:380px){
@@ -566,9 +598,6 @@ main{
           <div class="tt-k" id="today-kcal">0<small>千卡</small></div>
           <div class="tt-sub" id="today-sub">今天还没有显影的记录</div>
         </div>
-        <button class="switch" id="today-switch" aria-pressed="false" title="有记录 / 空状态">
-          <span id="switch-label">看空片</span>
-        </button>
       </div>
 
       <div class="dayrule">今日记录</div>
@@ -673,28 +702,87 @@ main{
   const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 
   function dishInner(id){
+    // 每种菜：多层不规则色块 + 内部阴影 + 边缘高光，做出“被拍下来的一盘菜”而非图标
     const shapes = {
-      tomatoEgg: `<ellipse cx="86" cy="88" rx="34" ry="26" fill="#c8412a"/>
-        <ellipse cx="118" cy="108" rx="30" ry="22" fill="#d8542f"/>
-        <ellipse cx="104" cy="76" rx="22" ry="16" fill="#e5673b"/>
-        <ellipse cx="78" cy="86" rx="13" ry="9" fill="#a8301e" opacity=".75"/>
-        <ellipse cx="120" cy="108" rx="12" ry="8" fill="#96291a" opacity=".7"/>
-        <g fill="#f2c53d"><ellipse cx="108" cy="88" rx="17" ry="12"/><ellipse cx="82" cy="106" rx="15" ry="10"/><ellipse cx="126" cy="94" rx="11" ry="8"/><ellipse cx="96" cy="116" rx="12" ry="8"/></g>
-        <g fill="#ffe07a" opacity=".9"><ellipse cx="104" cy="84" rx="6" ry="4"/><ellipse cx="82" cy="102" rx="5" ry="3"/></g>
-        <g fill="#5f8a3a" opacity=".85"><path d="M92 122c4-6 12-6 16-2-5 3-11 4-16 2z"/><path d="M128 112c3-4 9-4 12-1-4 2-8 3-12 1z"/></g>`,
-      rice: `<ellipse cx="100" cy="98" rx="44" ry="38" fill="#efe7d2"/>
-        <ellipse cx="100" cy="94" rx="42" ry="36" fill="#f7f1e2"/>
-        <g fill="#fff" opacity=".85"><ellipse cx="88" cy="84" rx="4" ry="2.4" transform="rotate(-20 88 84)"/><ellipse cx="108" cy="90" rx="4" ry="2.4" transform="rotate(15 108 90)"/><ellipse cx="98" cy="104" rx="4" ry="2.4" transform="rotate(-8 98 104)"/><ellipse cx="116" cy="102" rx="3.6" ry="2.2" transform="rotate(30 116 102)"/><ellipse cx="84" cy="100" rx="3.6" ry="2.2" transform="rotate(-30 84 100)"/><ellipse cx="100" cy="78" rx="3.6" ry="2.2" transform="rotate(10 100 78)"/></g>
-        <ellipse cx="92" cy="88" rx="16" ry="10" fill="#cbbf9e" opacity=".4"/><ellipse cx="112" cy="108" rx="10" ry="7" fill="#b9ac8a" opacity=".4"/>`,
-      greens: `<g fill="#3f6b28"><path d="M64 106c8-22 30-30 48-24-4 16-22 28-38 28z"/><path d="M110 78c14-4 30 4 34 20-16 4-30-4-34-14z"/><path d="M80 120c10-14 28-16 40-8-8 14-26 18-38 12z"/></g>
-        <g fill="#4f8230"><path d="M70 100c6-16 22-22 36-18-4 12-18 20-30 20z"/><path d="M112 82c11-3 23 3 26 15-12 3-23-3-26-11z"/><path d="M86 116c8-10 22-12 30-6-6 10-20 13-28 9z"/></g>
-        <g fill="#6fa544" opacity=".9"><path d="M96 92c5-9 16-11 24-6-6 8-16 10-22 8z"/><path d="M74 108c5-8 14-9 20-5-5 7-13 8-18 6z"/></g>
-        <g fill="#ffd85e" opacity=".85"><circle cx="92" cy="86" r="2.4"/><circle cx="120" cy="98" r="2"/><circle cx="80" cy="112" r="1.8"/></g>
-        <ellipse cx="86" cy="84" rx="10" ry="4" fill="#fff" opacity=".18" transform="rotate(-24 86 84)"/>`,
-      pork: `<g fill="#7a2f17"><rect x="70" y="82" width="30" height="26" rx="5" transform="rotate(-8 85 95)"/><rect x="104" y="76" width="30" height="26" rx="5" transform="rotate(9 119 89)"/><rect x="88" y="106" width="30" height="24" rx="5" transform="rotate(-4 103 118)"/></g>
-        <g fill="#a5441f"><rect x="73" y="85" width="24" height="8" rx="4" transform="rotate(-8 85 95)"/><rect x="107" y="79" width="24" height="8" rx="4" transform="rotate(9 119 89)"/><rect x="91" y="109" width="24" height="7" rx="4" transform="rotate(-4 103 118)"/></g>
-        <g fill="#c96a34" opacity=".9"><ellipse cx="80" cy="88" rx="6" ry="3"/><ellipse cx="115" cy="82" rx="6" ry="3"/><ellipse cx="99" cy="112" rx="6" ry="3"/></g>
-        <g fill="#e9dcc0" opacity=".25"><ellipse cx="86" cy="84" rx="7" ry="2.4"/><ellipse cx="120" cy="78" rx="7" ry="2.4"/></g>`,
+      tomatoEgg: `
+        <g opacity=".92">
+          <!-- 番茄：不规则汁块，层层叠压 -->
+          <path d="M58 96c-6-16 6-30 24-32 16-2 26 8 30 20 2 10-6 16-16 14-8-2-12 4-20 4-8 0-14-2-18-6z" fill="#bf3a22"/>
+          <path d="M92 74c14-6 30 0 34 14 3 12-8 20-20 18-10-2-14-8-16-16-1-7 0-12 2-16z" fill="#c94e2a"/>
+          <path d="M74 112c10-8 26-6 32 4 4 8-4 16-16 14-10-2-16-10-16-18z" fill="#a8301e"/>
+          <path d="M64 88c2-10 12-16 22-15-3 8-12 15-20 16z" fill="#d9622f" opacity=".8"/>
+          <!-- 蛋：暖黄碎块 + 焦边 -->
+          <path d="M84 78c8-8 22-6 26 4 3 8-4 14-14 13-9-1-15-9-12-17z" fill="#efc23c"/>
+          <path d="M104 96c8-4 16 2 16 12 0 8-10 12-18 8-7-4-6-16 2-20z" fill="#f3cb48"/>
+          <path d="M72 100c6-6 16-4 18 4 2 6-4 12-12 11-7-1-10-9-6-15z" fill="#e9b838"/>
+          <path d="M118 84c5-3 12 0 12 7-3-2-8-3-12-2z" fill="#c9772a" opacity=".7"/>
+          <!-- 高光与油光 -->
+          <ellipse cx="98" cy="80" rx="9" ry="4" fill="#fff0c8" opacity=".5" transform="rotate(-24 98 80)"/>
+          <ellipse cx="112" cy="104" rx="6" ry="3" fill="#ffe8a8" opacity=".4" transform="rotate(18 112 104)"/>
+          <!-- 葱花 -->
+          <path d="M88 116c4-6 12-6 16-2-5 3-11 4-16 2z" fill="#5f8a3a"/>
+          <path d="M124 108c3-4 9-4 12-1-4 2-8 3-12 1z" fill="#6b9646"/>
+        </g>`,
+      rice: `
+        <g>
+          <path d="M62 100c-2-20 14-32 38-30 22 2 36 18 32 34-4 18-22 26-40 24-18-2-28-12-30-28z" fill="#e4d7ba"/>
+          <path d="M70 96c0-14 14-24 32-22 16 2 26 14 24 26-2 14-16 20-30 19-14-1-24-10-26-23z" fill="#f3ecd9"/>
+          <!-- 米粒：散落的小椭圆，带方向与明暗 -->
+          <g fill="#fff" opacity=".8">
+            <ellipse cx="88" cy="82" rx="4.4" ry="2.2" transform="rotate(-24 88 82)"/>
+            <ellipse cx="104" cy="86" rx="4.2" ry="2.1" transform="rotate(8 104 86)"/>
+            <ellipse cx="96" cy="98" rx="4.4" ry="2.2" transform="rotate(-10 96 98)"/>
+            <ellipse cx="114" cy="98" rx="3.8" ry="1.9" transform="rotate(34 114 98)"/>
+            <ellipse cx="82" cy="96" rx="3.8" ry="1.9" transform="rotate(-34 82 96)"/>
+            <ellipse cx="100" cy="76" rx="3.6" ry="1.8" transform="rotate(12 100 76)"/>
+            <ellipse cx="108" cy="108" rx="3.8" ry="1.9" transform="rotate(-16 108 108)"/>
+          </g>
+          <g fill="#cbbf9e" opacity=".55">
+            <ellipse cx="92" cy="88" rx="11" ry="7"/><ellipse cx="112" cy="104" rx="9" ry="6"/><ellipse cx="80" cy="104" rx="7" ry="5"/>
+          </g>
+          <!-- 碗沿受光 -->
+          <path d="M66 100c-1-16 14-27 34-26" fill="none" stroke="#fffaf0" stroke-opacity=".35" stroke-width="2"/>
+        </g>`,
+      greens: `
+        <g>
+          <g fill="#355e22" opacity=".95">
+            <path d="M60 108c8-24 32-32 52-25-5 18-24 30-42 29z"/>
+            <path d="M112 76c15-5 32 5 36 22-18 4-32-5-36-16z"/>
+            <path d="M78 122c11-15 30-17 44-9-9 15-29 19-42 13z"/>
+          </g>
+          <g fill="#4a7c2c">
+            <path d="M68 100c6-17 24-23 39-19-5 13-20 22-33 22z"/>
+            <path d="M114 80c12-4 25 3 28 16-13 3-25-4-28-12z"/>
+            <path d="M86 118c9-11 24-13 33-7-7 11-22 14-31 10z"/>
+          </g>
+          <g fill="#6fa544" opacity=".9">
+            <path d="M98 90c6-10 18-12 27-7-7 9-18 12-25 9z"/>
+            <path d="M72 110c5-8 15-9 22-5-6 8-15 9-21 6z"/>
+          </g>
+          <!-- 蒜末与高光 -->
+          <g fill="#ffe08a" opacity=".8"><circle cx="94" cy="84" r="2.2"/><circle cx="122" cy="100" r="1.8"/><circle cx="82" cy="116" r="1.6"/></g>
+          <path d="M72 96c4-8 14-12 22-11" fill="none" stroke="#b6d488" stroke-opacity=".5" stroke-width="1.5"/>
+        </g>`,
+      pork: `
+        <g>
+          <g fill="#6f2a13">
+            <path d="M66 84c2-8 12-10 26-9 8 1 10 8 6 14-4 6-14 6-22 4-8-2-12-4-10-9z"/>
+            <path d="M102 78c10-4 24-2 29 6 4 7-2 14-12 15-10 1-20-3-22-11-1-5 1-8 5-10z"/>
+            <path d="M86 108c10-4 24-2 29 6 3 6-2 12-12 13-9 1-18-3-21-10-2-4 0-7 4-9z"/>
+          </g>
+          <g fill="#9a3f1c">
+            <path d="M70 85c2-5 10-7 20-6-1 5-8 8-16 8z"/>
+            <path d="M106 80c8-3 18-1 22 5-7 3-16 2-21-3z"/>
+            <path d="M90 110c8-3 18-1 22 5-7 3-16 1-21-3z"/>
+          </g>
+          <!-- 肥膘透光 -->
+          <g fill="#f0dcb8" opacity=".55">
+            <path d="M76 90c5-3 12-2 16 2-6 2-13 1-16-2z"/>
+            <path d="M114 86c5-2 11 0 13 4-5 1-11-1-13-4z"/>
+          </g>
+          <g fill="#c96a34" opacity=".85"><ellipse cx="80" cy="86" rx="5" ry="2.4"/><ellipse cx="116" cy="82" rx="5" ry="2.4"/><ellipse cx="100" cy="112" rx="5" ry="2.4"/></g>
+          <ellipse cx="86" cy="83" rx="6" ry="2" fill="#fff" opacity=".22"/>
+        </g>`,
     };
     return shapes[id] || '';
   }
@@ -713,14 +801,18 @@ main{
       : `<circle cx="100" cy="100" r="74" fill="url(#ph-plate)"/><circle cx="100" cy="100" r="74" fill="none" stroke="#fff" stroke-opacity="0.28" stroke-width="1.5"/><circle cx="100" cy="100" r="60" fill="#000" opacity="0.06"/><circle cx="100" cy="100" r="60" fill="none" stroke="#8a7452" stroke-opacity="0.4" stroke-width="1"/>`;
     return `<svg viewBox="0 0 200 200" preserveAspectRatio="xMidYMid slice" role="img" aria-label="菜品照片">
       <rect width="200" height="200" fill="url(#ph-table)"/>
-      <rect width="200" height="200" fill="${s.tone}" opacity="0.28"/>
+      <rect width="200" height="200" fill="${s.tone}" opacity="0.3"/>
       <ellipse cx="100" cy="108" rx="${s.bowl?70:78}" ry="76" fill="#0d0906" opacity="0.5"/>
       ${rim}
       <g transform="rotate(${s.rot} 100 100)">${dishInner(id)}</g>
+      <!-- 不均匀显影：斜向曝光衰减 + 暗角 -->
       <rect width="200" height="200" fill="url(#ph-vig)"/>
-      <!-- 胶片暖调 + 高光 halation（显影后相纸里那点光） -->
+      <rect width="200" height="200" fill="url(#ph-falloff)"/>
+      <!-- 偏色（暗部偏青、高光偏暖）模拟胶片染料层 -->
+      <rect width="200" height="200" fill="#14303a" style="mix-blend-mode:soft-light" opacity=".28"/>
       <rect width="200" height="200" fill="url(#ph-warm)" style="mix-blend-mode:screen"/>
       <ellipse cx="100" cy="82" rx="40" ry="30" fill="url(#ph-bloom)" style="mix-blend-mode:screen"/>
+      <!-- 颗粒由外层相纸的 CSS 噪声统一叠压，避免 9 个 SVG 各跑一次 feTurbulence -->
     </svg>`;
   }
 
@@ -729,6 +821,7 @@ main{
     <radialGradient id="ph-table" cx="50%" cy="42%" r="72%"><stop offset="0" stop-color="#4a3726"/><stop offset="0.7" stop-color="#33261a"/><stop offset="1" stop-color="#1d140d"/></radialGradient>
     <radialGradient id="ph-plate" cx="42%" cy="34%" r="68%"><stop offset="0" stop-color="#f6eedb"/><stop offset="0.72" stop-color="#e0d0b0"/><stop offset="1" stop-color="#bcaa86"/></radialGradient>
     <radialGradient id="ph-vig" cx="50%" cy="46%" r="64%"><stop offset="0.58" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#1a0f05" stop-opacity="0.5"/></radialGradient>
+    <linearGradient id="ph-falloff" x1="0" y1="0" x2="1" y2="1"><stop offset="0.3" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#0a0603" stop-opacity="0.28"/></linearGradient>
     <radialGradient id="ph-warm" cx="50%" cy="40%" r="70%"><stop offset="0" stop-color="#ffb968" stop-opacity="0.22"/><stop offset="1" stop-color="#ff8a3d" stop-opacity="0"/></radialGradient>
     <radialGradient id="ph-bloom" cx="50%" cy="50%" r="50%"><stop offset="0" stop-color="#fff3d8" stop-opacity="0.4"/><stop offset="1" stop-color="#fff3d8" stop-opacity="0"/></radialGradient>
   </defs></svg>`;
@@ -795,8 +888,6 @@ main{
   /* ---------- 渲染：今日 ---------- */
   function renderToday(filled){
     const fan=$('#today-fan'), empty=$('#today-empty');
-    $('#today-switch').setAttribute('aria-pressed', filled?'false':'true');
-    const lbl=$('#switch-label'); if(lbl) lbl.textContent = filled?'看空片':'看记录';
     if(filled){
       let sum=0, todoTotal=0;
       todayMeals.forEach(m=>{ const t=mealTotals(m); sum+=t.kcal; todoTotal+=t.todo; });
@@ -893,7 +984,7 @@ main{
       const thumb = day.dish ? `<div class="frame__thumb">${photoSVG(day.dish)}</div>` : `<div class="frame__thumb blank"></div>`;
       let kcalCell;
       if(state==='empty') kcalCell = `<div class="frame__kcal">—<small>未记录</small></div>`;
-      else if(state==='partial') kcalCell = `<div class="frame__kcal">${fmt(t.kcal)}<small>约 · 不完整</small></div>`;
+      else if(state==='partial') kcalCell = `<div class="frame__kcal">${fmt(t.kcal)}<small>含估算</small></div>`;
       else kcalCell = `<div class="frame__kcal">${fmt(t.kcal)}<small>千卡</small></div>`;
       return `<div class="frame frame--${state} ${isToday?'frame--today':''}">
         <span class="frame__no">${23-i}A</span>
@@ -951,11 +1042,6 @@ main{
     if(e.target.closest('#shutter')){ fireShutter(); return; }
     if(e.target.closest('#btn-search')){ addSearch(); return; }
     if(e.target.closest('#btn-manual')){ addManual(); return; }
-    if(e.target.closest('#today-switch')){
-      const isEmpty = !$('#today-empty').hidden;   // 当前是否显示空状态
-      renderToday(isEmpty);                        // 空 → 切到有记录；有记录 → 切到空
-      return;
-    }
     const entryBtn=e.target.closest('.entry__btn');
     if(entryBtn){
       const panel=entryBtn.nextElementSibling;
@@ -976,7 +1062,9 @@ main{
   /* ---------- 启动 ---------- */
   document.body.insertAdjacentHTML('afterbegin', SPRITE);
   renderDraft();
-  renderToday(true);
+  // 空状态由 ?empty=1 探索参数触发（评审用），不在正式界面里放调试开关
+  const showEmpty = new URLSearchParams(location.search).get('empty')==='1';
+  renderToday(!showEmpty);
   renderResult();
   renderWeek();
 })();</script>

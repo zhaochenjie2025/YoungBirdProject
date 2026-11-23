@@ -1,0 +1,1352 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#F2F3F5">
+<title>CalorieSnap · 现代简约</title>
+<style>
+/* ============================================================
+   方向 E · 现代简约 / 洁净明亮
+   材质规则：漂浮层用玻璃（dock / 顶部遮罩 / 合计条），
+   内容层用哑光纸面（1px 发丝边 + 内顶高光 + 双层投影）。
+   玻璃若铺满页面会互相脏化，所以只在“浮起来”的地方出现。
+   ============================================================ */
+:root{
+  --canvas:#F2F3F5;
+  --paper:#FFFFFF;
+  --ink:#101317;
+  --ink-2:#414A57;
+  --ink-3:#5F6875;
+  --ink-4:#8A929E;
+  --hair:rgba(16,19,23,.075);
+  --hair-2:rgba(16,19,23,.13);
+  --ember:#DC5A22;
+  --ember-ink:#B2461A;
+  --ember-wash:rgba(220,90,34,.10);
+  --mint:#2C8573;
+  --sky:#3B7EA1;
+  --r-hero:28px;
+  --r-card:18px;
+  --r-well:12px;
+  --ug:.18em;
+  --e1:0 1px 2px rgba(16,19,23,.05),0 6px 14px -12px rgba(16,19,23,.30);
+  --e2:inset 0 1px 0 #fff,0 1px 2px rgba(16,19,23,.06),0 14px 30px -22px rgba(16,19,23,.45);
+  --ease-out:cubic-bezier(.32,.72,0,1);
+  --ease-pop:cubic-bezier(.34,1.56,.64,1);
+  --dock-h:64px;
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --safe-t:env(safe-area-inset-top,0px);
+  --fs-1:11px;--fs-2:13px;--fs-3:15px;--fs-4:17px;--fs-5:26px;--fs-6:56px;
+  --font:-apple-system,BlinkMacSystemFont,"SF Pro Text","PingFang SC","Hiragino Sans GB","Noto Sans CJK SC","Microsoft YaHei",system-ui,sans-serif;
+  --noise:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.82' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--font);
+  background:var(--canvas);
+  color:var(--ink);
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  min-height:100dvh;
+  overflow-x:hidden;
+  overscroll-behavior-y:none;
+  font-variant-numeric:tabular-nums;
+  font-feature-settings:"tnum" 1;
+}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+h1,h2,h3{font-weight:600;letter-spacing:0}
+ul,ol{list-style:none}
+svg{display:block}
+:focus-visible{outline:2px solid var(--ember);outline-offset:3px;border-radius:6px}
+
+/* ---------- 底色场：玻璃需要“有东西可折射” ---------- */
+.field{position:fixed;inset:-12%;pointer-events:none;z-index:0;will-change:transform;animation:field-drift 36s var(--ease-out) infinite alternate}
+.field::before,.field::after{content:"";position:absolute;inset:0;background-repeat:no-repeat}
+.field::before{
+  background-image:
+    radial-gradient(46% 34% at 20% 8%, rgba(250,205,170,.62) 0%, rgba(250,205,170,0) 68%),
+    radial-gradient(40% 30% at 86% 24%, rgba(180,214,232,.50) 0%, rgba(180,214,232,0) 70%),
+    radial-gradient(52% 36% at 48% 94%, rgba(186,224,208,.45) 0%, rgba(186,224,208,0) 70%);
+}
+.field::after{
+  background-image:radial-gradient(30% 22% at 78% 62%, rgba(255,255,255,.9) 0%, rgba(255,255,255,0) 70%);
+}
+@keyframes field-drift{
+  from{transform:translate3d(-1.2%,-0.8%,0) scale(1.02)}
+  to{transform:translate3d(1.4%,1.1%,0) scale(1.05)}
+}
+.grain{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:var(--noise);opacity:.06;mix-blend-mode:multiply}
+/* 纸纤维：只落在纸面卡内部，跟着卡片一起受光 */
+.paper::before,.meal-row::before,.dish-row::before,.day-cell::before,.dish-card::before,.week-sum::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background-image:var(--noise);opacity:.03;mix-blend-mode:multiply;
+}
+
+.app{position:relative;z-index:2;max-width:480px;margin:0 auto;padding:0 20px calc(var(--dock-h) + var(--safe-b) + 54px)}
+.screen{display:none}
+.screen.is-active{display:block;animation:screen-in .42s var(--ease-out) both}
+@keyframes screen-in{from{opacity:0;transform:translate3d(0,12px,0)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){
+  .field{animation:none}
+  .screen.is-active{animation:none}
+  *{transition-duration:.01ms!important;animation-duration:.01ms!important}
+}
+/* ============================================================
+   进度式毛玻璃（借 Magic UI Progressive Blur 的多层遮罩机制）
+   顶部/底部各 4 层递增 blur，遮罩以线性梯度逐层收窄，
+   让滚过边缘的内容“溶解”而不是被一条硬边切断。
+   ============================================================ */
+.pblur{position:fixed;left:0;right:0;z-index:6;pointer-events:none;height:132px}
+.pblur--top{top:0;height:calc(78px + var(--safe-t));opacity:0;transition:opacity .28s var(--ease-out)}
+.pblur--top.is-on{opacity:1}
+.pblur--bottom{bottom:0;z-index:15;height:calc(var(--dock-h) + var(--safe-b) + 46px)}
+.pblur i{position:absolute;inset:0;pointer-events:none}
+.pblur--top i{backdrop-filter:blur(var(--b));-webkit-backdrop-filter:blur(var(--b))}
+.pblur--bottom i{backdrop-filter:blur(var(--b));-webkit-backdrop-filter:blur(var(--b))}
+.pblur--top i:nth-child(1){--b:1px;mask-image:linear-gradient(to bottom,#000 0 30%,transparent 62%);-webkit-mask-image:linear-gradient(to bottom,#000 0 30%,transparent 62%)}
+.pblur--top i:nth-child(2){--b:4px;mask-image:linear-gradient(to bottom,#000 0 20%,transparent 52%);-webkit-mask-image:linear-gradient(to bottom,#000 0 20%,transparent 52%)}
+.pblur--top i:nth-child(3){--b:12px;mask-image:linear-gradient(to bottom,#000 0 12%,transparent 40%);-webkit-mask-image:linear-gradient(to bottom,#000 0 12%,transparent 40%)}
+.pblur--top i:nth-child(4){--b:24px;mask-image:linear-gradient(to bottom,#000 0 6%,transparent 26%);-webkit-mask-image:linear-gradient(to bottom,#000 0 6%,transparent 26%)}
+.pblur--bottom i:nth-child(1){--b:1px;mask-image:linear-gradient(to top,#000 0 34%,transparent 72%);-webkit-mask-image:linear-gradient(to top,#000 0 34%,transparent 72%)}
+.pblur--bottom i:nth-child(2){--b:5px;mask-image:linear-gradient(to top,#000 0 24%,transparent 60%);-webkit-mask-image:linear-gradient(to top,#000 0 24%,transparent 60%)}
+.pblur--bottom i:nth-child(3){--b:13px;mask-image:linear-gradient(to top,#000 0 15%,transparent 46%);-webkit-mask-image:linear-gradient(to top,#000 0 15%,transparent 46%)}
+.pblur--bottom i:nth-child(4){--b:26px;mask-image:linear-gradient(to top,#000 0 8%,transparent 32%);-webkit-mask-image:linear-gradient(to top,#000 0 8%,transparent 32%)}
+.pblur b{position:absolute;inset:0;background:linear-gradient(to top,rgba(242,243,245,.78),rgba(242,243,245,0))}
+.pblur--top b{background:linear-gradient(to bottom,rgba(242,243,245,.72),rgba(242,243,245,0))}
+
+/* ---------- 顶部迷你标题栏 ---------- */
+.topbar{
+  position:fixed;top:0;left:0;right:0;z-index:7;
+  padding:calc(var(--safe-t) + 10px) 20px 10px;
+  display:flex;align-items:center;justify-content:space-between;
+  pointer-events:none;
+  opacity:0;transform:translate3d(0,-8px,0);
+  transition:opacity .3s var(--ease-out),transform .4s var(--ease-out);
+}
+.topbar.is-on{opacity:1;transform:none}
+.topbar.is-on .tb-btn{pointer-events:auto}
+.tb-title{font-size:15px;font-weight:600;letter-spacing:-.01em;display:flex;align-items:center;gap:8px}
+.tb-title .tb-dot{width:6px;height:6px;border-radius:50%;background:var(--ember)}
+.tb-btn{
+  font-size:11px;font-weight:600;color:var(--ink-3);letter-spacing:.01em;
+  padding:6px 10px;border-radius:999px;
+  background:rgba(255,255,255,.72);
+  box-shadow:0 0 0 1px var(--hair),inset 0 1px 0 rgba(255,255,255,.9);
+  transform:none;transition:transform .25s var(--ease-pop),color .2s;
+}
+.tb-btn:active{transform:scale(.95)}
+
+/* ---------- 页头（随内容滚走的大标题） ---------- */
+.page-head{padding:calc(var(--safe-t) + 30px) 0 18px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.kicker{font-size:11px;font-weight:600;letter-spacing:.06em;color:var(--ink-3);text-transform:uppercase;margin-bottom:6px}
+.page-head h1{font-size:28px;line-height:1.12;font-weight:600;letter-spacing:-.028em}
+.page-sub{font-size:13px;line-height:1.4;color:var(--ink-3);margin-top:6px}
+.head-actions{display:flex;align-items:center;gap:8px;padding-bottom:3px;flex:none}
+.ghost-btn{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:11px;font-weight:600;color:var(--ink-2);
+  padding:7px 11px;border-radius:999px;
+  background:rgba(255,255,255,.6);
+  box-shadow:0 0 0 1px var(--hair),inset 0 1px 0 rgba(255,255,255,.85);
+}
+.ghost-btn svg{width:13px;height:13px}
+.ghost-btn:active{transform:scale(.96)}
+
+/* ---------- 底部 Dock（借 React Bits Dock 的线性结构 + iOS 26 液态玻璃材质） ---------- */
+.dock-wrap{position:fixed;left:0;right:0;bottom:0;z-index:20;padding:0 20px calc(10px + var(--safe-b));pointer-events:none}
+.dock{/* cf-justify: 底部导航是浮起的玻璃层，圆角矩形是 iOS 液态玻璃的原生容器形态 */
+  pointer-events:auto;position:relative;max-width:440px;margin:0 auto;
+  height:var(--dock-h);display:flex;align-items:center;
+  padding:0 6px;border-radius:30px;isolation:isolate;
+  background:linear-gradient(180deg,rgba(255,255,255,.74),rgba(255,255,255,.58));
+  backdrop-filter:blur(30px) saturate(180%);
+  -webkit-backdrop-filter:blur(30px) saturate(180%);
+  box-shadow:
+    0 0 0 1px rgba(16,19,23,.07),
+    inset 0 1px 0 rgba(255,255,255,.95),
+    inset 0 -1px 0 rgba(255,255,255,.35),
+    0 22px 44px -26px rgba(16,19,23,.55);
+}
+/* 镜面高光：液态玻璃的关键，斜向一道在顶缘 */
+.dock::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;
+  background:linear-gradient(112deg,rgba(255,255,255,.75),rgba(255,255,255,0) 38%,rgba(255,255,255,0) 62%,rgba(255,255,255,.32));
+  mix-blend-mode:screen;opacity:.7;
+}
+.dock-track{position:absolute;left:6px;right:6px;top:0;bottom:0;pointer-events:none}
+.dock-pill{
+  position:absolute;top:8px;height:48px;width:96px;border-radius:22px;
+  background:rgba(16,19,23,.055);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 0 0 1px rgba(16,19,23,.035);
+  transform:translate3d(0,0,0);
+  transition:transform .55s cubic-bezier(.26,1.3,.36,1);
+}
+.dock-item{
+  flex:1;height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
+  position:relative;z-index:1;color:var(--ink-3);
+  transition:color .25s var(--ease-out);
+}
+.dock-item svg{width:21px;height:21px;transition:transform .45s cubic-bezier(.26,1.3,.36,1)}
+.dock-item span{font-size:11px;font-weight:600;letter-spacing:.01em}
+.dock-item.is-active{color:var(--ink)}
+.dock-item.is-active svg{transform:translate3d(0,-1px,0) scale(1.06)}
+.dock-item:active svg{transform:scale(.9)}
+.dock-action{
+  flex:none;width:64px;height:100%;display:flex;align-items:center;justify-content:center;
+  position:relative;z-index:2;
+}
+.dock-fab{
+  width:52px;height:52px;border-radius:50%;
+  display:grid;place-items:center;
+  color:#fff;
+  background:
+    radial-gradient(120% 120% at 30% 18%,#F07A3E 0%,#DC5A22 46%,#C24A16 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.5),
+    inset 0 -3px 8px rgba(120,40,0,.35),
+    0 2px 4px rgba(150,50,10,.25),
+    0 12px 22px -8px rgba(190,70,20,.62);
+  transition:transform .4s cubic-bezier(.26,1.45,.4,1),box-shadow .3s;
+}
+.dock-fab svg{width:23px;height:23px;stroke-width:2.1}
+.dock-fab:active{transform:scale(.92);box-shadow:inset 0 2px 6px rgba(110,35,0,.4),0 4px 10px -6px rgba(190,70,20,.6)}
+@media (prefers-reduced-motion:reduce){.dock-pill{transition:none}.dock-item svg{transition:none}}
+/* ============================================================
+   纸面卡（内容层）：哑光白、1px 发丝边、内顶高光、双层软影。
+   不用玻璃——只有“浮起”的层才用玻璃。
+   ============================================================ */
+.paper{
+  position:relative;
+  background:linear-gradient(177deg,#FFFFFF 0%,#FEFEFE 66%,#FBFAF7 100%);
+  border-radius:var(--r-card);
+  box-shadow:0 0 0 1px var(--hair),inset 0 1px 0 #fff,var(--e1);
+}
+.paper--pad{padding:18px}
+.card-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.card-title{font-size:13px;font-weight:600;color:var(--ink);letter-spacing:-.005em}
+.card-link{font-size:12px;font-weight:600;color:var(--ink-3);display:inline-flex;align-items:center;gap:3px}
+.card-link svg{width:12px;height:12px}
+
+/* ---------- 今日 · 热量主卡 ---------- */
+.hero{
+  padding:22px 20px 18px;border-radius:var(--r-hero);overflow:hidden;
+  box-shadow:0 0 0 1px var(--hair),inset 0 1px 0 #fff,var(--e2);
+}
+.hero::after{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
+  background:radial-gradient(120% 90% at 88% -10%,rgba(220,90,34,.10),rgba(220,90,34,0) 60%);
+}
+.hero-top{display:flex;align-items:flex-start;justify-content:space-between;position:relative;z-index:1}
+.hero-label{font-size:12px;font-weight:600;color:var(--ink-3);display:flex;align-items:center;gap:6px}
+.hero-label .live{width:6px;height:6px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 3px rgba(44,133,115,.14)}
+.hero-big{display:flex;align-items:baseline;gap:6px;margin:8px 0 2px;position:relative;z-index:1}
+.hero-num{
+  font-size:60px;font-weight:700;letter-spacing:-.045em;
+  display:inline-flex;height:1em;overflow:hidden;line-height:1;
+  -webkit-mask-image:linear-gradient(to bottom,transparent 0,#000 5%,#000 97%,transparent 100%);
+  mask-image:linear-gradient(to bottom,transparent 0,#000 5%,#000 97%,transparent 100%);
+}
+.hero-num .col{
+  display:flex;flex-direction:column;height:auto;
+  transition:transform 1.1s cubic-bezier(.22,.92,.16,1);will-change:transform;
+}
+.hero-num .col span{height:1em;line-height:1;display:flex;align-items:center;justify-content:center}
+.hero-num .col.sep{width:.34em;justify-content:flex-start}
+@media (prefers-reduced-motion:reduce){.hero-num .col{transition:none}}
+/* 轻提示（玻璃，浮在 dock 之上） */
+.toast{
+  position:fixed;left:50%;bottom:calc(var(--dock-h) + var(--safe-b) + 78px);z-index:30;
+  transform:translate3d(-50%,10px,0);opacity:0;pointer-events:none;
+  max-width:min(86vw,340px);text-align:center;
+  padding:10px 15px;border-radius:14px;
+  font-size:var(--fs-2);font-weight:500;line-height:1.4;color:var(--ink);
+  background:rgba(255,255,255,.86);
+  backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);
+  box-shadow:0 0 0 1px rgba(16,19,23,.08),inset 0 1px 0 rgba(255,255,255,.95),0 16px 30px -18px rgba(16,19,23,.5);
+  transition:opacity .28s var(--ease-out),transform .34s var(--ease-out);
+}
+.toast.is-on{opacity:1;transform:translate3d(-50%,0,0)}
+.hero-unit{font-size:var(--fs-4);font-weight:600;color:var(--ink-3);letter-spacing:0;margin-left:var(--ug);transform:translateY(-1px)}
+.hero-readout{display:flex;align-items:baseline;gap:6px;margin:9px 0 0;font-size:var(--fs-2);color:var(--ink-3);font-weight:500;position:relative;z-index:1}
+.hero-readout b{font-weight:600;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.hero-note{font-size:var(--fs-2);color:var(--ink-3);line-height:1.45;position:relative;z-index:1;margin-top:3px}
+.hero-note b{color:var(--ink-2);font-weight:600}
+.hero-range{position:relative;z-index:1;margin-top:16px}
+.ruler{position:relative;height:22px;margin:0 2px}
+.ruler-ticks{
+  position:absolute;left:0;right:0;top:2px;height:6px;pointer-events:none;
+  background:repeating-linear-gradient(90deg,rgba(16,19,23,.16) 0 1px,transparent 1px 8.33%);
+  -webkit-mask-image:linear-gradient(to bottom,#000 0 60%,transparent 60%);
+  mask-image:linear-gradient(to bottom,#000 0 60%,transparent 60%);
+}
+.ruler-track{position:absolute;left:0;right:0;top:9px;height:4px;border-radius:2px;background:rgba(16,19,23,.06)}
+/* 已摄入：纸面压痕式的实心段，比目标带更靠前 */
+.ruler-eaten{
+  position:absolute;top:8px;height:6px;border-radius:3px;
+  background:linear-gradient(90deg,rgba(178,70,26,.30),rgba(220,90,34,.62));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.45);
+}
+.ruler-band{
+  position:absolute;top:6px;height:10px;border-radius:2px;
+  background:repeating-linear-gradient(135deg,rgba(16,19,23,.07) 0 1px,rgba(16,19,23,0) 1px 6px);
+}
+.ruler-whisk{position:absolute;top:7px;height:8px;border-radius:3px;background:rgba(220,90,34,.22);box-shadow:inset 0 0 0 1px rgba(178,70,26,.18)}
+.ruler-dot{
+  position:absolute;top:4px;width:14px;height:14px;border-radius:50%;transform:translateX(-50%);
+  background:var(--ember);border:3px solid #fff;
+  box-shadow:0 1px 3px rgba(150,50,10,.40),0 0 0 1px rgba(16,19,23,.06);
+}
+.ruler-axis{position:relative;height:16px;margin-top:6px;font-size:var(--fs-1);font-weight:500;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.ruler-axis span.bound{position:absolute;top:0;white-space:nowrap;color:var(--ink-4)}
+.ruler-axis span.bound.l{left:0}
+.ruler-axis span.bound.r{right:0;color:var(--ink-3)}
+.ruler-axis span.bound.r b{font-weight:600;color:var(--ink-2)}
+.ruler-axis .target{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap;font-weight:500}
+.ruler-axis .target b{font-weight:600;color:var(--ink-2)}
+.ruler-axis .target em{display:block;font-style:normal;color:var(--ink-4);text-align:center;font-size:var(--fs-1)}
+.ruler-axis b{font-weight:600;color:var(--ink-2)}
+.hero-readout{display:flex;align-items:baseline;gap:6px;margin-top:2px;font-size:var(--fs-1);color:var(--ink-3);font-weight:500}
+.hero-readout b{font-weight:600;color:var(--ink)}
+
+/* ---------- 餐次条目 ---------- */
+.meal-list{display:flex;flex-direction:column;gap:10px;margin-top:14px}
+.meal-row{
+  display:flex;align-items:center;gap:14px;padding:14px;border-radius:var(--r-card);
+  background:linear-gradient(178deg,#FFFFFF,#FDFCFB);
+  box-shadow:0 0 0 1px var(--hair),var(--e2);
+  width:100%;text-align:left;position:relative;
+  transition:transform .3s var(--ease-out),box-shadow .3s;
+}
+.meal-row:active{transform:scale(.985)}
+/* 即时成像方形相纸：白框 + 相片窗 + 底部压印时间 */
+.instant{
+  width:46px;height:54px;flex:none;border-radius:8px;
+  background:linear-gradient(180deg,#FFFFFF,#FCFBF9);
+  box-shadow:0 0 0 1px rgba(16,19,23,.10),0 1px 2px rgba(16,19,23,.10),0 4px 8px -6px rgba(16,19,23,.35);
+  display:flex;flex-direction:column;align-items:center;padding:4px 4px 0;
+}
+.instant .win{
+  width:38px;height:37px;border-radius:3px;display:grid;place-items:center;
+  box-shadow:inset 0 0 0 1px rgba(16,19,23,.10),inset 0 -2px 4px rgba(16,19,23,.06);
+}
+.instant .win svg{width:20px;height:20px}
+.instant .chin{
+  flex:1;display:grid;place-items:center;font-size:var(--fs-1);font-weight:600;
+  color:var(--ink-2);letter-spacing:.01em;font-variant-numeric:tabular-nums;
+}
+.dish-ic{
+  width:40px;height:40px;border-radius:11px;flex:none;display:grid;place-items:center;
+  position:relative;overflow:hidden;
+}
+.dish-ic::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 1px 0 rgba(255,255,255,.65),inset 0 0 0 1px rgba(16,19,23,.07)}
+.dish-ic svg{width:20px;height:20px}
+.instant--sm{width:40px;height:47px;border-radius:7px}
+.instant--sm .win{width:32px;height:32px}
+.instant--sm .chin{font-size:var(--fs-1)}
+.meal-glyph-xl{width:46px;height:46px;border-radius:12px;flex:none;display:grid;place-items:center;position:relative;overflow:hidden}
+.meal-glyph-xl::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 0 0 1px rgba(16,19,23,.05)}
+.meal-glyph-xl svg{width:21px;height:21px}
+.meal-txt{flex:1;min-width:0}
+.meal-name{font-size:14px;font-weight:600;letter-spacing:-.005em;display:flex;align-items:center;gap:6px}
+.meal-meta{font-size:12px;color:var(--ink-3);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.meal-kcal{font-size:17px;font-weight:600;letter-spacing:-.02em;flex:none}
+.meal-kcal small{font-size:var(--fs-1);font-weight:500;color:var(--ink-3);margin-left:var(--ug)}
+.badge-est{
+  font-size:var(--fs-1);font-weight:600;color:var(--ember-ink);
+  background:var(--ember-wash);padding:2px 7px;border-radius:6px;letter-spacing:.01em;
+}
+/* ---------- 空状态 ---------- */
+.empty{
+  padding:22px 20px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;
+  background:transparent;border-radius:var(--r-card);box-shadow:none;
+  border-top:1px solid var(--hair);
+}
+.empty-art{width:64px;height:64px;margin-bottom:12px;position:relative;transform:rotate(-2deg);filter:drop-shadow(0 4px 6px rgba(16,19,23,.10))}
+.empty-art svg{width:100%;height:100%}
+.empty h3{font-size:15px;font-weight:600;letter-spacing:-.005em}
+.empty p{font-size:var(--fs-2);color:var(--ink-3);margin-top:5px;line-height:1.5;max-width:240px}
+.empty .btn-row{margin-top:14px;display:flex;gap:10px}
+
+/* ---------- 按钮 ---------- */
+/* cf-justify: 洁净明亮的界面语言里，按钮与分段控件必须是可预期的矩形命中区；形状不承载母题，靠材质（内高光+投影）承担工艺 */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  font-size:14px;font-weight:600;letter-spacing:-.005em;
+  border-radius:16px;padding:0 20px;height:48px;
+  transition:transform .28s var(--ease-pop),box-shadow .3s,background .2s;
+}
+.btn svg{width:18px;height:18px}
+.btn:active{transform:scale(.96)}
+.btn--primary{
+  color:#fff;
+  background:radial-gradient(130% 130% at 30% 14%,#F07A3E 0%,#DC5A22 48%,#C24916 100%);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.42),inset 0 -3px 8px rgba(120,40,0,.28),0 2px 4px rgba(150,50,10,.22),0 14px 26px -12px rgba(190,70,20,.6);
+}
+.btn--sm{height:40px;padding:0 15px;font-size:13px;border-radius:13px}
+.btn--quiet{color:var(--ink-2);background:rgba(16,19,23,.05);box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
+.btn--ghost{color:var(--ink);background:var(--paper);box-shadow:0 0 0 1px var(--hair-2),inset 0 1px 0 #fff,0 2px 6px -4px rgba(16,19,23,.3)}
+.btn--block{display:flex;width:100%}
+
+/* ---------- 新建一餐 ---------- */
+.shutter{
+  position:relative;width:100%;border-radius:26px;overflow:hidden;text-align:left;
+  background:
+    radial-gradient(120% 100% at 78% -8%,rgba(255,255,255,.22),rgba(255,255,255,0) 55%),
+    linear-gradient(158deg,#232A33 0%,#161B21 58%,#0F1317 100%);
+  color:#fff;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.13),inset 0 0 0 1px rgba(255,255,255,.05),0 20px 38px -22px rgba(16,20,26,.7);
+  padding:20px;
+  transition:transform .4s var(--ease-pop);
+}
+.shutter:active{transform:scale(.982)}
+.shutter::after{
+  content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
+  background:var(--noise);opacity:.06;mix-blend-mode:overlay;
+}
+.shutter-inner{display:flex;align-items:center;gap:16px;position:relative;z-index:1}
+.shutter-lens{
+  width:58px;height:58px;border-radius:50%;flex:none;display:grid;place-items:center;position:relative;
+  background:radial-gradient(circle at 34% 26%,#3B444F 0%,#1C2229 55%,#0B0E11 100%);
+  box-shadow:inset 0 2px 3px rgba(255,255,255,.16),inset 0 -6px 10px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.1),0 8px 16px -6px rgba(0,0,0,.7);
+}
+.shutter-lens::before{
+  content:"";position:absolute;width:30px;height:30px;border-radius:50%;
+  background:radial-gradient(circle at 38% 32%,rgba(90,205,255,.32),rgba(20,40,70,.16) 46%,rgba(0,0,0,.6) 70%);
+  box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.07);
+}
+.shutter-lens::after{
+  content:"";position:absolute;width:12px;height:6px;border-radius:50%;top:12px;left:14px;
+  background:radial-gradient(ellipse,rgba(255,255,255,.85),rgba(255,255,255,0) 70%);transform:rotate(-24deg);
+}
+.shutter-lens svg{width:22px;height:22px;position:relative;z-index:1;color:#fff;opacity:.92}
+.shutter-txt{flex:1}
+.shutter-txt h3{font-size:16px;font-weight:600;letter-spacing:-.01em}
+.shutter-txt p{font-size:12px;color:rgba(255,255,255,.56);margin-top:3px;line-height:1.4}
+.shutter-plus{
+  width:34px;height:34px;border-radius:50%;flex:none;display:grid;place-items:center;
+  background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
+}
+.shutter-plus svg{width:17px;height:17px}
+.shutter-manual{
+  display:flex;gap:8px;margin-top:14px;position:relative;z-index:1;
+}
+.chip{
+  display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:500;
+  padding:8px 12px;border-radius:999px;color:rgba(255,255,255,.86);
+  background:rgba(255,255,255,.08);box-shadow:inset 0 0 0 1px rgba(255,255,255,.08);
+}
+.chip svg{width:14px;height:14px;opacity:.8}
+
+.dish-list{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.dish-row{
+  display:grid;grid-template-columns:38px 1fr auto auto;
+  grid-template-areas:"ic nm kc del" "ic mt mt mt";
+  align-items:center;gap:2px 12px;padding:13px 14px;border-radius:var(--r-well);
+  background:linear-gradient(178deg,#FFFFFF,#FDFCFB);
+  box-shadow:0 0 0 1px var(--hair),var(--e1);
+  overflow:hidden;
+}
+.dish-row .glyph{grid-area:ic;align-self:start;margin-top:1px}
+.dish-row .nm{grid-area:nm;min-width:0;display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600;letter-spacing:-.005em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dish-row .kc{grid-area:kc;font-size:16px;font-weight:600;letter-spacing:-.02em;white-space:nowrap}
+.dish-row .kc small{font-size:var(--fs-1);font-weight:500;color:var(--ink-3);margin-left:var(--ug)}
+.dish-row .del{grid-area:del}
+.dish-row .mt{grid-area:mt;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;min-width:0}
+.dish-row .mt .sub{font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dish-row.is-entering{animation:dish-in .5s var(--ease-out) both}
+.dish-row.is-leaving{animation:dish-out .36s var(--ease-out) both;pointer-events:none}
+@keyframes dish-in{from{opacity:0;transform:translate3d(0,-10px,0) scale(.97)}to{opacity:1;transform:none}}
+@keyframes dish-out{from{opacity:1;transform:none;max-height:90px}to{opacity:0;transform:translate3d(14px,0,0) scale(.96);max-height:0;margin-top:-10px;padding-top:0;padding-bottom:0}}
+@media (prefers-reduced-motion:reduce){.dish-row.is-entering,.dish-row.is-leaving{animation:none}}
+.dish-sw{margin-left:auto;display:flex;align-items:center;gap:8px}
+
+/* ---------- 合计条（浮动玻璃，借 Dock 材质） ---------- */
+.totalbar{
+  display:flex;align-items:center;gap:12px;
+  padding:14px 16px;border-radius:20px;isolation:isolate;overflow:hidden;
+  position:sticky;bottom:calc(var(--dock-h) + var(--safe-b) + 18px);z-index:8;
+  background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(255,255,255,.66));
+  backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);
+  box-shadow:0 0 0 1px rgba(16,19,23,.08),inset 0 1px 0 rgba(255,255,255,.95),0 18px 34px -24px rgba(16,19,23,.5);
+  margin-top:18px;
+}
+.totalbar .btn{flex:none}
+.totalbar::before{
+  content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;z-index:-1;
+  background:linear-gradient(108deg,rgba(255,255,255,.7),rgba(255,255,255,0) 40%,rgba(255,255,255,.25));
+  mix-blend-mode:screen;opacity:.6;
+}
+.total-txt{flex:1;min-width:0}
+.total-txt .l{font-size:11px;font-weight:600;color:var(--ink-3);letter-spacing:.02em}
+.total-txt .v{display:flex;align-items:baseline;gap:5px;margin-top:1px}
+.total-txt .v .n{font-size:24px;font-weight:700;letter-spacing:-.03em}
+.total-txt .v .u{font-size:var(--fs-2);font-weight:500;color:var(--ink-3);margin-left:var(--ug)}
+.total-pending{font-size:11px;color:var(--ember-ink);font-weight:600;margin-top:2px}
+/* ---------- 单餐结果 ---------- */
+.result-hero{padding:22px 20px;position:relative;border-radius:var(--r-hero);overflow:hidden}
+.result-hero::after{content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;background:radial-gradient(110% 80% at 90% 0%,rgba(220,90,34,.09),transparent 58%)}
+.rh-row{display:flex;align-items:center;justify-content:space-between;position:relative;z-index:1}
+.rh-meal{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:600;color:var(--ink-2)}
+.rh-meal .dot{width:7px;height:7px;border-radius:50%;background:var(--ember)}
+.rh-time{font-size:12px;color:var(--ink-3);font-weight:500}
+.rh-num{display:flex;align-items:baseline;gap:6px;margin:12px 0 4px;position:relative;z-index:1}
+.rh-num .n{font-size:52px;font-weight:700;letter-spacing:-.045em;line-height:.92}
+.rh-num .u{font-size:15px;font-weight:600;color:var(--ink-3)}
+.rh-sub{font-size:12px;color:var(--ink-3);position:relative;z-index:1;line-height:1.45}
+.rh-sub .range{color:var(--ember-ink);font-weight:600}
+.nutri-strip{display:flex;gap:0;margin-top:18px;position:relative;z-index:1;border-radius:var(--r-well);overflow:hidden;background:rgba(16,19,23,.035)}
+.nutri-cell{flex:1;padding:11px 10px;text-align:center;border-right:1px solid var(--hair)}
+.nutri-cell:last-child{border-right:0}
+.nutri-cell .k{font-size:11px;font-weight:500;color:var(--ink-3)}
+.nutri-cell .v{font-size:15px;font-weight:600;letter-spacing:-.02em;margin-top:3px}
+.nutri-cell .v.miss{color:var(--ink-4);font-size:12px;font-weight:500}
+
+.dish-detail{display:flex;flex-direction:column;gap:10px;margin-top:16px}
+.dish-card{overflow:hidden;border-radius:var(--r-card);background:linear-gradient(178deg,#FFFFFF,#FDFCFB);box-shadow:0 0 0 1px var(--hair),var(--e1)}
+.dish-card summary{
+  list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:15px 16px;
+  -webkit-tap-highlight-color:transparent;
+}
+.dish-card summary::-webkit-details-marker{display:none}
+.dc-main{flex:1;min-width:0}
+.dc-name{font-size:14px;font-weight:600;display:flex;align-items:center;gap:7px}
+.dc-meta{font-size:12px;color:var(--ink-3);margin-top:2px}
+.dc-kcal{font-size:16px;font-weight:600;letter-spacing:-.02em;flex:none;text-align:right}
+.dc-kcal small{display:block;font-size:var(--fs-1);font-weight:500;color:var(--ink-3);letter-spacing:0}
+.dc-chev{width:16px;height:16px;color:var(--ink-4);flex:none;transition:transform .35s var(--ease-out)}
+.dish-card[open] .dc-chev{transform:rotate(180deg)}
+.dc-body{
+  padding:0 16px 16px;display:grid;gap:10px;
+}
+.dc-body-in{display:grid;gap:1px;border-radius:var(--r-well);overflow:hidden;background:var(--hair)}
+.dc-kv{display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:10px 13px;background:var(--paper)}
+.dc-kv .k{font-size:12px;color:var(--ink-3)}
+.dc-kv .v{font-size:13px;font-weight:500;text-align:right;letter-spacing:-.005em}
+.dc-kv .v small{font-size:11px;color:var(--ink-4);font-weight:400;margin-left:3px}
+.dc-src{margin-top:10px;padding:11px 13px;border-radius:var(--r-well);background:rgba(16,19,23,.032)}
+.dc-src .t{font-size:11px;font-weight:600;color:var(--ink-3);margin-bottom:4px}
+.dc-src .b{font-size:12px;color:var(--ink-2);line-height:1.5}
+.dc-src .b + .b{margin-top:6px}
+.dc-range{margin-top:9px}
+.dcr-bar{
+  position:relative;height:14px;margin:0 6px;
+  background:
+    linear-gradient(90deg,rgba(16,19,23,.05),rgba(16,19,23,.05)) 0 50%/100% 2px no-repeat;
+}
+.dcr-span{
+  position:absolute;top:2px;height:10px;border-radius:3px;
+  background:repeating-linear-gradient(135deg,rgba(16,19,23,.17) 0 1px,rgba(16,19,23,.05) 1px 5px);
+  box-shadow:inset 0 0 0 1px rgba(16,19,23,.10);
+}
+.dcr-pt{
+  position:absolute;top:0;width:14px;height:14px;border-radius:50%;
+  background:var(--ink);border:3px solid #fff;transform:translateX(-50%);
+  box-shadow:0 1px 3px rgba(16,19,23,.35),0 0 0 1px rgba(16,19,23,.07);
+}
+.dcr-lbl{display:flex;justify-content:space-between;font-size:var(--fs-1);color:var(--ink-3);margin-top:7px;font-weight:500;font-variant-numeric:tabular-nums;padding:0 4px}
+.dcr-lbl b{font-weight:600;color:var(--ink)}
+
+/* ---------- 周视图（Bento 非对称宫格） ---------- */
+.week-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-top:16px}
+.day-cell{
+  position:relative;border-radius:var(--r-well);padding:12px 11px 11px;min-height:96px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  background:linear-gradient(176deg,#FFFFFF,#FDFCFB);
+  box-shadow:0 0 0 1px var(--hair),var(--e1);
+  transition:transform .3s var(--ease-out);
+}
+.span2{grid-column:span 2}
+.span3{grid-column:span 3}
+.day-cell{min-height:100px}
+.day-cell.is-today{box-shadow:0 0 0 1.5px rgba(178,70,26,.55),var(--e2)}
+.day-cell.is-miss{background:rgba(255,255,255,.5);box-shadow:0 0 0 1px var(--hair),inset 0 1px 0 rgba(255,255,255,.7)}
+.dc-day{display:flex;align-items:baseline;justify-content:space-between}
+.dc-dow{font-size:11px;font-weight:600;color:var(--ink-3)}
+.dc-date{font-size:11px;font-weight:500;color:var(--ink-4)}
+.day-cell.is-today .dc-dow{color:var(--ember-ink)}
+.dc-num{font-size:23px;font-weight:700;letter-spacing:-.03em;line-height:1;margin-top:6px}
+.dc-num .u{font-size:11px;font-weight:500;color:var(--ink-4);margin-left:2px;letter-spacing:0}
+.dc-num.is-miss{font-size:13px;font-weight:600;color:var(--ink-4);letter-spacing:0}
+.dc-status{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;margin-top:8px}
+.dc-status .d{width:5px;height:5px;border-radius:50%}
+.dc-status.s-ok{color:var(--mint)}.dc-status.s-ok .d{background:var(--mint)}
+.dc-status.s-part{color:var(--sky)}.dc-status.s-part .d{background:var(--sky)}
+.dc-status.s-miss{color:var(--ink-4)}.dc-status.s-miss .d{background:var(--ink-4);opacity:.6}
+/* 迷你柱状：当天的热量在整周里的位置 */
+/* 每格底部的一条相对热量刻度（整周同一分母），替代重复的第二套图 */
+.day-cell{overflow:hidden}
+.day-fill{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(16,19,23,.07)}
+.day-fill i{position:absolute;left:0;bottom:0;top:0;border-radius:0 2px 2px 0;transition:width .8s var(--ease-out)}
+.day-cell.s-ok .day-fill i{background:rgba(44,133,115,.55)}
+.day-cell.s-part .day-fill i{background:rgba(59,126,161,.6)}
+.day-cell.s-today .day-fill i{background:var(--ember)}
+.week-legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:16px;padding:0 4px;font-size:11px;color:var(--ink-3);font-weight:500}
+.week-legend span{display:inline-flex;align-items:center;gap:5px}
+.week-legend .d{width:6px;height:6px;border-radius:50%}
+.week-sum{margin-top:16px;padding:16px 18px;border-radius:var(--r-card);display:flex;align-items:stretch;gap:16px;background:linear-gradient(176deg,#FFFFFF,#FDFCFB);box-shadow:0 0 0 1px var(--hair),var(--e1)}
+.ws-block{flex:1}
+.ws-block .k{font-size:11px;font-weight:600;color:var(--ink-3)}
+.ws-block .v{font-size:19px;font-weight:700;letter-spacing:-.03em;margin-top:4px}
+.ws-block .v .u{font-size:11px;font-weight:500;color:var(--ink-4);margin-left:2px;letter-spacing:0}
+.ws-div{width:1px;background:var(--hair)}
+/* 推荐词条（药丸，带内阴影） */
+.sug{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:13px;font-weight:500;color:var(--ink-2);
+  padding:9px 13px;border-radius:999px;
+  background:var(--paper);
+  box-shadow:0 0 0 1px var(--hair),inset 0 1px 0 #fff,0 2px 6px -4px rgba(16,19,23,.3);
+  transition:transform .25s var(--ease-pop);
+}
+.sug b{
+  width:17px;height:17px;border-radius:50%;display:grid;place-items:center;
+  font-size:13px;font-weight:600;line-height:1;color:var(--ember);
+  background:var(--ember-wash);
+}
+.sug:active{transform:scale(.94)}
+
+/* 份量分段控件（橡胶感，借 React Bits Rubber Segment 手感） */
+/* cf-justify: 三选一的分段控件是 iOS 系统级控件形态，矩形凹槽 + 选中滑块才是可读的物理隐喻 */
+.seg{display:inline-flex;padding:3px;border-radius:12px;background:rgba(16,19,23,.05);box-shadow:inset 0 1px 1px rgba(16,19,23,.06)}
+.seg button{
+  font-size:11px;font-weight:600;color:var(--ink-3);
+  padding:5px 9px;border-radius:9px;line-height:1;
+  transition:background .22s var(--ease-out),color .22s,transform .3s var(--ease-pop),box-shadow .22s;
+}
+.seg button[aria-pressed="true"]{
+  background:var(--paper);color:var(--ink);
+  box-shadow:0 1px 2px rgba(16,19,23,.12),inset 0 1px 0 #fff;
+}
+.seg button:active{transform:scale(.9)}
+
+/* 数字滚筒 */
+.num-reel{display:inline-flex;height:1em;overflow:hidden;align-items:flex-start;line-height:1}
+.num-reel .col{display:flex;flex-direction:column;transition:transform 1.05s cubic-bezier(.22,.9,.18,1);will-change:transform}
+.num-reel .col span{height:1em;display:flex;align-items:center;justify-content:center}
+@media (prefers-reduced-motion:reduce){.num-reel .col{transition:none}}
+<!--@@NEXT@@-->
+</style>
+</head>
+<body>
+<div class="field" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="app" id="app">
+  <!-- =============== 今日 =============== -->
+  <section class="screen is-active" id="s-today" data-screen="today" aria-label="今日">
+    <header class="page-head">
+      <div>
+        <div class="kicker">11月23日 星期一</div>
+        <h1>今天</h1>
+        <p class="page-sub">已记录 2 餐</p>
+      </div>
+      <div class="head-actions">
+        <button class="ghost-btn" type="button" aria-label="数据来源说明">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8h.01"/></svg>
+          数据来源
+        </button>
+      </div>
+    </header>
+
+    <article class="paper hero" aria-label="今日热量">
+      <div class="hero-top">
+        <div class="hero-label"><span class="live" aria-hidden="true"></span>今日摄入</div>
+        <span class="badge-est">估算</span>
+      </div>
+      <div class="hero-big">
+        <span class="hero-num" id="hero-reel" aria-label="585"></span>
+        <span class="hero-unit">千卡</span>
+      </div>
+      <div class="hero-readout">估算区间 <b>493 – 699</b> 千卡</div>
+      <p class="hero-note"><b>230</b> 早餐 + <b>355</b> 午餐，逐道折算后相加</p>
+      <div class="hero-range">
+        <div class="ruler" id="hero-ruler">
+          <span class="ruler-ticks" aria-hidden="true"></span>
+          <span class="ruler-track"></span>
+          <span class="ruler-eaten" id="hr-eaten"></span>
+          <span class="ruler-whisk" id="hr-whisk"></span>
+          <span class="ruler-band" id="hr-band"></span>
+          <span class="ruler-dot" id="hr-dot"></span>
+        </div>
+        <div class="ruler-axis">
+          <span class="bound l">0</span>
+          <span class="bound r">目标 <b>1600–2200</b> 千卡</span>
+        </div>
+      </div>
+    </article>
+
+    <div class="meal-list">
+      <button class="meal-row" type="button" data-goto="result">
+        <span class="instant" aria-hidden="true">
+          <span class="win" style="background:linear-gradient(155deg,#F8EFE2,#F1E4CF)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#9A8158" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h11v3.2a5.5 5.5 0 0 1-11 0V8Z"/><path d="M17 9h1.6a2.4 2.4 0 0 1 0 4.8H17"/><path d="M5.5 20h13"/></svg>
+          </span>
+          <span class="chin">07:40</span>
+        </span>
+        <span class="meal-txt">
+          <span class="meal-name">早餐</span>
+          <span class="meal-meta">豆浆、馒头</span>
+        </span>
+        <span class="meal-kcal">230<small>千卡</small></span>
+        <svg class="dc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:15px;height:15px"><path d="m9 6 6 6-6 6"/></svg>
+      </button>
+
+      <button class="meal-row" type="button" data-goto="result">
+        <span class="instant" aria-hidden="true">
+          <span class="win" style="background:linear-gradient(155deg,#EDF1EA,#DFE8DA)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#5F7050" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="13" rx="8" ry="4.4"/><path d="M12 8.6c-1.2 2.2-1.2 3.8 0 5.4 1.2-1.6 1.2-3.2 0-5.4Z"/><path d="M8 6.5c.6 1.1 1.4 1.9 2.6 2.3"/></svg>
+          </span>
+          <span class="chin">12:15</span>
+        </span>
+        <span class="meal-txt">
+          <span class="meal-name">午餐 <span class="badge-est">估算</span></span>
+          <span class="meal-meta">米饭、番茄炒蛋、清炒青菜</span>
+        </span>
+        <span class="meal-kcal">355<small>千卡</small></span>
+        <svg class="dc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:15px;height:15px"><path d="m9 6 6 6-6 6"/></svg>
+      </button>
+
+      <div class="paper empty" aria-label="晚餐未记录">
+        <div class="empty-art" aria-hidden="true">
+          <svg viewBox="0 0 88 88" fill="none">
+            <defs>
+              <linearGradient id="dev" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stop-color="#E9EBEE"/>
+                <stop offset=".55" stop-color="#D8DDE3"/>
+                <stop offset="1" stop-color="#F0ECE4"/>
+              </linearGradient>
+            </defs>
+            <g transform="rotate(-4 44 44)">
+              <rect x="17" y="12" width="54" height="64" rx="4" fill="#FFFFFF" stroke="rgba(16,19,23,.09)"/>
+              <rect x="22" y="17" width="44" height="44" rx="2" fill="url(#dev)"/>
+              <rect x="22" y="17" width="44" height="44" rx="2" fill="none" stroke="rgba(16,19,23,.07)"/>
+              <path d="M30 52c4-7 8-10 11-10s5 3 8 3 5-4 9-9" stroke="#B9C0C9" stroke-width="1.5" stroke-linecap="round"/>
+              <circle cx="44" cy="38" r="9" stroke="#F7F8FA" stroke-width="1.4" stroke-dasharray="2 3"/>
+              <path d="M44 34v8M40 38h8" stroke="#C7CDD5" stroke-width="1.8" stroke-linecap="round"/>
+              <rect x="27" y="66" width="22" height="2.6" rx="1.3" fill="#DCE0E5"/>
+            </g>
+          </svg>
+        </div>
+        <h3>晚餐还没有记录</h3>
+        <p>拍一张餐盘，或手动添加菜品，热量会自动折算到今日。</p>
+        <div class="btn-row">
+          <button class="btn btn--ghost btn--sm" type="button" data-goto="new">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 4.5a2.5 2.5 0 0 1 3.5 3.5l-9 9L5 18l1-4 8.5-9.5Z"/></svg>
+            记录晚餐
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="meal-list" style="margin-top:18px">
+      <button class="meal-row" type="button" data-goto="week" style="padding:15px 16px">
+        <span class="meal-glyph-xl" style="background:linear-gradient(150deg,#EDF1F5,#DEE6EE)" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#5A6B7C" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V11M9.4 19.5V6M14.8 19.5v-9M20.2 19.5V8.5"/></svg>
+        </span>
+        <span class="meal-txt">
+          <span class="meal-name">本周回顾</span>
+          <span class="meal-meta">近 7 天记录 5 天 · 1 天数据不完整</span>
+        </span>
+        <svg class="dc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:15px;height:15px"><path d="m9 6 6 6-6 6"/></svg>
+      </button>
+    </div>
+  </section>
+  <!-- =============== 新建一餐 =============== -->
+  <section class="screen" id="s-new" data-screen="new" aria-label="新建一餐">
+    <header class="page-head">
+      <div>
+        <div class="kicker">午餐</div>
+        <h1>新建一餐</h1>
+        <p class="page-sub">拍照或搜索，逐道确认份量</p>
+      </div>
+      <div class="head-actions">
+        <button class="ghost-btn" type="button" aria-label="切换餐次">12:15 · 午餐
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <button class="shutter" type="button" id="shutter" aria-label="拍照识别菜品">
+      <div class="shutter-inner">
+        <span class="shutter-lens" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8.5A2.5 2.5 0 0 1 6.5 6h1.2l1-1.6A1.5 1.5 0 0 1 10 3.7h4a1.5 1.5 0 0 1 1.3.7l1 1.6h1.2A2.5 2.5 0 0 1 20 8.5v8A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-8Z"/><circle cx="12" cy="12.4" r="3.4"/></svg>
+        </span>
+        <span class="shutter-txt">
+          <h3>拍下这道菜</h3>
+          <p>识别后从候选中确认，查不到可直接搜索</p>
+        </span>
+        <span class="shutter-plus" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg>
+        </span>
+      </div>
+      <div class="shutter-manual">
+        <span class="chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          搜索菜品
+        </span>
+        <span class="chip">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+          手动记录
+        </span>
+      </div>
+    </button>
+
+    <div class="card-head" style="margin:20px 2px 0">
+      <span class="card-title">本餐菜品 <span style="color:var(--ink-4);font-weight:500" id="dish-count">3 道</span></span>
+      <span class="card-link">按实际吃下的量</span>
+    </div>
+
+    <div class="dish-list" id="dish-list"></div>
+
+    <div class="totalbar" id="totalbar">
+      <div class="total-txt">
+        <div class="l">本餐合计</div>
+        <div class="v"><span class="n" data-ticker="355">0</span><span class="u">千卡</span></div>
+        <div class="total-pending" id="total-range">区间 294–425</div>
+      </div>
+      <div class="total-txt" style="flex:none;text-align:right">
+        <div class="l">蛋白质 / 脂肪</div>
+        <div style="font-size:13px;font-weight:600;margin-top:3px;color:var(--ink-2)" id="macro-line">14.3g · 17.6g</div>
+      </div>
+      <button class="btn btn--primary btn--sm" type="button" id="save-meal" style="flex:none">保存</button>
+    </div>
+
+    <div class="card-head" style="margin:26px 2px 0">
+      <span class="card-title">常点</span>
+      <span class="card-link">按最近记录</span>
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px" id="suggest">
+      <button class="sug" type="button" data-add="braised-pork">红烧肉<b>+</b></button>
+      <button class="sug" type="button" data-add="mapo-tofu">麻婆豆腐<b>+</b></button>
+      <button class="sug" type="button" data-add="steamed-egg">蒸蛋<b>+</b></button>
+      <button class="sug" type="button" data-add="seaweed-egg-soup">紫菜蛋花汤<b>+</b></button>
+      <button class="sug" type="button" data-add="stir-fried-greens">清炒青菜<b>+</b></button>
+    </div>
+  </section>
+  <!-- =============== 单餐结果 =============== -->
+  <section class="screen" id="s-result" data-screen="result" aria-label="单餐结果">
+    <header class="page-head">
+      <div>
+        <div class="kicker">已保存</div>
+        <h1>午餐</h1>
+      </div>
+      <div class="head-actions">
+        <button class="ghost-btn" type="button" data-goto="new">编辑</button>
+      </div>
+    </header>
+
+    <article class="paper result-hero">
+      <div class="rh-row">
+        <span class="rh-meal"><span class="dot" aria-hidden="true"></span>午餐</span>
+        <span class="rh-time">11月23日 12:15</span>
+      </div>
+      <div class="rh-num">
+        <span class="n" data-ticker="355">355</span>
+        <span class="u">千卡</span>
+      </div>
+      <p class="rh-sub">估算 · 3 道菜均含区间<br><span class="range">合计 294–425 千卡</span></p>
+      <div class="nutri-strip">
+        <div class="nutri-cell"><div class="k">蛋白质</div><div class="v">14.3 g</div></div>
+        <div class="nutri-cell"><div class="k">脂肪</div><div class="v">17.6 g</div></div>
+        <div class="nutri-cell"><div class="k">碳水</div><div class="v">35.8 g</div></div>
+      </div>
+    </article>
+
+    <div class="card-head" style="margin:22px 2px 0">
+      <span class="card-title">菜品明细</span>
+      <span class="card-link">点开看依据</span>
+    </div>
+
+    <div class="dish-detail">
+      <details class="dish-card" open>
+        <summary>
+          <span class="dish-ic" style="width:36px;height:36px;border-radius:10px;background:linear-gradient(152deg,#F6F0E7,#EFE5D5)" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#5C6470" stroke-width="1.75" stroke-linecap="round"><path d="M4 11h16c0 3.9-2.6 7-8 7s-8-3.1-8-7Z"/><path d="M8.5 8.2c.8-1.6 2-2.4 3.5-2.4s2.7.8 3.5 2.4"/></svg>
+          </span>
+          <span class="dc-main">
+            <span class="dc-name">米饭 <span class="badge-est">含区间</span></span>
+            <span class="dc-meta">半份 100 g</span>
+          </span>
+          <span class="dc-kcal">116<small>区间 100–130</small></span>
+          <svg class="dc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+        </summary>
+        <div class="dc-body">
+          <div class="dc-body-in">
+            <div class="dc-kv"><span class="k">每 100 克</span><span class="v">116 千卡<small>蛋白质 2.6 g</small></span></div>
+            <div class="dc-kv"><span class="k">本处折算</span><span class="v">100 g × 1.16 = 116 千卡</span></div>
+            <div class="dc-kv"><span class="k">份量依据</span><span class="v">半份 100 g</span></div>
+          </div>
+          <div class="dc-range" data-lo="100" data-hi="130" data-pt="116"></div>
+          <div class="dc-src">
+            <div class="t">为什么是区间</div>
+            <div class="b">中国食物成分表 第6版 · 蒸煮米饭</div>
+            <div class="b">参照份量：团队称重估算 2026-11，食堂常见一勺约 200 g，非实测。</div>
+          </div>
+        </div>
+      </details>
+
+      <details class="dish-card">
+        <summary>
+          <span class="dish-ic" style="width:36px;height:36px;border-radius:10px;background:linear-gradient(152deg,#F7EDE7,#F0DCD0)" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#5C6470" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7.5"/><path d="M12 8v8M8.6 10l6.8 4M15.4 10l-6.8 4"/></svg>
+          </span>
+          <span class="dc-main">
+            <span class="dc-name">番茄炒蛋 <span class="badge-est">含区间</span></span>
+            <span class="dc-meta">标准份 180 g</span>
+          </span>
+          <span class="dc-kcal">189<small>区间 158–230</small></span>
+          <svg class="dc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+        </summary>
+        <div class="dc-body">
+          <div class="dc-body-in">
+            <div class="dc-kv"><span class="k">每 100 克</span><span class="v">105 千卡<small>蛋白质 5.6 g</small></span></div>
+            <div class="dc-kv"><span class="k">本处折算</span><span class="v">180 g × 1.05 = 189 千卡</span></div>
+            <div class="dc-kv"><span class="k">份量依据</span><span class="v">标准份 180 g</span></div>
+          </div>
+          <div class="dc-range" data-lo="158" data-hi="230" data-pt="189"></div>
+          <div class="dc-src">
+            <div class="t">区间说明</div>
+            <div class="b">差异主要来自用油量与蛋菜比例；按食堂标准含油偏高一档折算。</div>
+            <div class="b">出处：中国食物成分表 第6版 · 番茄炒蛋（按常见配比折算）。</div>
+          </div>
+        </div>
+      </details>
+
+      <details class="dish-card">
+        <summary>
+          <span class="dish-ic" style="width:36px;height:36px;border-radius:10px;background:linear-gradient(152deg,#EDF2ED,#DCE7DE)" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#5C6470" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5c-7 0-12 3.4-12 9 0 2 .8 3.6 2 4.6C11 15 14.5 12.4 19 11"/><path d="M9 18.6c-1.2 1-2 2.4-2 2.4"/></svg>
+          </span>
+          <span class="dc-main">
+            <span class="dc-name">清炒青菜 <span class="badge-est">含区间</span></span>
+            <span class="dc-meta">半份 90 g</span>
+          </span>
+          <span class="dc-kcal">50<small>区间 36–65</small></span>
+          <svg class="dc-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m6 9 6 6 6-6"/></svg>
+        </summary>
+        <div class="dc-body">
+          <div class="dc-body-in">
+            <div class="dc-kv"><span class="k">每 100 克</span><span class="v">55 千卡<small>蛋白质 1.8 g</small></span></div>
+            <div class="dc-kv"><span class="k">本处折算</span><span class="v">90 g × 0.55 = 50 千卡</span></div>
+            <div class="dc-kv"><span class="k">份量依据</span><span class="v">半份 90 g</span></div>
+          </div>
+          <div class="dc-range" data-lo="36" data-hi="65" data-pt="50"></div>
+          <div class="dc-src">
+            <div class="t">区间说明</div>
+            <div class="b">差异主要来自用油量；参照分量与番茄炒蛋同为“常见一勺”。</div>
+            <div class="b">出处：中国食物成分表 第6版 · 清炒青菜。</div>
+          </div>
+        </div>
+      </details>
+    </div>
+
+    <div class="paper" style="margin-top:16px;padding:15px 16px;border-radius:var(--r-card);display:flex;align-items:center;gap:12px">
+      <span class="meal-glyph-xl" style="width:36px;height:36px;border-radius:10px;background:linear-gradient(150deg,#EEF1F5,#DFE6EE)" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#3B6E96" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .8 1.6h5.4c0-.6.3-1.2.8-1.6A6 6 0 0 0 12 3Z"/></svg>
+      </span>
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:600">根据这餐生成搭配建议</div>
+        <div style="font-size:12px;color:var(--ink-3);margin-top:2px">解释营养构成，给一到两条可行的调整</div>
+      </div>
+      <button class="btn btn--ghost btn--sm" type="button">生成</button>
+    </div>
+  </section>
+  <!-- =============== 周视图 =============== -->
+  <section class="screen" id="s-week" data-screen="week" aria-label="周视图">
+    <header class="page-head">
+      <div>
+        <div class="kicker">11月17日 – 11月23日</div>
+        <h1>最近七天</h1>
+        <p class="page-sub">记录 5 天（今日进行中），其中 1 天估算</p>
+      </div>
+      <div class="head-actions">
+        <button class="ghost-btn" type="button" aria-label="上一周">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m15 6-6 6 6 6"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <div class="week-sum" aria-label="本周汇总">
+      <div class="ws-block">
+        <div class="k">七天合计（含今天）</div>
+        <div class="v"><span id="wk-sum">—</span><span class="u">千卡</span></div>
+      </div>
+      <div class="ws-div"></div>
+      <div class="ws-block">
+        <div class="k">日均（不含进行中）</div>
+        <div class="v"><span id="wk-avg">—</span><span class="u">千卡</span></div>
+      </div>
+    </div>
+
+    <div class="week-grid" id="week-grid"></div>
+
+    <div class="week-legend">
+      <span><i class="d" style="background:var(--mint)"></i>完整</span>
+      <span><i class="d" style="background:var(--sky)"></i>估算</span>
+      <span><i class="d" style="background:var(--ink-4);opacity:.6"></i>未记录</span>
+      <span><i class="d" style="background:var(--ember)"></i>今天</span>
+    </div>
+
+    <div class="paper" style="margin-top:18px;padding:16px 18px;border-radius:var(--r-card)">
+      <div style="display:flex;align-items:flex-start;gap:11px">
+        <span class="meal-glyph-xl" style="width:34px;height:34px;border-radius:10px;background:var(--ember-wash)" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="var(--ember)" stroke-width="2" stroke-linecap="round"><path d="M12 8v5M12 16h.01"/><circle cx="12" cy="12" r="9"/></svg>
+        </span>
+        <div style="flex:1">
+          <div style="font-size:var(--fs-2);font-weight:600" id="part-title">11/20 · 数据不完整</div>
+          <div style="font-size:var(--fs-2);color:var(--ink-3);margin-top:4px;line-height:1.5" id="part-note">晚餐有 1 道待估算菜品，该日热量按已确认部分计入。补录后回到完整状态。</div>
+          <button class="btn btn--ghost btn--sm" type="button" data-goto="new" style="margin-top:11px">去补录</button>
+        </div>
+      </div>
+    </div>
+  </section>
+<!--@@SCREENS@@-->
+</div>
+<div class="pblur pblur--top" id="pblur-top" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></div>
+<div class="topbar" id="topbar">
+  <div class="tb-title"><span class="tb-dot" aria-hidden="true"></span><span id="tb-title-text">今天</span></div>
+  <button class="tb-btn" type="button" data-goto="new">记录一餐</button>
+</div>
+
+<div class="dock-wrap">
+  <nav class="dock" aria-label="主导航">
+    <span class="dock-track" aria-hidden="true"><span class="dock-pill" id="dock-pill"></span></span>
+    <button class="dock-item is-active" type="button" data-nav="today" aria-current="page">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5V19a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 19v-8.5Z"/><path d="M9.5 20.5V14h5v6.5"/></svg>
+      <span>今日</span>
+    </button>
+    <button class="dock-item" type="button" data-nav="week">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5V11M9.4 19.5V6M14.8 19.5v-9M20.2 19.5V8.5"/></svg>
+      <span>周</span>
+    </button>
+    <span class="dock-action">
+      <button class="dock-fab" type="button" data-nav="new" aria-label="记录一餐">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4h6l.7 1.5H19A1.5 1.5 0 0 1 20.5 7v11A1.5 1.5 0 0 1 19 19.5H5A1.5 1.5 0 0 1 3.5 18V7A1.5 1.5 0 0 1 5 5.5h3.3L9 4Z"/><circle cx="12" cy="12.2" r="3.3"/></svg>
+      </button>
+    </span>
+    <button class="dock-item" type="button" data-nav="result">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M5 6.5h14M5 12h14M5 17.5h9"/></svg>
+      <span>单餐</span>
+    </button>
+
+  </nav>
+</div>
+<div class="pblur pblur--bottom" aria-hidden="true"><i></i><i></i><i></i><i></i><b></b></div>
+<script>
+/* =========================================================
+   菜品库（取 src/data/dishes.json 的真实条目，数值一一对应）
+   ========================================================= */
+const DISH = {
+  rice:{name:'米饭',kcal:116,p:2.6,f:.3,c:25.9,portions:[['half','半份',100],['standard','标准份',200],['large','大份',300]],range:[100,130],group:'主食',icon:'bowl',hue:['#F6F0E7','#EFE5D5']},
+  tomatoEgg:{name:'番茄炒蛋',kcal:105,p:5.6,f:7.5,c:4,portions:[['half','半份',90],['standard','标准份',180],['large','大份',270]],range:[88,128],group:'蛋豆',icon:'egg',hue:['#F7EDE7','#F0DCD0']},
+  greens:{name:'清炒青菜',kcal:55,p:1.8,f:4.2,c:3,portions:[['half','半份',90],['standard','标准份',170],['large','大份',250]],range:[40,72],group:'素菜',icon:'leaf',hue:['#EDF2ED','#DCE7DE']},
+  soy:{name:'豆浆',kcal:48,p:2.8,f:1.5,c:6,portions:[['small','小碗',200],['standard','标准碗',300],['large','大碗',400]],range:[35,65],group:'汤饮',icon:'cup',hue:['#F3F1EA','#EBE7DB']},
+  bun:{name:'馒头',kcal:223,p:7,f:1.1,c:47,portions:[['small','小份',60],['standard','标准份',100],['large','大份',150]],range:[205,240],group:'主食',icon:'bun',hue:['#F5F3EE','#ECE7DB']},
+  braisedPork:{name:'红烧肉',kcal:470,p:12,f:44,c:6,portions:[['half','半份',60],['standard','标准份',120],['large','大份',180]],range:[400,540],group:'荤菜',hue:['#F6EBE7','#EEDAD3']},
+  mapo:{name:'麻婆豆腐',kcal:130,p:9,f:8,c:5.5,portions:[['half','半份',90],['standard','标准份',180],['large','大份',270]],range:[105,160],group:'蛋豆',icon:'tofu',hue:['#F7ECE7','#EFDAD1']},
+  steamedEgg:{name:'蒸蛋',kcal:72,p:6,f:4.5,c:2.5,portions:[['small','小份',120],['standard','标准份',200],['large','大份',300]],range:[55,92],group:'蛋豆',icon:'egg',hue:['#F6F3E7','#EDE8D4']},
+};
+const round1 = n => Math.round(n*10)/10;
+const val = (d,pk)=>{ const p=d.portions.find(x=>x[0]===pk)||d.portions[1]; return {grams:p[2], label:p[1], kcal:Math.round(d.kcal*p[2]/100)}; };
+
+/* 草稿餐：米饭(半份) + 番茄炒蛋(标准份) + 清炒青菜(半份) = 116+189+50 = 355 */
+let draft = [
+  {key:'rice', portion:'half'},
+  {key:'tomatoEgg', portion:'standard'},
+  {key:'greens', portion:'half'},
+];
+const state = {screen:'today'};
+
+/* 数字滚筒（借 React Bits Count Up / Magic UI Number Ticker 的位滚动机理） */
+function tickerTo(el,target,dur=900){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches){ el.textContent = target; return; }
+  const from = parseInt(el.dataset.cur||el.textContent||'0',10);
+  el.dataset.cur = target;
+  const t0 = performance.now();
+  function step(t){
+    const k = Math.min(1,(t-t0)/dur);
+    const e = 1-Math.pow(1-k,3);
+    el.textContent = Math.round(from+(target-from)*e);
+    if(k<1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+/* 每位数字竖向滚筒（更“机械”的呈现，用于 hero 大数） */
+const DIGITS = '0123456789';
+function reelTo(host,target){
+  const str = String(target).replace(/\D/g,'');
+  const cols = host.querySelectorAll('.col');
+  if(cols.length!==str.length){
+    host.innerHTML = str.split('').map(()=>'<span class="col">'+DIGITS.split('').map(n=>`<span>${n}</span>`).join('')+'</span>').join('');
+    // 起始位随机停顿，制造“机械落位”的参差感
+    host.querySelectorAll('.col').forEach(col=>{ col.style.transition='none'; col.style.transform='translate3d(0,0,0)'; });
+    void host.offsetWidth;
+    host.querySelectorAll('.col').forEach(col=>{ col.style.transition=''; });
+  }
+  host.querySelectorAll('.col').forEach((col,i)=>{
+    col.style.transitionDelay = (i*70)+'ms';
+    col.style.transform = `translate3d(0,${-Math.min(9,Number(str[i]))}em,0)`;
+  });
+}
+
+/* ---------- 菜品行渲染 ---------- */
+const ICON = {
+  bowl:'<path d="M4 11h16c0 3.9-2.6 7-8 7s-8-3.1-8-7Z"/><path d="M8.5 8.2c.8-1.6 2-2.4 3.5-2.4s2.7.8 3.5 2.4"/><path d="M7 5.5c.5.5.8 1.1.9 1.8M12 4.2c0 .7.2 1.3.5 1.8"/>',
+  cup:'<path d="M6 8h11v3.2a5.5 5.5 0 0 1-11 0V8Z"/><path d="M17 9h1.6a2.4 2.4 0 0 1 0 4.8H17"/><path d="M5.5 20h13"/>',
+  bun:'<path d="M4.5 13.5c0-3.6 3.4-6.5 7.5-6.5s7.5 2.9 7.5 6.5-3.4 4-7.5 4-7.5-.4-7.5-4Z"/><path d="M9 8.6 8.2 6.5M12 8v-2.2M15 8.6 15.8 6.5"/>',
+  tofu:'<rect x="5" y="6" width="9" height="9" rx="1.6"/><rect x="10" y="10" width="9" height="9" rx="1.6"/>',
+  egg:'<path d="M12 4.6c3.6 0 6.4 3.3 6.4 7.4S15.6 19.4 12 19.4 5.6 16.1 5.6 12 8.4 4.6 12 4.6Z"/><circle cx="12" cy="12" r="2.8" fill="currentColor" stroke="none" opacity=".9"/>',
+  leaf:'<path d="M19 5c-7 0-12 3.4-12 9 0 2 .8 3.6 2 4.6C11 15 14.5 12.4 19 11"/><path d="M9 18.6c-1.2 1-2 2.4-2 2.4"/>',
+};
+function glyph(d){
+  const p = ICON[d.icon] || '<circle cx="12" cy="12" r="7"/>';
+  return `<span class="glyph dish-ic" style="background:linear-gradient(152deg,${d.hue[0]},${d.hue[1]})" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#5C6470" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">${p}</svg>
+    </span>`;
+}
+function rowHTML(item){
+  const d = DISH[item.key];
+  const v = val(d,item.portion);
+  return `
+  <div class="dish-row" data-key="${item.key}">
+    ${glyph(d)}
+    <span class="nm">${d.name}</span>
+    <span class="kc">${v.kcal}<small>千卡</small></span>
+    <button class="del" type="button" aria-label="删除${d.name}" style="width:26px;height:26px;border-radius:8px;display:grid;place-items:center;color:var(--ink-2);background:rgba(16,19,23,.04);flex:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:13px;height:13px"><path d="M6 6l12 12M18 6 6 18"/></svg>
+    </button>
+    <span class="mt">
+      <span class="sub">${v.label} ${v.grams} g</span>
+      <span class="seg" role="group" aria-label="${d.name}份量">
+        ${d.portions.map(p=>`<button type="button" data-portion="${p[0]}" aria-pressed="${p[0]===item.portion}">${p[1].replace('标准份','标准').replace('标准碗','标准')}</button>`).join('')}
+      </span>
+    </span>
+  </div>`;
+}
+function renderDraft(animateKey){
+  const list = document.getElementById('dish-list');
+  list.innerHTML = draft.map(x=>rowHTML(x)).join('');
+  document.getElementById('dish-count').textContent = draft.length + ' 道';
+  updateTotals();
+  if(animateKey){
+    const row = list.querySelector(`.dish-row[data-key="${animateKey}"]`);
+    if(row){ row.classList.add('is-entering'); }
+  }
+}
+function draftTotals(){
+  let k=0,p=0,f=0,lo=0,hi=0,hasRange=false;
+  for(const it of draft){
+    const d=DISH[it.key], v=val(d,it.portion);
+    k+=v.kcal; p+=d.p*v.grams/100; f+=d.f*v.grams/100;
+    if(d.range){
+      // 区间按同比例缩放每 100 克区间
+      lo+=Math.round(d.range[0]*v.grams/100); hi+=Math.round(d.range[1]*v.grams/100);
+      if(d.range[0]!==d.range[1]) hasRange=true;
+    } else { lo+=v.kcal; hi+=v.kcal; }
+  }
+  return {kcal:k, p:round1(p), f:round1(f), lo, hi, hasRange};
+}
+function updateTotals(){
+  const t = draftTotals();
+  const tn = document.querySelector('#totalbar .n');
+  tickerTo(tn, t.kcal, 520);
+  document.getElementById('macro-line').textContent = `${t.p}g · ${t.f}g`;
+  const rg = document.getElementById('total-range');
+  if(rg) rg.textContent = t.hasRange ? `区间 ${t.lo}–${t.hi} 千卡` : '全部为估算值';
+}
+function addDish(key){
+  const exist = draft.find(x=>x.key===key);
+  if(exist){ flashRow(key); return; }
+  const d = DISH[key];
+  draft.push({key, portion: d.portions[1][0]});
+  renderDraft(key);
+}
+function flashRow(key){
+  const el = document.querySelector(`.dish-row[data-key="${key}"]`);
+  if(!el) return;
+  el.animate([{transform:'scale(1)'},{transform:'scale(1.03)'},{transform:'scale(1)'}],{duration:420,easing:'cubic-bezier(.34,1.56,.64,1)'});
+}
+
+/* 轻提示：把“还没接后端”如实说出来，而不是点了没反应 */
+let toastTimer=null;
+function toast(msg){
+  let el=document.getElementById('toast');
+  if(!el){ el=document.createElement('div'); el.id='toast'; el.className='toast'; document.body.appendChild(el); }
+  el.textContent=msg; el.classList.add('is-on');
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove('is-on'),1800);
+}
+
+/* ---------- 事件委托 ---------- */
+document.addEventListener('click',(e)=>{
+  const nav = e.target.closest('[data-nav]');
+  if(nav){ if(nav.dataset.soon && nav.dataset.soon==='设置'){} go(nav.dataset.nav); return; }
+  const g = e.target.closest('[data-goto]');
+  if(g){ go(g.dataset.goto); return; }
+  const add = e.target.closest('[data-add]');
+  if(add){ addDish(add.dataset.add); return; }
+  const portion = e.target.closest('[data-portion]');
+  if(portion){
+    const row = portion.closest('.dish-row');
+    const key = row.dataset.key;
+    const item = draft.find(x=>x.key===key);
+    if(item){ item.portion = portion.dataset.portion; renderDraft(); }
+    return;
+  }
+  const del = e.target.closest('.del');
+  if(del){
+    const row = del.closest('.dish-row');
+    const key = row.dataset.key;
+    row.classList.add('is-leaving');
+    setTimeout(()=>{ draft = draft.filter(x=>x.key!==key); renderDraft(); }, 340);
+    return;
+  }
+  if(e.target.closest('#save-meal')){ go('result'); return; }
+  const shot = e.target.closest('#shutter,.chip');
+  if(shot){ toast('原型阶段：拍照识别与搜索尚未接入'); return; }
+  const src = e.target.closest('.ghost-btn[aria-label="数据来源"]');
+  if(src){ toast('数值来自菜品库每 100 克数据与份量折算，单餐页可逐道核对'); return; }
+  const adv = e.target.closest('.paper .btn--ghost');
+  if(adv && adv.textContent.includes('生成')){ toast('原型阶段：建议接口尚未接入'); return; }
+  if(e.target.closest('.ghost-btn[aria-label="上一周"]')){ toast('原型阶段：仅展示最近七天'); return; }
+  if(e.target.closest('.ghost-btn[aria-label="切换餐次"]')){ toast('当前草稿为午餐'); return; }
+});
+
+/* ---------- 屏幕路由 ---------- */
+const TITLES = {today:'今天', new:'新建一餐', result:'午餐', week:'最近七天'};
+function go(name){
+  if(name===state.screen && name!=='new') { /* allow re-entry */ }
+  state.screen = name;
+  document.querySelectorAll('.screen').forEach(s=>{
+    const on = s.dataset.screen===name;
+    s.classList.toggle('is-active', on);
+  });
+  document.querySelectorAll('.dock-item').forEach(b=>{
+    const on = b.dataset.nav===name;
+    b.classList.toggle('is-active', on);
+    if(on){ b.setAttribute('aria-current','page'); } else { b.removeAttribute('aria-current'); }
+  });
+  document.getElementById('tb-title-text').textContent = TITLES[name]||name;
+  placePill();
+  window.scrollTo({top:0,behavior:'instant'});
+}
+
+/* Dock 选中胶囊滑到对应项（微弹簧，借 Dock 的邻近缩放机理的简化版） */
+function placePill(){
+  const pill = document.getElementById('dock-pill');
+  const active = document.querySelector('.dock-item.is-active');
+  if(!active){ return; }
+  const dock = active.closest('.dock');
+  const dr = dock.getBoundingClientRect();
+  const r = active.getBoundingClientRect();
+  pill.style.width = (r.width-2)+'px';
+  pill.style.transform = `translate3d(${r.left-dr.left-3}px,0,0)`;
+}
+
+/* ---------- 顶部毛玻璃 / 标题栏：随滚动浮现 ---------- */
+const pblurTop = document.getElementById('pblur-top');
+const topbar = document.getElementById('topbar');
+let lastY = 0;
+addEventListener('scroll',()=>{
+  const y = window.scrollY;
+  const on = y > 14;
+  pblurTop.classList.toggle('is-on', on);
+  topbar.classList.toggle('is-on', on);
+  lastY = y;
+},{passive:true});
+
+/* ---------- 周宫格（Bento 非对称 + 迷你柱） ---------- */
+const WEEK = [
+  {iso:'2026-11-17', kcal:1480, status:'ok'},
+  {iso:'2026-11-18', kcal:1265, status:'ok'},
+  {iso:'2026-11-19', kcal:null, status:'miss'},
+  {iso:'2026-11-20', kcal:1180, status:'part', note:'晚餐 1 道待估算'},
+  {iso:'2026-11-21', kcal:1395, status:'ok'},
+  {iso:'2026-11-22', kcal:1360, status:'ok'},
+  {iso:'2026-11-23', kcal:585,  status:'today'},
+];
+const DOW = ['周日','周一','周二','周三','周四','周五','周六'];
+WEEK.forEach(d=>{ const t=new Date(d.iso+'T12:00:00'); d.dow=DOW[t.getDay()]; d.md=`${t.getMonth()+1}/${t.getDate()}`; });
+const PART = WEEK.find(d=>d.status==='part');
+
+function renderWeekSummary(){
+  const recorded = WEEK.filter(d=>d.kcal);
+  const sum = recorded.reduce((a,d)=>a+d.kcal,0);
+  // 进行中的今天不参与日均，避免把半天当成一天
+  const done = recorded.filter(d=>d.status!=='today');
+  const avg = Math.round(done.reduce((a,d)=>a+d.kcal,0)/done.length);
+  const s1=document.getElementById('wk-sum'), s2=document.getElementById('wk-avg');
+  if(s1) s1.textContent = sum.toLocaleString();
+  if(s2) s2.textContent = avg.toLocaleString();
+}
+function renderWeek(){
+  const grid = document.getElementById('week-grid');
+  const maxK = Math.max(...WEEK.filter(d=>d.kcal).map(d=>d.kcal));
+  grid.innerHTML = WEEK.map((d,i)=>{
+    const isMiss = d.status==='miss';
+    const spanCls = (i===0||i===1||i===5||i===6)?'span3':'span2';
+    const today = d.status==='today';
+    const cls = ['day-cell',spanCls,'s-'+(d.status==='part'?'part':d.status),today?'is-today':'',isMiss?'is-miss':''].filter(Boolean).join(' ');
+    const fillW = d.kcal ? Math.round(d.kcal/maxK*100) : 0;
+    let statusEl = '';
+    if(today) statusEl = `<span class="dc-status" style="color:var(--ember-ink)"><span class="d" style="background:var(--ember)"></span>今天 · 进行中</span>`;
+    else if(isMiss) statusEl = `<span class="dc-status s-miss"><span class="d"></span>未记录</span>`;
+    else if(d.status==='part') statusEl = `<span class="dc-status s-part"><span class="d"></span>估算</span>`;
+    else statusEl = `<span class="dc-status s-ok"><span class="d"></span>完整</span>`;
+    const num = isMiss ? `<div class="dc-num is-miss">—</div>` : `<div class="dc-num">${today?d.kcal.toLocaleString():d.kcal.toLocaleString()}<span class="u">千卡</span></div>`;
+    const spark = '';
+    return `<div class="${cls}">
+      <div class="dc-day"><span class="dc-dow">${d.dow}</span><span class="dc-date">${d.md}</span></div>
+      <div>${num}${statusEl}</div>
+      <span class="day-fill"><i style="width:${fillW}%"></i></span>
+    </div>`;
+  }).join('');
+}
+
+/* ---------- 量尺：唯一的线性映射 ---------- */
+function drawHeroRuler(){
+  const MIN=0, MAX=2400, value=585, lo=493, hi=699;
+  const p = k => Math.max(0,Math.min(100,(k-MIN)/(MAX-MIN)*100));
+  document.getElementById('hr-eaten').style.width = p(value)+'%';
+  document.getElementById('hr-dot').style.left = p(value)+'%';
+  document.getElementById('hr-whisk').style.left = p(lo)+'%';
+  document.getElementById('hr-whisk').style.width = (p(hi)-p(lo))+'%';
+  const band=document.getElementById('hr-band');
+  band.style.left = p(1600)+'%';
+  band.style.width = (p(2200)-p(1600))+'%';
+}
+function drawRange(el){
+  const lo=+el.dataset.lo, hi=+el.dataset.hi, pt=+el.dataset.pt;
+  const pad=Math.max(6,(hi-lo)*0.22);
+  const MIN=Math.max(0,lo-pad), MAX=hi+pad;
+  const p = k => Math.max(0,Math.min(100,(k-MIN)/(MAX-MIN)*100));
+  el.innerHTML = `<div class="dcr-bar">
+      <span class="dcr-span" style="left:${p(lo)}%;width:${p(hi)-p(lo)}%"></span>
+      <span class="dcr-pt" style="left:${p(pt)}%"></span>
+    </div>
+    <div class="dcr-lbl" style="position:relative;height:15px">
+      <span style="position:absolute;left:${p(lo)}%;transform:translateX(-50%)">${lo}</span>
+      <span style="position:absolute;left:${p(pt)}%;transform:translateX(-50%)"><b>${pt}</b></span>
+      <span style="position:absolute;left:${p(hi)}%;transform:translateX(-50%)">${hi} 千卡</span>
+    </div>`;
+}
+document.querySelectorAll('.dc-range[data-lo]').forEach(drawRange);
+drawHeroRuler();
+if(PART){ const t=document.getElementById('part-title'); if(t) t.textContent = `${PART.md} · ${PART.dow}数据不完整`; }
+
+/* ---------- 初始化 ---------- */
+renderDraft();
+renderWeek();
+renderWeekSummary();
+requestAnimationFrame(()=>{ placePill(); });
+addEventListener('resize',placePill);
+// hero 大数即位滚筒入场
+const heroReel = document.getElementById('hero-reel');
+setTimeout(()=>{ reelTo(heroReel, 585); }, 240);
+setTimeout(()=>{ document.querySelectorAll('[data-ticker]').forEach(t=>{
+  if(t.closest('.hero')) return;
+  tickerTo(t, parseInt(t.dataset.ticker,10), 900);
+}); }, 340);
+</script>
+</body>
+</html>

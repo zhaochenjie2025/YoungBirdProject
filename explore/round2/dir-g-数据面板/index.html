@@ -1,0 +1,1128 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F4F1EA">
+<title>卡路里拍立得 — 数据面板</title>
+<style>
+/* ============================================================
+   母题：印刷统计表 × 屏幕原生图表
+   容器语言 = 细规则线切分 + 双线表头 + 点线引导 + 等宽数字
+   无圆角卡片；每格由 hairline grid 切分，span 承载权重
+   ============================================================ */
+:root{
+  --paper:#F4F1EA; --paper-2:#EEE9DF; --paper-3:#E5DFD2; --paper-4:#DCD5C6;
+  --ink:#14171C; --ink-2:#3D444E; --ink-3:#727A84;
+  --rule:#D5D0C3; --rule-2:#BAB4A5; --rule-hard:#8C867A;
+  --red:#A83A26; --red-soft:rgba(168,58,38,.10); --red-line:rgba(168,58,38,.32);
+  --amber:#946A1B; --amber-soft:rgba(148,106,27,.14);
+  --teal:#37665A; --slate:#4A5568; --ochre:#A87C29;
+  --sans:-apple-system,BlinkMacSystemFont,"PingFang SC","Hiragino Sans GB","Noto Sans CJK SC","Source Han Sans SC","Microsoft YaHei",sans-serif;
+  --mono:ui-monospace,"SF Mono","Cascadia Mono","Roboto Mono",Menlo,Consolas,"Liberation Mono",monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{
+  font-family:var(--sans);font-size:14px;line-height:1.5;color:var(--ink);
+  background:var(--paper-3);display:flex;justify-content:center;
+  -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent;overflow:hidden;
+}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webkit-tap-highlight-color:transparent}
+input{font:inherit;color:inherit;background:none;border:0;outline:none}
+::selection{background:var(--red-soft)}
+.num{font-family:var(--mono);font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1}
+.tnum{font-family:var(--sans);font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;letter-spacing:-.02em}
+:where(.num) *{font-variant-numeric:tabular-nums}
+.up{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3)}
+.ha{font-size:11px;letter-spacing:.04em;color:var(--ink-3);line-height:1.45}
+.dot-lead{flex:1;border-bottom:1px dotted var(--rule-2);transform:translateY(-4px);min-width:10px;opacity:.9}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* ---------- 外框：一张连续的表格纸 ---------- */
+.app{
+  position:relative;width:100%;max-width:430px;height:100dvh;
+  display:flex;flex-direction:column;min-height:0;
+  background:var(--paper);
+  box-shadow:0 0 0 1px rgba(0,0,0,.13),0 26px 60px -32px rgba(0,0,0,.5);
+  overflow:hidden;
+}
+/* 纸面：横格 + 油墨颗粒，只作质地 */
+.app::before{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:0;
+  background:
+    repeating-linear-gradient(0deg,transparent 0 23px,rgba(120,114,100,.05) 23px 24px);
+  mix-blend-mode:multiply;
+}
+.app::after{
+  content:"";position:absolute;inset:0;pointer-events:none;z-index:0;opacity:.5;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.05'/%3E%3C/svg%3E");
+  mix-blend-mode:multiply;
+}
+.sheet{position:relative;z-index:1;flex:1;min-height:0;overflow-y:auto;overflow-x:hidden;
+  -webkit-overflow-scrolling:touch;scrollbar-width:none}
+.sheet::-webkit-scrollbar{display:none}
+.screen{display:none;padding-bottom:calc(env(safe-area-inset-bottom) + 24px)}
+.screen.on{display:block}
+
+/* ---------- 表头 ---------- */
+.head{
+  position:relative;z-index:3;display:flex;align-items:flex-end;justify-content:space-between;gap:10px;
+  padding:calc(env(safe-area-inset-top) + 11px) 16px 9px;
+  border-bottom:1.5px solid var(--ink);background:var(--paper);
+}
+.head .t1{font-size:16px;font-weight:650;letter-spacing:.01em;line-height:1.15}
+.head .t2{font-size:11px;color:var(--ink-3);margin-top:3px;letter-spacing:.02em}
+.head .stamp{font-family:var(--mono);text-align:right;line-height:1.4;color:var(--ink-3);letter-spacing:.02em;flex:none}
+.head .stamp b{display:block;color:var(--ink);font-size:13px;font-weight:600}
+.head .stamp b .num{font-size:13px}
+
+/* ---------- 索引带 ---------- */
+.tabs{position:relative;z-index:2;display:flex;padding:0 6px;background:var(--paper-2);border-bottom:1px solid var(--rule)}
+.tab{position:relative;flex:1;padding:9px 1px 8px;text-align:center;font-size:12px;color:var(--ink-3);
+  letter-spacing:.01em;transition:color .2s;min-width:0}
+.tab .ix{display:block;font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:11px;letter-spacing:.02em;color:var(--ink-3);margin-top:1px}
+.tab[aria-selected="true"]{color:var(--ink);font-weight:650}
+.tab[aria-selected="true"] .ix{color:var(--red)}
+.tab-ink{position:absolute;bottom:-1px;left:6px;height:2px;background:var(--red);width:0;
+  transition:transform .28s cubic-bezier(.3,.8,.3,1),width .28s cubic-bezier(.3,.8,.3,1)}
+
+/* ---------- 分区带（表头下的小节标题，印刷小分栏标题） ---------- */
+.band{display:flex;align-items:baseline;gap:8px;padding:10px 16px 7px;
+  border-bottom:1px solid var(--rule);background:var(--paper-2)}
+.band h2{font-size:11px;font-weight:650;letter-spacing:.1em;color:var(--ink-2)}
+.band .meta{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:.02em}
+.block{padding:14px 16px;border-bottom:1px solid var(--rule)}
+.block.tight{padding:11px 16px}
+.block.flush{padding:0}
+.hr{border:0;border-top:1px solid var(--rule)}
+.hr-dot{border:0;border-top:1px dotted var(--rule-2)}
+
+/* ---------- 会计双线（合计收束）：3px + 1px 印刷 double rule ---------- */
+.rule-dual{border-top:3px double var(--ink);border-bottom:1px solid var(--ink);height:0}
+.ledger tr.total td{border-top:3px double var(--ink);border-bottom:0;padding-top:9px;padding-bottom:11px}
+.ledger tr.total .nm{font-weight:650}
+.ledger tr.total .cal{font-size:16px}
+.ledger .lead .dot-lead{align-self:center;margin-left:2px;margin-right:2px}
+.ledger tr.total .lead{gap:6px}
+/* 点线引导：标签 → 数值 */
+.tline{display:flex;align-items:baseline;gap:6px;width:100%}
+.tline .lbl{white-space:nowrap}
+.tline .lead{flex:1;border-bottom:1.5px dotted var(--rule-2);transform:translateY(-4px);min-width:10px}
+
+/* ---------- Bento 宫格（印刷规则线切分，非圆角卡） ---------- */
+.bento{display:grid;grid-template-columns:1fr 1fr;gap:0;border-bottom:1px solid var(--rule)}
+.bento>*{padding:13px 16px;border-bottom:1px solid var(--rule)}
+.bento>*:nth-child(odd){border-right:1px solid var(--rule)}
+.bento .span2{grid-column:1 / -1;border-right:0}
+.bento .span2:last-child,.bento>*:last-child{border-bottom:0}
+
+/* ---------- 数字 ---------- */
+.bignum{display:flex;align-items:baseline;gap:8px;margin-bottom:2px}
+.bignum .v{font-family:var(--sans);font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;
+  font-size:54px;font-weight:600;line-height:1;letter-spacing:-.035em;color:var(--ink)}
+.bignum .u{font-size:13px;color:var(--ink-3);letter-spacing:.02em}
+.kv{display:flex;align-items:baseline;gap:6px}
+.kv .k{font-size:11px;color:var(--ink-3);letter-spacing:.03em}
+.kv .v{margin-left:auto;font-family:var(--sans);font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;font-size:14px;color:var(--ink)}
+.kv .v small{font-size:11px;color:var(--ink-3);margin-left:2px}
+
+/* ---------- 参考带计量表（今日 vs 每日参考区间） ---------- */
+.meter{position:relative;height:44px;margin-top:2px}
+.meter .track{position:absolute;left:0;right:0;top:14px;height:8px;
+  background:repeating-linear-gradient(90deg,var(--paper-3) 0 1px,transparent 1px 100%),
+  var(--paper-3);border:1px solid var(--rule-2)}
+.meter .ref{position:absolute;top:12px;height:12px;background:var(--amber-soft);
+  border-left:1px solid var(--ochre);border-right:1px solid var(--ochre)}
+.meter .fill{position:absolute;top:14px;height:8px;left:0;width:0;background:var(--red);
+  transform-origin:left center;transition:width .7s cubic-bezier(.2,.8,.2,1)}
+.meter .tick{position:absolute;top:26px;width:1px;height:5px;background:var(--rule-2)}
+.meter .tlab{position:absolute;top:32px;transform:translateX(-50%);font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.meter .tlab.sel{color:var(--ink);font-weight:600}
+.meter .axis{position:absolute;left:0;right:0;top:26px;height:1px;background:var(--rule-2)}
+
+/* ---------- 记录表（今日餐次 / 菜品行） ---------- */
+.ledger{width:100%;border-collapse:collapse;font-size:13px}
+.ledger th{font-size:11px;font-weight:500;color:var(--ink-3);letter-spacing:.04em;text-align:left;
+  padding:6px 0;border-bottom:1px solid var(--rule-2);vertical-align:bottom}
+.ledger th.r,.ledger td.r{text-align:right}
+.ledger td{padding:9px 16px;border-bottom:1px solid var(--rule);vertical-align:middle}
+.ledger td:first-child{padding-left:16px}
+.ledger td:last-child{padding-right:16px}
+.ledger tr:last-child td{border-bottom:0}
+.ledger .lead{display:flex;align-items:baseline;gap:7px}
+.ledger .nm{font-weight:550;letter-spacing:.01em}
+.ledger .sub{font-size:11px;color:var(--ink-3)}
+.ledger .cal{font-family:var(--sans);font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;letter-spacing:-.02em;font-weight:600;font-size:15px}
+.ledger .cal small{font-size:11px;font-weight:400;color:var(--ink-3);margin-left:2px}
+.ledger tr.mealslot{cursor:pointer}
+.ledger tr.mealslot:hover td{background:var(--paper-2)}
+.ledger .tag{font-size:11px;color:var(--ink-3);border:1px solid var(--rule-2);padding:0 4px;
+  letter-spacing:.02em}  /* cf-justify: 印刷标签，直角贴表格线 */
+/* 未记录行：虚线底 + 灰字，绝不显示 0 */
+tr.missing td{color:var(--ink-3)}
+tr.missing .cal{color:var(--ink-3);font-weight:400;font-size:12px}
+tr.missing .dash{color:var(--rule-hard)}
+
+/* ---------- 迷你条 & 冲泡条 ---------- */
+.mbar{position:relative;height:6px;background:var(--paper-3);border:1px solid var(--rule-2)}
+.mbar>i{position:absolute;left:0;top:0;bottom:0;background:var(--ink-2);display:block;
+  transform-origin:left center;transition:transform .6s cubic-bezier(.2,.8,.2,1)}
+.mbar.r>i{background:var(--red)}
+.mbar.g>i{background:var(--teal)}
+.mbar.a>i{background:var(--ochre)}
+
+/* ---------- 宏量三联（P/F/C，各自占比条） ---------- */
+.macro{display:flex;flex-direction:column;gap:3px}
+.macro .row{display:flex;align-items:baseline;gap:6px;font-size:12px}
+.macro .row .lbl{width:26px;color:var(--ink-3);font-size:11px}
+.macro .row .amt{margin-left:auto;font-family:var(--sans);font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;font-size:13px}
+.macro .row .amt small{color:var(--ink-3);font-size:11px}
+.macro .row .lead{flex:1;border-bottom:1.5px dotted var(--rule-2);transform:translateY(-4px);margin:0 2px}
+.macro .row .pct{width:34px;text-align:right;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+
+/* ---------- 堆叠能量条（含参考区间刻度） ---------- */
+.stack{display:flex;height:11px;border:1px solid var(--rule-2);overflow:hidden;background:var(--paper-3)}
+.stack>span{height:100%;display:block;transition:flex-grow .6s ease}
+.stack .p{background:repeating-linear-gradient(45deg,var(--teal) 0 2px,rgba(255,255,255,.24) 2px 3.6px)}
+.stack .f{background:repeating-linear-gradient(45deg,var(--ochre) 0 2px,rgba(255,255,255,.26) 2px 3.6px)}
+.stack .c{background:repeating-linear-gradient(45deg,var(--slate) 0 2px,rgba(255,255,255,.3) 2px 3.6px);opacity:.85}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-top:6px;font-size:11px;color:var(--ink-3)}
+.legend i{display:inline-block;width:8px;height:8px;margin-right:4px;vertical-align:0}
+
+/* ---------- 周图（SVG） ---------- */
+.chart{position:relative;padding:10px 16px 6px}
+.chart svg{display:block;width:100%;height:auto;overflow:visible}
+.chart .ax{stroke:var(--rule-2);stroke-width:1;shape-rendering:crispEdges}
+.chart .grid{stroke:var(--rule);stroke-width:1;stroke-dasharray:1 3;shape-rendering:crispEdges}
+.chart text{font-family:var(--mono);font-size:11px;fill:var(--ink-3);dominant-baseline:middle}
+.chart .yax{font-family:var(--sans);font-variant-numeric:tabular-nums;fill:var(--ink-3)}
+.chart .unit{fill:var(--ink-3);font-family:var(--sans);font-size:11px}
+.chart text.lab{fill:var(--ink-2);font-family:var(--sans);font-size:11px}
+.chart text.wk{fill:var(--ink-3);font-family:var(--sans);font-size:11px}
+.chart .bar{fill:var(--ink-2);transition:fill .18s,opacity .18s}
+.chart .bar.sel{fill:var(--red)}
+.chart .bar.dim{opacity:.35}
+.chart .barhit{fill:transparent;cursor:pointer}
+.chart .refband{fill:var(--amber-soft)}
+.chart .refedge{stroke:var(--ochre);stroke-width:1;stroke-dasharray:3 3}
+.chart .cap{fill:var(--ink);font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:11.5px;font-weight:650}
+.chart .cap.inc{fill:var(--amber)}
+.chart .miss{fill:var(--rule-hard);font-family:var(--mono);font-size:14px}
+.chart .incomplete{fill:var(--ink-3);font-family:var(--sans);font-size:11px}
+
+/* ---------- 餐次完整度矩阵（借 Dotted Map 点语言，7×3 + 微数字） ---------- */
+.dots{display:flex;flex-direction:column;padding:6px 16px 10px}
+.dots .drow{display:grid;grid-template-columns:44px 1fr 52px;align-items:center;gap:6px;
+  padding:7px 0;border-bottom:1px solid var(--rule);position:relative}
+.dots .drow:last-child{border-bottom:0}
+.dots .dhead{padding:4px 0 5px;border-bottom:1px solid var(--rule-2)}
+.dots .dhead .dcell{font-size:11px;color:var(--ink-3);font-weight:500}
+.dots .dhead .dsum{font-size:11px;color:var(--ink-3);text-align:right;border-left:1px solid var(--rule-2)}
+.dots .dlab{font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.dots .dsum{text-align:right;font-weight:600;font-size:13px;color:var(--ink);border-left:1px solid var(--rule);padding-left:8px}
+.dots .cells{display:grid;grid-template-columns:1fr 1fr 1fr;justify-items:center}
+.dots .cells .dcell:not(:last-child){border-right:1px solid var(--rule);width:100%}
+.dots .dcell{display:flex;align-items:center;justify-content:center;gap:5px;height:16px;padding:0 4px}
+.dots .dn{font-family:var(--mono);font-size:11px;color:var(--ink-3);font-weight:400;min-width:9px;text-align:left}
+.dots .dt{width:8px;height:8px;border-radius:50%;background:var(--paper-4);border:1px solid var(--rule-2);flex:none;/* cf-justify: 密度点阵圆点是语义本身 */}
+.dots .dt.on{background:var(--ink-2);border-color:var(--ink-2)}
+.dots .dt.part{background:var(--ochre);border-color:var(--ochre)}
+.dots .dt.none{background:transparent;border-style:dashed;border-color:var(--rule-hard)}
+
+/* ---------- 主操作：拍照（表内证件照位 + crop marks，纸面语言） ---------- */
+.capture{position:relative;display:flex;align-items:center;gap:13px;width:100%;
+  padding:13px 16px;background:var(--paper);border:0;border-bottom:1px solid var(--rule);text-align:left;
+  transition:background .16s}
+.capture:active{background:var(--paper-2)}
+.photoframe{position:relative;width:46px;height:38px;flex:none;display:grid;place-items:center}
+.photoframe .cm{position:absolute;width:9px;height:9px;border:0 solid var(--ink-3)}
+.photoframe .cm.tl{left:0;top:0;border-left-width:1px;border-top-width:1px}
+.photoframe .cm.tr{right:0;top:0;border-right-width:1px;border-top-width:1px}
+.photoframe .cm.bl{left:0;bottom:0;border-left-width:1px;border-bottom-width:1px}
+.photoframe .cm.br{right:0;bottom:0;border-right-width:1px;border-bottom-width:1px}
+.photoframe .cam{color:var(--ink-2)}
+.photoframe .cam svg{width:24px;height:24px;display:block}
+.capture .txt{flex:1;min-width:0}
+.capture .txt b{display:block;font-size:15px;font-weight:650;letter-spacing:.01em}
+.capture .txt span{font-size:11px;color:var(--ink-3);letter-spacing:.02em}
+.shootbtn{display:inline-flex;align-items:center;gap:7px;font-size:13px;color:var(--ink);font-weight:600;
+  flex:none;letter-spacing:.04em}
+.shootbtn .box{width:12px;height:12px;border:1.5px solid var(--ink);display:block;flex:none}
+/* 四角裁切标记包住整块拍照位（die-cut 印刷裁切框） */
+.fcm{position:absolute;width:13px;height:13px;border:0 solid var(--rule-hard);pointer-events:none}
+.fcm.tl{left:10px;top:8px;border-left-width:1.5px;border-top-width:1.5px}
+.fcm.tr{right:10px;top:8px;border-right-width:1.5px;border-top-width:1.5px}
+.fcm.bl{left:10px;bottom:8px;border-left-width:1.5px;border-bottom-width:1.5px}
+.fcm.br{right:10px;bottom:8px;border-right-width:1.5px;border-bottom-width:1.5px}
+
+/* ---------- 次要动作行（搜索添加 / 手动记录） ---------- */
+.actions{display:flex;border-bottom:1px solid var(--rule)}
+.actions button{flex:1;padding:12px 10px;display:flex;align-items:center;gap:9px;
+  border-right:1px solid var(--rule);font-size:13px;color:var(--ink-2);transition:background .16s}
+.actions button:last-child{border-right:0}
+.actions button:active{background:var(--paper-2)}
+.actions svg{width:18px;height:18px;flex:none;stroke:var(--ink-2)}
+.actions .plus{width:20px;height:20px;border:1px solid var(--rule-hard);
+  display:grid;place-items:center;font-family:var(--mono);font-size:14px;color:var(--ink-2);flex:none}
+
+/* ---------- 草稿菜品行 ---------- */
+.draftline{border-bottom:1px solid var(--rule);padding:11px 16px 13px}
+.drafthead{display:flex;align-items:flex-start;gap:10px}
+.drafthead .main{flex:1;min-width:0}
+.drafthead .lead{display:flex;align-items:center;gap:7px}
+.drafthead .nm{font-size:14px;font-weight:600}
+.drafthead .sub{font-size:11px;color:var(--ink-3);margin-top:2px}
+.drafthead .dotcat{width:8px;height:8px;border-radius:50%;flex:none}
+.drafthead .cal{font-family:var(--sans);font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;font-weight:600;font-size:16px;flex:none;letter-spacing:-.01em}
+.drafthead .cal small{font-size:11px;font-weight:400;color:var(--ink-3);margin-left:2px}
+.delbtn{width:28px;height:26px;border:1px solid var(--rule-hard);display:grid;place-items:center;color:var(--ink-3);flex:none;margin-top:1px}
+.draftseg{margin-top:9px}
+
+/* ---------- 份量三选一（印刷表单式：细描边 + 选中下沿红线，不填黑） ---------- */
+.seg{display:flex;border:1px solid var(--rule-hard);background:var(--paper);position:relative}
+.seg button{flex:1;padding:8px 2px 7px;font-size:12px;color:var(--ink-3);position:relative;z-index:1;
+  letter-spacing:.01em;transition:color .18s}
+.seg button .g{display:block;font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-top:1px}
+.seg button+button{border-left:1px solid var(--rule)}
+.seg button[aria-pressed="true"]{color:var(--ink);font-weight:650}
+.seg button[aria-pressed="true"] .g{color:var(--ink-2)}
+.seg button[aria-pressed="true"]::after{content:"";position:absolute;left:9px;right:9px;bottom:-1px;height:2px;background:var(--red)}
+
+/* ---------- 搜索框 ---------- */
+.search{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid var(--rule);
+  background:var(--paper-2)}
+.search svg{width:16px;height:16px;flex:none;stroke:var(--ink-3)}
+.search input{flex:1;font-size:14px;color:var(--ink);min-width:0}
+.search input::placeholder{color:var(--ink-3)}
+.chips{display:flex;gap:0;border-bottom:1px solid var(--rule);overflow-x:auto;scrollbar-width:none}
+.chips::-webkit-scrollbar{display:none}
+.chips button{flex:none;padding:9px 14px;font-size:12px;color:var(--ink-3);border-right:1px solid var(--rule);
+  letter-spacing:.02em;transition:color .16s,background .16s}
+.chips button[aria-pressed="true"]{color:var(--ink);font-weight:650;background:var(--paper)}
+.chips button .n{font-family:var(--mono);font-size:11px;color:var(--ink-3);margin-left:3px}
+
+/* ---------- 可添加菜品行 ---------- */
+.pickrow{display:flex;align-items:center;gap:11px;padding:11px 16px;border-bottom:1px solid var(--rule);
+  width:100%;text-align:left;transition:background .14s}
+.pickrow:active{background:var(--paper-2)}
+.pickrow .dotcat{width:9px;height:9px;border-radius:50%;flex:none}
+.pickrow .nm{font-size:13.5px;font-weight:550}
+.pickrow .spec{font-size:11px;color:var(--ink-3);margin-top:1px}
+.pickrow .add{margin-left:auto;width:26px;height:26px;border:1px solid var(--ink-2);
+  display:grid;place-items:center;color:var(--ink);flex:none}
+.pickrow .add svg{width:14px;height:14px}
+
+/* ---------- 数字滚动 ---------- */
+.tick{display:inline-block;transition:transform .5s cubic-bezier(.2,.8,.2,1),opacity .3s}
+.tick.flip{animation:tickflip .42s cubic-bezier(.2,.7,.2,1)}
+@keyframes tickflip{0%{opacity:.25;transform:translateY(3px)}100%{opacity:1;transform:translateY(0)}}
+
+/* ---------- 列表追加动画 ---------- */
+.enter{animation:enter .38s cubic-bezier(.2,.8,.2,1) both}
+@keyframes enter{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+.leave{animation:leave .3s ease both}
+@keyframes leave{to{opacity:0;transform:translateX(12px)}}
+
+/* ---------- 状态徽标（文本徽标，非圆角药丸） ---------- */
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:11px;letter-spacing:.02em;
+  padding:1px 5px;border:1px solid;line-height:1.4;white-space:nowrap}  /* cf-justify: 状态标签，直角 */
+.badge.warn{color:var(--amber);border-color:var(--ochre);background:var(--amber-soft)}
+.badge.est{color:var(--ink-3);border-color:var(--rule-2);background:var(--paper-2)}
+.badge.ok{color:var(--teal);border-color:var(--teal);background:rgba(55,102,90,.08)}
+.badge i{width:5px;height:5px;border-radius:50%;background:currentColor}
+
+/* ---------- 明细展开 ---------- */
+.detail{border-bottom:1px solid var(--rule);background:var(--paper-2)}
+.detail .row{display:flex;align-items:baseline;gap:8px;padding:5px 16px 5px 30px;font-size:12.5px;color:var(--ink-2)}
+.detail .row .k{color:var(--ink-3);font-size:12px}
+.detail .row .v{margin-left:auto;font-family:var(--sans);font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;text-align:right}
+.detail .src{padding:9px 16px 11px 30px;border-top:1px dotted var(--rule-2);margin-top:4px}
+.detail .src .s{font-size:11.5px;color:var(--ink-2);line-height:1.55}
+.detail .src .s b{font-weight:600}
+.detail .src .ln{font-size:11px;color:var(--ink-3);margin-top:2px}
+.detail .per{font-size:11px;color:var(--ink-3);padding:2px 16px 2px 30px;line-height:1.5}
+.detail .rwrap{padding:0 22px 8px 16px}
+
+/* 结果页：份量/区间微型条 */
+.rangebar{position:relative;height:26px;margin:8px 0 2px}
+.rangebar .base{position:absolute;left:0;right:0;top:11px;height:1px;background:var(--rule-2)}
+.rangebar .band{position:absolute;top:7px;height:9px;background:var(--amber-soft);
+  border-left:1px solid var(--ochre);border-right:1px solid var(--ochre)}
+.rangebar .pin{position:absolute;top:4px;width:2px;height:15px;background:var(--red);transform:translateX(-1px)}
+.rangebar .pl{position:absolute;top:18px;transform:translateX(-50%);font-family:var(--mono);font-size:11px;color:var(--ink-3)}
+.rangebar .pl.edge-l{left:0;transform:none}
+.rangebar .pl.edge-r{left:auto;right:0;transform:none}
+.rangebar .pl.cur{color:var(--red);font-weight:600}
+
+/* ---------- 底部更新按钮 ---------- */
+.commit{display:block;width:100%;padding:13px 16px;background:var(--ink);color:var(--paper);
+  text-align:center;font-size:14px;font-weight:600;letter-spacing:.06em;border-bottom:1px solid var(--ink)}
+.commit:active{background:#000}
+.inline-empty{padding:26px 16px;text-align:center;color:var(--ink-3);font-size:13px;line-height:1.6}
+.inline-empty .big{font-size:15px;color:var(--ink-2);font-weight:550;margin-bottom:4px}
+
+/* ---------- 结果页菜品行（div 结构，可内联展开，不进 table 防错位） ---------- */
+.dishrow{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--rule);
+  cursor:pointer;transition:background .16s}
+.dishrow:active{background:var(--paper-2)}
+.dishrow.open{background:var(--paper-2)}
+.dishrow .main{flex:1;min-width:0}
+.dishrow .lead{display:flex;align-items:center;gap:7px}
+.dishrow .nm{font-size:13.5px;font-weight:550}
+.dishrow .sub{font-size:11px;color:var(--ink-3);margin-top:2px}
+.dishrow .dotcat{width:8px;height:8px;border-radius:50%;flex:none}
+.dishrow .chev{margin-left:auto;font-size:11px;color:var(--ink-3);letter-spacing:.04em}
+.dishrow .cal{font-family:var(--sans);font-variant-numeric:tabular-nums;font-feature-settings:"tnum" 1;font-weight:600;font-size:16px;letter-spacing:-.01em;flex:none;align-self:flex-start;padding-top:2px}
+.dishrow .cal small{font-size:11px;font-weight:400;color:var(--ink-3);margin-left:2px}
+
+/* ---------- 今日区间迷你条 ---------- */
+.minirange{position:relative;height:10px;background:var(--paper-3);border:1px solid var(--rule-2)}
+.minirange-band{background:repeating-linear-gradient(45deg,rgba(148,106,27,.32) 0 2px,transparent 2px 4px)}
+.minirange-band{position:absolute;top:-2px;height:12px;border-left:1.5px solid var(--ochre);border-right:1.5px solid var(--ochre)}
+.minirange-pin{position:absolute;top:-4px;bottom:-4px;width:2.5px;background:var(--red);transform:translateX(-1px)}
+.miniAxis{display:block;width:100%;height:auto;overflow:visible;margin-top:9px}
+.miniAxis .mtick{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:11px;fill:var(--ink-3)}
+.miniAxis .mchip{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:11px;fill:var(--red);font-weight:650}
+
+/* ---------- 今日页迷你走势（SVG） ---------- */
+.sparksvg{display:block;width:100%;height:auto;overflow:visible}
+.sparksvg .sval{font-family:var(--sans);font-variant-numeric:tabular-nums;font-size:11px;fill:var(--ink-2)}
+.sparksvg .slab{font-family:var(--mono);font-size:11px;fill:var(--ink-3)}
+.sparksvg .sref{font-family:var(--mono);font-size:11px;fill:var(--ochre)}
+.sparksvg .smiss{fill:var(--rule-hard);font-family:var(--mono);font-size:14px}
+@media (prefers-reduced-motion:reduce){
+  *{animation-duration:.001ms!important;animation-iteration-count:1!important;
+    transition-duration:.001ms!important}
+}
+</style>
+</head>
+<body>
+<div class="app" id="app">
+  <header class="head">
+    <div>
+      <div class="t1" id="hTitle">今日</div>
+      <div class="t2" id="hSub">11月23日 周日 · 北邮食堂</div>
+    </div>
+    <div class="stamp" id="hStamp"></div>
+  </header>
+  <nav class="tabs" id="tabs" role="tablist" aria-label="页面">
+    <button class="tab" data-route="today" role="tab">今日<span class="ix" data-k="today">2/3</span></button>
+    <button class="tab" data-route="new" role="tab">新建一餐<span class="ix" data-k="new">421</span></button>
+    <button class="tab" data-route="result" role="tab">单餐结果<span class="ix" data-k="result">509</span></button>
+    <button class="tab" data-route="week" role="tab">周视图<span class="ix" data-k="week">6/7</span></button>
+    <span class="tab-ink" id="tabInk"></span>
+  </nav>
+  <main class="sheet" id="sheet"></main>
+</div>
+<script>
+'use strict';
+/* ============================================================
+   S39O-g-data: 单一数据源。全部界面数字运行时由 DB 计算，
+   总数永远是明细之和；缺失用 null 表示，绝不用 0 冒充。
+   ============================================================ */
+const DB=[
+["tomato-egg","番茄炒蛋","蛋豆","炒",105,5.6,7.5,4,88,128,"按常见配比（鸡蛋约六成、番茄约四成）折算，含油量按食堂标准偏高一档","食堂常见炒菜盘估重，非实测","差异主要来自用油量与蛋菜比例",[["half","半份",90],["standard","标准份",180],["large","大份",270]]],
+["stir-fried-greens","清炒青菜","蔬菜","炒",55,1.8,4.2,3,40,72,"以小白菜为基础，按食堂清炒用油量折算","食堂常见蔬菜盘估重，非实测","差异主要来自油量与是否为叶菜",[["half","半份",90],["standard","标准份",170],["large","大份",250]]],
+["braised-pork","红烧肉","荤菜","炖",470,12,44,6,400,540,"以肥瘦猪肉（五花）炖制折算，含糖色与汤汁油脂，按常见做法估算","食堂常见小份荤菜估重，非实测","差异主要来自肥瘦比例与收汁程度",[["half","半份",60],["standard","标准份",120],["large","大份",180]]],
+["rice","米饭","主食","蒸",116,2.6,0.3,25.9,100,130,"蒸制白米饭，水分约 70%，采用表中米饭条目","食堂常见饭碗去餐具后估重，非实测","差异主要来自加水量与米种",[["half","半份",100],["standard","标准份",200],["large","大份",300]]],
+["potato-shreds","土豆丝","蔬菜","炒",112,2,6.5,12.5,85,140,"以马铃薯为原料按清炒做法折算，含油量按食堂标准","食堂常见炒菜盘估重，非实测","差异主要来自用油量与是否过水去淀粉",[["half","半份",90],["standard","标准份",160],["large","大份",240]]],
+["kungpao-chicken","宫保鸡丁","荤菜","炒",230,15,15,9,180,280,"以鸡胸肉、花生米按常见配比折算，含糖醋汁与红油","食堂常见荤菜盘估重，非实测","差异主要来自花生用量与用油量",[["half","半份",80],["standard","标准份",160],["large","大份",240]]],
+["mapo-tofu","麻婆豆腐","蛋豆","烧",130,9,8,5.5,105,160,"以南豆腐加少量肉末、豆瓣酱与红油折算，按常见做法估算","食堂常见豆腐盘估重，非实测","差异主要来自肉末比例与红油用量",[["half","半份",90],["standard","标准份",180],["large","大份",270]]],
+["seaweed-egg-soup","紫菜蛋花汤","汤","煮",35,2.5,1.8,2.5,22,48,"以紫菜、鸡蛋按食堂清汤配比折算，含少量香油","食堂汤碗估重，非实测","差异主要来自蛋量与是否加淀粉勾芡",[["half","半份",150],["standard","标准份",250],["large","大份",350]]],
+["yu-xiang-pork","鱼香肉丝","荤菜","炒",190,12,12,8.5,155,230,"以猪瘦肉、木耳、笋丝按常见配比折算，含糖醋汁与油","食堂常见荤菜盘估重，非实测","差异主要来自糖醋汁浓度与用油量",[["half","半份",80],["standard","标准份",160],["large","大份",240]]],
+["pepper-pork-shreds","青椒肉丝","荤菜","炒",150,11,10,4.5,120,185,"以猪瘦肉与青椒按常见配比折算，按食堂用油量","食堂常见荤菜盘估重，非实测","差异主要来自肥瘦比例与用油量",[["half","半份",80],["standard","标准份",170],["large","大份",250]]],
+["braised-eggplant","红烧茄子","蔬菜","烧",160,2,13,9,120,200,"茄子吸油明显，按食堂常见过油做法折算，含酱油糖汁","食堂常见蔬菜盘估重，非实测","差异主要来自是否先炸再过油，油量差别很大",[["half","半份",90],["standard","标准份",170],["large","大份",250]]],
+["tomato-egg-soup","西红柿鸡蛋汤","汤","煮",30,1.8,1.5,2.2,18,42,"以西红柿、鸡蛋按食堂清汤配比折算，含少量油与淀粉","食堂汤碗估重，非实测","差异主要来自蛋量与是否勾芡",[["half","半份",150],["standard","标准份",250],["large","大份",350]]],
+["steamed-bun","馒头","主食","蒸",223,7,1.1,47,205,240,"蒸制白面馒头，采用表中馒头条目","食堂常见馒头个重，非实测","差异主要来自面坯大小与含水率",[["small","小个",60],["standard","标准份",100],["large","大个",150]]],
+["hua-juan","花卷","主食","蒸",217,6.4,1,45.6,200,235,"蒸制花卷，采用表中面条类折算，含少量葱油","食堂常见花卷个重，非实测","差异主要来自面坯大小与抹油量",[["small","小个",60],["standard","标准份",100],["large","大个",150]]],
+["egg-fried-rice","蛋炒饭","主食","炒",180,5.5,6,26,150,215,"以米饭、鸡蛋按常见配比折算，含炒制用油","食堂炒饭盘估重，非实测","差异主要来自用油量与蛋饭比例",[["half","半份",150],["standard","标准份",300],["large","大份",400]]],
+["braised-chicken-leg","红烧鸡腿","荤菜","炖",200,18,12,4,165,240,"以带皮鸡腿卤制折算，含酱汁；食用部分按去骨计","食堂常见鸡腿只重（去骨），非实测","差异主要来自带皮与否与酱汁含糖量",[["one","一只",100],["standard","标准份",150],["large","大份",200]]],
+["braised-spareribs","红烧排骨","荤菜","炖",280,16,20,8,235,320,"以猪排骨炖制折算，食用部分按去骨计，含糖色与收汁油脂","食堂常见排骨盘估重（去骨），非实测","差异主要来自肥瘦比例与收汁程度",[["half","半份",70],["standard","标准份",140],["large","大份",210]]],
+["winter-melon-sparerib-soup","冬瓜排骨汤","汤","炖",32,2.5,2,1.5,20,50,"以冬瓜与排骨清炖折算，含少量肉末与浮油","食堂汤碗估重，非实测","差异主要来自汤内肉块量与是否撇油",[["half","半份",150],["standard","标准份",250],["large","大份",350]]],
+["garlic-broccoli","蒜蓉西兰花","蔬菜","炒",82,3.2,5.2,5.8,62,105,"以西兰花按蒜蓉清炒折算，含用油","食堂常见蔬菜盘估重，非实测","差异主要来自用油量与是否焯水",[["half","半份",90],["standard","标准份",170],["large","大份",250]]],
+["dry-fried-green-beans","干煸豆角","蔬菜","炒",170,3.5,13.5,9.5,130,210,"以四季豆按干煸做法（少量肉末、较多油）折算","食堂常见炒菜盘估重，非实测","差异主要来自肉末比例与用油量",[["half","半份",90],["standard","标准份",170],["large","大份",250]]],
+["sweet-sour-pork","糖醋里脊","荤菜","炸",285,14,15,25,235,330,"以猪里脊挂糊油炸后裹糖醋汁折算，含淀粉糊","食堂常见荤菜盘估重，非实测","差异主要来自挂糊厚度与糖汁浓度",[["half","半份",80],["standard","标准份",160],["large","大份",240]]],
+["steamed-egg","蒸蛋","蛋豆","蒸",72,6,4.5,2.5,55,92,"以鸡蛋加约等量水蒸制折算，含少量酱油与油","食堂常见蒸蛋碗估重，非实测","差异主要来自加水量与蛋水比例",[["small","小碗",120],["standard","标准份",200],["large","大碗",300]]],
+["soy-milk","豆浆","蛋豆","煮",48,2.8,1.5,6,35,65,"以黄豆磨浆（含少量糖）折算，按食堂常见浓度","食堂常见杯子估重，非实测","差异主要来自浓度与加糖量",[["small","小杯",200],["standard","标准份",300],["large","大杯",400]]],
+["shredded-cabbage","手撕包菜","蔬菜","炒",88,1.8,7,5.5,65,115,"以圆白菜按手撕干锅炒做法折算，含较多油与少量辣椒","食堂常见蔬菜盘估重，非实测","差异主要来自用油量",[["half","半份",90],["standard","标准份",170],["large","大份",250]]]
+].map(r=>({id:r[0],name:r[1],cat:r[2],cook:r[3],kcal:r[4],p:r[5],f:r[6],c:r[7],lo:r[8],hi:r[9],
+  src:r[10],psrc:r[11],rangeNote:r[12],ports:r[13].map(x=>({key:x[0],label:x[1],g:x[2]}))}));
+const DBX=Object.fromEntries(DB.map(d=>[d.id,d]));
+const REF=[1800,2200];
+const R=Math.round;
+const kcalAt=(d,g)=>R(d.kcal*g/100);
+const kmac=(d,g)=>({p:d.p*g/100,f:d.f*g/100,c:d.c*g/100});
+const CATC={"蔬菜":"#37665A","荤菜":"#A83A26","主食":"#4A5568","蛋豆":"#A87C29","汤":"#6B7F86"};
+const catColor=c=>CATC[c]||"#767E88";
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt1=n=>n.toFixed(1);
+
+/* ============================================================
+   S39O-g-model: 记录模型。总数只由明细求和得出；待估算项 kcal=null
+   ============================================================ */
+const TODAY={date:"11/23",wk:"周日",meals:[
+  {slot:"早餐",time:"07:42",items:[{id:"soy-milk",key:"standard"},{id:"hua-juan",key:"standard"}]},
+  {slot:"午餐",time:"12:18",items:[{id:"rice",key:"standard"},{id:"tomato-egg",key:"standard"},{id:"seaweed-egg-soup",key:"standard"}]},
+  {slot:"晚餐",time:null,items:null}
+]};
+const DAYS=[
+  {d:"11/17",wk:"周一",meals:[
+    {slot:"早餐",items:[{id:"steamed-bun",key:"standard"},{id:"soy-milk",key:"standard"}]},
+    {slot:"午餐",items:[{id:"rice",key:"standard"},{id:"braised-pork",key:"half"},{id:"stir-fried-greens",key:"standard"}]},
+    {slot:"晚餐",items:[{id:"rice",key:"half"},{id:"pepper-pork-shreds",key:"standard"}]}]},
+  {d:"11/18",wk:"周二",meals:[
+    {slot:"早餐",items:[{id:"soy-milk",key:"small"},{id:"hua-juan",key:"standard"}]},
+    {slot:"午餐",items:[{id:"rice",key:"half"},{id:"yu-xiang-pork",key:"standard"},{id:"garlic-broccoli",key:"small"}]},
+    {slot:"晚餐",items:[{id:"rice",key:"half"},{id:"mapo-tofu",key:"standard"}]}]},
+  {d:"11/19",wk:"周三",meals:[]},
+  {d:"11/20",wk:"周四",meals:[
+    {slot:"早餐",items:[{id:"soy-milk",key:"standard"},{id:"hua-juan",key:"small"}]},
+    {slot:"午餐",items:[{id:"rice",key:"standard"},{id:"braised-chicken-leg",key:"one"},{id:"stir-fried-greens",key:"standard"}]},
+    {slot:"晚餐",items:[{id:"rice",key:"half"},{id:"pepper-pork-shreds",key:"standard"}]}]},
+  {d:"11/21",wk:"周五",meals:[
+    {slot:"早餐",items:[{id:"steamed-egg",key:"small"},{id:"hua-juan",key:"standard"}]},
+    {slot:"午餐",items:[{id:"rice",key:"half"},{id:"sweet-sour-pork",key:"standard"},{id:"garlic-broccoli",key:"standard"},{pending:"自选窗口 炸鸡排",note:"窗口未标营养"}]},
+    {slot:"晚餐",items:[{id:"steamed-bun",key:"small"},{id:"tomato-egg-soup",key:"standard"}]}]},
+  {d:"11/22",wk:"周六",meals:[
+    {slot:"早餐",items:[{id:"soy-milk",key:"standard"},{id:"steamed-bun",key:"standard"}]},
+    {slot:"午餐",items:[{id:"rice",key:"half"},{id:"mapo-tofu",key:"standard"},{id:"potato-shreds",key:"half"}]},
+    {slot:"晚餐",items:[{id:"rice",key:"half"},{id:"dry-fried-green-beans",key:"standard"}]}]},
+  {d:"11/23",wk:"周日",meals:[
+    {slot:"早餐",items:[{id:"soy-milk",key:"standard"},{id:"hua-juan",key:"standard"}]},
+    {slot:"午餐",items:[{id:"rice",key:"standard"},{id:"tomato-egg",key:"standard"},{id:"seaweed-egg-soup",key:"standard"}]},
+    {slot:"晚餐",items:null}]}
+];
+const portOf=(d,key)=>d.ports.find(p=>p.key===key)||d.ports[1]||d.ports[0];
+const MEALS=["早餐","午餐","晚餐"];
+
+/* 计算一条餐：返回 {kcal, pend, p,f,c, lo, hi}；kcal 只算已知项 */
+function mealStat(m){
+  if(!m||!m.items) return null;
+  let kcal=0,p=0,f=0,c=0,lo=0,hi=0,pend=0,known=0;
+  for(const it of m.items){
+    if(it.pending){pend++;continue;}
+    const d=DBX[it.id]; if(!d) continue;
+    const g=portOf(d,it.key).g; known++;
+    kcal+=kcalAt(d,g);
+    const mac=kmac(d,g); p+=mac.p; f+=mac.f; c+=mac.c;
+    lo+=R(d.lo*g/100); hi+=R(d.hi*g/100);
+  }
+  return {kcal,p,f,c,lo,hi,pend,known,items:m.items};
+}
+function dayStat(day){
+  if(!day.meals.length) return {status:"none",kcal:null,lo:null,hi:null,p:0,f:0,c:0,
+    rows:MEALS.map(slot=>({slot,st:null,time:null})),pend:0,logged:0,missing:3};
+  let kcal=0,pend=0,logged=0,lo=0,hi=0,p=0,f=0,c=0,missing=0;
+  const rows=[];
+  for(const slot of MEALS){
+    const m=day.meals.find(x=>x.slot===slot);
+    const st=m?mealStat(m):null;
+    if(st){logged++;pend+=st.pend;kcal+=st.kcal;lo+=st.lo;hi+=st.hi;p+=st.p;f+=st.f;c+=st.c;rows.push({slot,st,time:m.time||null});}
+    else{missing++;rows.push({slot,st:null,time:null});}
+  }
+  const status = pend>0 ? "est" : (missing>0 ? "partial" : "ok");
+  return {status,kcal,lo,hi,p,f,c,rows,pend,logged,missing};
+}
+const STATUS_TXT={none:"未记录",est:"数据不完整",partial:"未记全",ok:""};
+
+/* ============================================================
+   S39O-g-render: 四屏渲染。每屏独立函数，切换重建 DOM
+   ============================================================ */
+const sheet=document.getElementById('sheet');
+const reduced=matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function macroBars(p,f,c){
+  const pk=p*4,fk=f*9,ck=c*4; const tot=pk+fk+ck||1;
+  const pp=Math.round(pk/tot*100),fp=Math.round(fk/tot*100),cp=100-pp-fp;
+  return `<div class="stack" role="img" aria-label="供能比 蛋白 ${pp}% 脂肪 ${fp}% 碳水 ${cp}%">
+      <span class="p" style="flex:${pk} 0 0"></span>
+      <span class="f" style="flex:${fk} 0 0"></span>
+      <span class="c" style="flex:${ck} 0 0"></span>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--teal)"></i>蛋白 <b class="num">${fmt1(p)}</b>g · ${pp}%</span>
+      <span><i style="background:var(--ochre)"></i>脂肪 <b class="num">${fmt1(f)}</b>g · ${fp}%</span>
+      <span><i style="background:var(--slate);opacity:.7"></i>碳水 <b class="num">${fmt1(c)}</b>g · ${cp}%</span>
+    </div>`;
+}
+
+function meter(v){
+  const max=2400; const pct=Math.min(100,v/max*100);
+  const r0=REF[0]/max*100, r1=REF[1]/max*100;
+  let ticks=''; for(let g=0;g<=2400;g+=600){
+    const x=g/max*100, sel=(v>=g-200&&v<g+200)?' sel':'';
+    ticks+=`<span class="tick" style="left:${x}%"></span><span class="tlab${sel}" style="left:${x}%">${g||0}</span>`;
+  }
+  return `<div class="meter" aria-label="今日 ${v} 千卡，参考区间 ${REF[0]}–${REF[1]}">
+    <div class="track"></div>
+    <div class="ref" style="left:${r0}%;width:${r1-r0}%"></div>
+    <div class="fill" style="width:${pct}%"></div>
+    <div class="axis"></div>${ticks}
+  </div>`;
+}
+
+function sparkStrip(){
+  // 与周图共用编码：实心墨=已记录 · 斜网赭=≈含待估算 · 浅灰=未记全 · 红=今日 · 赭底带=参考区间。mini 版仅去掉数值标签与图例
+  const days=weekDays();
+  const vals=days.map(d=>d.s.kcal).filter(v=>v!==null);
+  const maxV=Math.max(REF[1],...vals)*1.12;
+  const VW=358, H=120, padT=16, padB=22, plotH=H-padT-padB, baseY=H-padB;
+  const n=days.length, gap=VW/n, bw=gap*.5;
+  const y=v=>baseY-v/maxV*plotH;
+  let g=`<defs>
+    <pattern id="sest" width="4" height="4" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+      <rect width="4" height="4" fill="var(--ochre)"/><line x1="0" y1="0" x2="0" y2="4" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/></pattern>
+  </defs>`;
+  // 参考带（与周图同色同语义）
+  const rb0=y(REF[1]), rb1=y(REF[0]);
+  g+=`<rect x="0" y="${rb0}" width="${VW}" height="${rb1-rb0}" fill="var(--amber-soft)"/>`;
+  g+=`<line x1="0" x2="${VW}" y1="${rb0}" y2="${rb0}" stroke="var(--ochre)" stroke-width="1" stroke-dasharray="3 3"/>`;
+  g+=`<line x1="0" x2="${VW}" y1="${rb1}" y2="${rb1}" stroke="var(--ochre)" stroke-width="1" stroke-dasharray="3 3"/>`;
+  days.forEach(({day,s},i)=>{
+    const cx=gap*(i+.5), x=cx-bw/2, sel=i===6;
+    if(s.kcal===null){
+      g+=`<text x="${cx}" y="${baseY-5}" text-anchor="middle" class="smiss">—</text>`;
+    } else {
+      let fill,cap;
+      if(sel){fill='var(--red)';cap='var(--red)';}
+      else if(s.status==='est'){fill='url(#sest)';cap='var(--ochre)';}
+      else if(s.missing>0){fill='#c4bfb2';cap='var(--rule-hard)';}
+      else {fill='var(--ink-2)';cap='var(--ink-2)';}
+      g+=`<rect x="${x}" y="${y(s.kcal)}" width="${bw}" height="${baseY-y(s.kcal)}" fill="${fill}"/>`;
+      g+=`<line x1="${x}" x2="${x+bw}" y1="${y(s.kcal)}" y2="${y(s.kcal)}" stroke="${cap}" stroke-width="1.4"/>`;
+    }
+    g+=`<text x="${cx}" y="${H-6}" text-anchor="middle" class="slab" ${sel?'style="fill:var(--ink);font-weight:650"':''}>${day.d.split('/')[1]}</text>`;
+  });
+  g+=`<line x1="0" x2="${VW}" y1="${baseY}" y2="${baseY}" stroke="var(--rule-2)" stroke-width="1"/>`;
+  return `<svg viewBox="0 0 ${VW} ${H}" role="img" aria-label="最近七天热量走势（同周视图编码）" class="sparksvg">${g}</svg>`;
+}
+
+// 与顶部 meter 共用的 0–2400 标尺（同一刻度、同一语义），只是紧凑版
+function miniAxis(st){
+  const VW=358, H=46, baseY=22, lo=st.lo, hi=st.hi, cur=Math.min(2400,st.kcal);
+  const x=v=>v/2400*VW;
+  let g='';
+  g+=`<line x1="0" x2="${VW}" y1="${baseY}" y2="${baseY}" stroke="var(--rule-2)" stroke-width="1"/>`;
+  // 参考区间 1800-2200（赭底带，与顶部 meter 同语义）
+  g+=`<rect x="${x(REF[0])}" y="${baseY-5}" width="${x(REF[1])-x(REF[0])}" height="10" fill="var(--amber-soft)" stroke="var(--ochre)" stroke-width="1"/>`;
+  // 估算区间 lo-hi（赭斜网）
+  g+=`<rect x="${x(lo)}" y="${baseY-5}" width="${Math.max(2,x(hi)-x(lo))}" height="10" fill="url(#minihatch)" stroke="var(--ochre)" stroke-width="0"/>`;
+  // 当前值 pin + 端点标签
+  g+=`<line x1="${x(cur)}" x2="${x(cur)}" y1="${baseY-8}" y2="${baseY+6}" stroke="var(--red)" stroke-width="2.4"/>`;
+  g+=`<rect x="${x(cur)-13}" y="${baseY-22}" width="26" height="13" fill="var(--paper)"/>`;
+  g+=`<text x="${x(cur)}" y="${baseY-12}" text-anchor="middle" class="mchip">${st.kcal}</text>`;
+  [0,600,1200,1800,2400].forEach(v=>{g+=`<line x1="${x(v)}" x2="${x(v)}" y1="${baseY+4}" y2="${baseY+8}" stroke="var(--rule-2)" stroke-width="1"/>`;});
+  [0,600,1200,1800,2400].forEach(v=>{const lab=v===2400?'2400 千卡':v;const an=v===0?'start':(v===2400?'end':'middle');g+=`<text x="${x(v)}" y="${H-2}" text-anchor="${an}" class="mtick">${lab}</text>`;});
+  return `<svg viewBox="0 0 ${VW} ${H}" class="miniAxis" role="img" aria-label="今日 ${st.kcal} 千卡，区间 ${lo}–${hi}，参考 ${REF[0]}–${REF[1]}">
+    <defs><pattern id="minihatch" width="4" height="4" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+      <rect width="4" height="4" fill="rgba(148,106,27,.12)"/><line x1="0" y1="0" x2="0" y2="4" stroke="rgba(148,106,27,.6)" stroke-width="1.4"/></pattern></defs>
+    ${g}</svg>`;
+}
+
+/* ---- 屏1 今日 ---- */
+function renderToday(){
+  const st=dayStat(TODAY);
+  const target=REF[0],t2=REF[1];
+  let rows='';
+  for(const r of st.rows){
+    if(r.st){
+      const mini=(r.st.items.filter(i=>!i.pending).map(i=>{const d=DBX[i.id];return i.pending?0:1}).reduce((a,b)=>a+b,0));
+      rows+=`<tr class="mealslot" data-slot="${r.slot}">
+        <td>
+          <div class="lead"><span class="nm">${r.slot}</span>${r.time?`<span class="sub num">${r.time}</span>`:''}<span class="dot-lead"></span></div>
+          <div class="sub" style="margin-top:1px">${r.st.known} 道菜${r.st.pend?` · ${r.st.pend} 项待估算`:''}</div>
+        </td>
+        <td class="r"><span class="cal num">${r.st.kcal}<small>千卡</small></span></td>
+      </tr>
+      <tr class="detailrow" data-for="${r.slot}"><td colspan="2" style="padding:0;border:0"></td></tr>`;
+    } else {
+      rows+=`<tr class="mealslot missing" data-slot="${r.slot}">
+        <td><div class="lead"><span class="nm">${r.slot}</span></div><div class="sub" style="margin-top:1px">尚未记录</div></td>
+        <td class="r"><span class="dash num">— </span><span class="sub">待记录</span></td>
+      </tr>`;
+    }
+  }
+  const loggedMeals=st.rows.filter(r=>r.st).length;
+  const html=`
+  <section class="screen" id="s-today">
+    <div class="band"><h2>今日摄入</h2><span class="meta">${loggedMeals}/3 餐已记录</span></div>
+    <div class="block">
+      <div class="bignum"><span class="v tnum" id="todayKcal">${st.kcal}</span><span class="u">千卡 · 已估算</span></div>
+      <div class="ha" style="margin-top:5px">参考每日 ${REF[0]}–${REF[1]} 千卡 · 完成 <b class="num" style="color:var(--ink)">${Math.round(st.kcal/REF[0]*100)}%</b></div>
+      ${meter(st.kcal)}
+    </div>
+    <div class="bento" style="border-top:1px solid var(--rule)">
+      <div>
+        <div class="ha" style="margin-bottom:8px">今日估算区间</div>
+        <div class="tline"><span class="lbl tnum" style="font-size:22px;font-weight:600;color:var(--ink)">${st.lo}–${st.hi}</span><span class="lead"></span><span class="ha">千卡</span></div>
+        <div class="ha" style="margin-top:2px">依份量浮动</div>
+        ${miniAxis(st)}
+      </div>
+      <div>
+        <div class="ha" style="margin-bottom:6px">三大营养素</div>
+        <div class="macro">
+          ${[['蛋白',st.p,'g'],['脂肪',st.f,'g'],['碳水',st.c,'g']].map(([l,v,u])=>`<div class="row"><span class="lbl">${l}</span><span class="lead"></span><span class="amt">${fmt1(v)}<small>${u}</small></span></div>`).join('')}
+        </div>
+      </div>
+    </div>
+    <div class="band"><h2>餐次明细</h2><span class="meta">点击展开</span></div>
+    <div class="block flush"><table class="ledger">${rows}
+      <tr class="total"><td><div class="lead"><span class="nm">合计</span><span class="dot-lead"></span></div><div class="sub" style="margin-top:1px">${loggedMeals} 餐 · ${st.rows.reduce((a,r)=>a+(r.st?r.st.known:0),0)} 道菜</div></td>
+        <td class="r"><span class="cal tnum">${st.kcal}<small>千卡</small></span></td></tr>
+    </table></div>
+    <div class="band"><h2>本周对照</h2><span class="meta">近 7 天</span></div>
+    <div class="block" id="todaySpark">${sparkStrip()}</div>
+  </section>`;
+  return html;
+}
+
+/* ---- 屏2 新建一餐 ---- */
+const DRAFT={label:"午餐",time:"12:18",
+  items:[{id:"rice",key:"standard"},{id:"tomato-egg",key:"standard"}]};
+let draftFilter="全部",draftQuery="";
+
+function draftStat(){
+  let kcal=0,lo=0,hi=0,p=0,f=0,c=0,pend=0;
+  for(const it of DRAFT.items){
+    const d=DBX[it.id]; if(!d) continue;
+    const g=portOf(d,it.key).g;
+    kcal+=kcalAt(d,g);lo+=R(d.lo*g/100);hi+=R(d.hi*g/100);
+    const m=kmac(d,g);p+=m.p;f+=m.f;c+=m.c;
+  }
+  return {kcal,lo,hi,p,f,c,pend};
+}
+function renderNew(){
+  const st=draftStat();
+  const cats=["全部","主食","荤菜","蔬菜","蛋豆","汤"];
+  const catCount=c=>c==="全部"?DB.length:DB.filter(d=>d.cat===c).length;
+  const chips=cats.map(c=>`<button data-cat="${c}" aria-pressed="${draftFilter===c}">${c}<span class="n">${catCount(c)}</span></button>`).join('');
+  const list=DB.filter(d=>draftFilter==="全部"||d.cat===draftFilter)
+    .filter(d=>!draftQuery||d.name.includes(draftQuery))
+    .map(d=>{
+      const kcalStd=kcalAt(d,d.ports[1].g);
+      return `<button class="pickrow" data-add="${d.id}">
+        <span class="dotcat" style="background:${catColor(d.cat)}"></span>
+        <span><span class="nm">${d.name}</span><span class="spec">${d.cat} · ${d.cook} · 标准份 <b class="tnum" style="color:var(--ink-2)">${kcalStd}</b> 千卡</span></span>
+        <span class="add"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 2v10M2 7h10"/></svg></span>
+      </button>`;
+    }).join('');
+  const items=DRAFT.items.map((it,idx)=>{
+    const d=DBX[it.id];const p=portOf(d,it.key);const k=kcalAt(d,p.g);
+    const segs=d.ports.map(pp=>`<button data-seg="${idx}:${pp.key}" aria-pressed="${it.key===pp.key}">${pp.label}<span class="g">${pp.g}g</span></button>`).join('');
+    return `<div class="draftline" data-line="${idx}">
+      <div class="drafthead">
+        <div class="main">
+          <div class="lead"><span class="dotcat" style="background:${catColor(d.cat)}"></span><span class="nm">${d.name}</span><span class="tag">${d.cat}</span></div>
+          <div class="sub">${p.label} ${p.g}g · 每100g ${d.kcal} 千卡</div>
+        </div>
+        <div class="cal tnum">${k}<small>千卡</small></div>
+        <button data-del="${idx}" aria-label="移除${d.name}" class="delbtn">
+          <svg width="13" height="13" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M2 7h10"/></svg>
+        </button>
+      </div>
+      <div class="draftseg">
+        <div class="seg" style="flex:1">
+          ${segs}
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  const empty=!DRAFT.items.length?`<div class="inline-empty"><div class="big">本餐还没有菜品</div>用上方的拍照或搜索添加第一道菜</div>`:items;
+  return `<section class="screen" id="s-new">
+    <div class="band"><h2>新建一餐</h2><span class="meta">${DRAFT.label} · <span class="num">${DRAFT.time}</span></span></div>
+    <button class="capture" data-act="shoot">
+      <span class="photoframe">
+        <span class="cam"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.2"><path d="M3.2 8.4h3.4l1.7-2.3h6.9l1.7 2.3h3.9M3.2 8.4v10.6h17.6V8.4"/><circle cx="12" cy="13.2" r="3.5"/><circle cx="17.4" cy="10.5" r=".55" fill="currentColor"/></svg></span>
+      </span>
+      <span class="txt"><b>拍下这道菜</b><span>识别候选经你确认后再加入本餐</span></span>
+      <span class="shootbtn"><span class="box"></span>拍照</span>
+      <i class="fcm tl"></i><i class="fcm tr"></i><i class="fcm bl"></i><i class="fcm br"></i>
+    </button>
+    <div class="actions">
+      <button data-act="search"><svg viewBox="0 0 18 18" fill="none" stroke-width="1.6"><circle cx="8" cy="8" r="5.4"/><path d="M12.4 12.4 16 16"/></svg>搜索菜品</button>
+      <button data-act="manual"><span class="plus">+</span>手动补录</button>
+    </div>
+    <div class="band"><h2>本餐菜品</h2><span class="meta"><b class="num" id="draftCount">${DRAFT.items.length}</b> 项</span></div>
+    <div class="block flush" id="draftList">${empty}</div>
+    <div class="band"><h2>实时汇总</h2><span class="meta">随份量更新</span></div>
+    <div class="block">
+      <div class="bignum"><span class="v tnum" id="draftKcal">${st.kcal}</span><span class="u">千卡 · 已估算</span></div>
+      <div class="ha" style="margin-top:4px">区间 <b class="num" style="color:var(--ink)">${st.lo}–${st.hi}</b> 千卡 · ${DRAFT.items.length} 道菜</div>
+      <div style="margin-top:12px">${macroBars(st.p,st.f,st.c)}</div>
+    </div>
+    <div class="band"><h2>添加菜品</h2><span class="meta">${DB.length} 道库内</span></div>
+    <div class="search">
+      <svg viewBox="0 0 16 16" fill="none" stroke-width="1.6"><circle cx="7" cy="7" r="4.6"/><path d="M10.6 10.6 14 14"/></svg>
+      <input id="draftSearch" placeholder="搜索菜名，如 番茄炒蛋" value="${esc(draftQuery)}" autocomplete="off">
+    </div>
+    <div class="chips" id="draftChips">${chips}</div>
+    <div id="draftPick">${list}</div>
+    <button class="commit" data-act="save">保存这一餐 · <span class="num" id="commitKcal">${st.kcal}</span> 千卡</button>
+  </section>`;
+}
+
+/* ---- 屏3 单餐结果（以今日午餐为对象，可展开任一菜品） ---- */
+let openDish=1;   // 默认展开第 2 道（番茄炒蛋），展示明细机制
+function lunch(){
+  const m=TODAY.meals.find(x=>x.slot==="午餐");
+  return mealStat(m);
+}
+function renderResult(){
+  const st=lunch();
+  const m=TODAY.meals.find(x=>x.slot==="午餐");
+  const items=m.items.map((it,idx)=>{
+    const d=DBX[it.id];const p=portOf(d,it.key);const g=p.g;const k=kcalAt(d,g);
+    const lo=Math.round(d.lo*g/100),hi=Math.round(d.hi*g/100);
+    const open=idx===openDish;
+    const span=hi-lo||1; const pos=Math.max(4,Math.min(96,(k-lo)/span*100));
+    const detail=open?`
+      <div class="detail">
+        <div class="row"><span class="k">食用份量</span><span class="v">${p.label} · ${g}g</span></div>
+        <div class="row"><span class="k">本处折算</span><span class="v">${d.kcal} 千卡/100g × ${(g/100).toFixed(2)} = <b>${k}</b> 千卡</span></div>
+        <div class="per">{ 每 100g · 蛋白 ${fmt1(d.p)}g · 脂肪 ${fmt1(d.f)}g · 碳水 ${fmt1(d.c)}g }</div>
+        <div class="row"><span class="k">热量区间</span><span class="v">${lo}–${hi} 千卡</span></div>
+        <div class="rwrap">
+          <div class="rangebar" role="img" aria-label="区间 ${lo} 到 ${hi}，当前 ${k}">
+            <div class="base"></div>
+            <div class="band" style="left:0;width:100%"></div>
+            <div class="pin" style="left:${pos}%"></div>
+            <div class="pl edge-l">${lo}</div>
+            <div class="pl cur" style="left:${pos}%">${k}</div>
+            <div class="pl edge-r">${hi}</div>
+          </div>
+        </div>
+        <div class="src">
+          <div class="s"><b>营养依据：</b>${esc(d.src)}</div>
+          <div class="s" style="margin-top:3px"><b>份量依据：</b>${esc(d.psrc)}</div>
+          <div class="ln">区间说明：${esc(d.rangeNote||"")}</div>
+        </div>
+      </div>`:'';
+    return `<div class="dishrow${open?' open':''}" data-dish="${idx}" role="button" tabindex="0" aria-expanded="${open}">
+        <div class="main">
+          <div class="lead"><span class="dotcat" style="background:${catColor(d.cat)}"></span>
+            <span class="nm">${d.name}</span><span class="tag">${d.cat}</span>
+            <span class="chev">${open?'收起':'展开'}</span></div>
+          <div class="sub">${p.label} ${g}g · 每100g ${d.kcal} 千卡</div>
+        </div>
+        <div class="cal num">${k}<small>千卡</small></div>
+      </div>${detail}`;
+  }).join('');
+  return `<section class="screen" id="s-result">
+    <div class="band"><h2>单餐结果</h2><span class="meta">${m.slot} · <span class="num">${m.time}</span></span></div>
+    <div class="block">
+      <div class="bignum"><span class="v num">${st.kcal}</span><span class="u">千卡 · 已估算</span></div>
+      <div class="ha" style="margin-top:4px">区间 <b class="num" style="color:var(--ink)">${st.lo}–${st.hi}</b> 千卡 · ${st.known} 道菜${st.pend?` · ${st.pend} 项待估算`:' · 全部可估算'}</div>
+    </div>
+    <div class="bento">
+      <div style="grid-column:1/-1">
+        <div class="ha" style="margin-bottom:6px">供能比（蛋白 4 / 脂肪 9 / 碳水 4 千卡每克）</div>
+        ${macroBars(st.p,st.f,st.c)}
+      </div>
+    </div>
+    <div class="band"><h2>菜品明细</h2><span class="meta">点击展开依据</span></div>
+    <div class="block flush" id="resList">${items}</div>
+  </section>`;
+}
+window.__openDish=openDish;
+
+/* ---- 屏4 周视图（SVG 堆叠柱 + 区间参考带 + 点阵密度） ---- */
+let weekSel=6;   // 默认选今日
+function weekDays(){
+  return DAYS.map(day=>{const s=dayStat(day);return {day,s};});
+}
+function sparkSVG(){
+  const days=weekDays();
+  const maxV=2600;
+  const W=100,H=8;
+  return days.map(({day,s},i)=>{const x=i*(W/days.length);const bh=Math.min(H,(s.kcal||0)/maxV*H);
+    return `bar`;}).join('');
+}
+function weekChartSVG(){
+  const days=weekDays();
+  const VW=368, top=20, plotH=150, baseY=top+plotH, left=30, right=6;
+  const innerW=VW-left-right;
+  const maxV=2600;
+  const y=v=>baseY-v/maxV*plotH;
+  const n=days.length, bw=innerW/n*0.46, gap=innerW/n;
+  const rb0=y(REF[1]), rb1=y(REF[0]);
+  let g=`<defs>
+    <pattern id="esthatch" width="4" height="4" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+      <rect width="4" height="4" fill="var(--ochre)"/><line x1="0" y1="0" x2="0" y2="4" stroke="rgba(255,255,255,.3)" stroke-width="1.5"/>
+    </pattern>
+    <pattern id="selesthatch" width="4" height="4" patternTransform="rotate(45)" patternUnits="userSpaceOnUse">
+      <rect width="4" height="4" fill="var(--red)"/><line x1="0" y1="0" x2="0" y2="4" stroke="rgba(255,255,255,.34)" stroke-width="1.5"/>
+    </pattern>
+  </defs>`;
+  for(let v=0;v<=2400;v+=600){
+    const yy=y(v);
+    g+=`<line class="grid" x1="${left}" x2="${VW-right}" y1="${yy}" y2="${yy}"/>`;
+    g+=`<text x="${left-6}" y="${yy}" text-anchor="end">${v}</text>`;
+  }
+  g+=`<text class="unit" x="${left-6}" y="${top-6}" text-anchor="end">千卡</text>`;
+  g+=`<rect class="refband" x="${left}" y="${rb0}" width="${innerW}" height="${rb1-rb0}"/>`;
+  g+=`<line class="refedge" x1="${left}" x2="${VW-right}" y1="${rb0}" y2="${rb0}"/>`;
+  g+=`<line class="refedge" x1="${left}" x2="${VW-right}" y1="${rb1}" y2="${rb1}"/>`;
+  g+=`<text class="lab" x="${VW-right}" y="${rb0-6}" text-anchor="end">参考区间 ${REF[0]}–${REF[1]} 千卡</text>`;
+  g+=`<line class="ax" x1="${left}" x2="${VW-right}" y1="${baseY}" y2="${baseY}"/>`;
+  days.forEach(({day,s},i)=>{
+    const cx=left+gap*(i+0.5); const x=cx-bw/2;
+    const sel=i===weekSel;
+    const xl=`<text class="wk" x="${cx}" y="${baseY+15}" text-anchor="middle" ${sel?'fill="var(--ink)" font-weight="650"':''}>${day.d}</text>`
+      +`<text class="wk" x="${cx}" y="${baseY+27}" text-anchor="middle" opacity=".7">${day.wk}</text>`;
+    const hit=`<rect class="barhit" data-wk="${i}" x="${cx-gap/2}" y="${top}" width="${gap}" height="${plotH}"/>`;
+    if(s.kcal===null){
+      // 未记录：基线留「—」占位符（印刷表缺值符号），绝不画零高柱
+      g+=`<text class="miss" x="${cx}" y="${baseY-6}" text-anchor="middle">—</text>`+xl+hit;
+      return;
+    }
+    // 状态填充：今日=红实心 / 已记录=墨实心 / 未记全=四分灰实心 / ≈含待估算=赭石斜网
+    let fill, capStroke;
+    if(sel){fill=(s.status==='est'||s.missing>0)?'url(#selesthatch)':'var(--red)';capStroke='var(--red)';}
+    else if(s.status==='est'){fill='url(#esthatch)';capStroke='var(--ochre)';}
+    else if(s.missing>0){fill='#c4bfb2';capStroke='var(--rule-hard)';}
+    else {fill='var(--ink-2)';capStroke='var(--ink-2)';}
+    let acc=0;
+    const segs=s.rows.filter(r=>r.st&&r.st.kcal>0);
+    segs.forEach((r,si)=>{
+      const h=Math.max(1.5,r.st.kcal/maxV*plotH);
+      const yy=baseY-acc-h;
+      const gapY = si<segs.length-1 ? 1 : 0;
+      g+=`<rect x="${x}" y="${yy+gapY}" width="${bw}" height="${Math.max(1,h-gapY)}" fill="${fill}"/>`;
+      acc+=h;
+    });
+    g+=`<line x1="${x}" x2="${x+bw}" y1="${y(s.kcal)}" y2="${y(s.kcal)}" stroke="${capStroke}" stroke-width="1.6"/>`;
+    const inc = s.status==="est"||s.missing>0;
+    g+=`<text class="cap${inc?' inc':''}" x="${cx}" y="${y(s.kcal)-9}" text-anchor="middle">${inc?"≈":""}${s.kcal}</text>`;
+    g+=xl+hit;
+  });
+  return `<svg viewBox="0 0 ${VW} ${baseY+34}" role="img" aria-label="最近七天热量柱状图">${g}</svg>`;
+}
+function weekDetail(){
+  const days=weekDays();
+  const {day,s}=days[weekSel];
+  if(s.kcal===null){
+    return `<div class="inline-empty"><div class="big">${day.d} ${day.wk} 未记录</div>选择其他日期，或回到「新建一餐」补记</div>`;
+  }
+  const mpct={};
+  const rows=MEALS.map(slot=>{
+    const r=s.rows.find(x=>x.slot===slot);
+    if(!r||!r.st) return `<tr class="missing"><td><div class="lead"><span class="nm">${slot}</span></div><div class="sub">未记录</div></td><td class="r"><span class="dash num">—</span></td></tr>`;
+    return `<tr><td><div class="lead"><span class="nm">${slot}</span>${r.st.pend?`<span class="tag" style="color:var(--amber);border-color:var(--ochre)">${r.st.pend} 待估算</span>`:''}</div>
+      <div class="sub" style="margin-top:1px">${r.st.known} 道菜</div></td>
+      <td class="r"><span class="cal num">${r.st.kcal}<small>千卡</small></span></td></tr>`;
+  }).join('');
+  const statusBadge=s.status==="est"?`<span class="badge warn"><i></i>数据不完整</span>`:(s.missing>0?`<span class="badge est"><i></i>未记全</span>`:`<span class="badge ok"><i></i>完整</span>`);
+  return `<div class="block" style="display:flex;align-items:baseline;gap:8px;border-bottom:1px solid var(--rule)">
+      <div class="bignum"><span class="v num" style="font-size:34px">${s.kcal}</span><span class="u">千卡</span></div>
+      <span style="margin-left:auto">${statusBadge}</span>
+    </div>
+    <div class="block" style="padding-top:10px;padding-bottom:10px">
+      <div class="ha" style="margin-bottom:7px">区间 <b class="num" style="color:var(--ink)">${s.lo}–${s.hi}</b> 千卡 · 三大营养素</div>
+      ${macroBars(s.p,s.f,s.c)}
+    </div>
+    <div class="block flush"><table class="ledger">${rows}</table></div>`;
+}
+function dotMatrix(){
+  // 7 天 × 3 餐 矩阵（借 Dotted Map 点语言）：● 实心=有记录 · ◐ 橙=含待估算 · ○ 空心=未记录；每点带该餐道数
+  const days=weekDays();
+  let rowsCfg='';
+  days.forEach(({day,s})=>{
+    let cells='';
+    MEALS.forEach(slot=>{
+      const r=s.rows.find(x=>x.slot===slot);
+      let cls='dt', n='';
+      if(!r||!r.st){ cls+=' none'; n='—'; }
+      else if(r.st.pend){ cls+=' part'; n=String(r.st.known); }
+      else { cls+=' on'; n=String(r.st.known); }
+      cells+=`<span class="dcell"><span class="${cls}"></span><b class="dn">${n}</b></span>`;
+    });
+    rowsCfg+=`<div class="drow"><span class="dlab">${day.d}</span><span class="cells">${cells}</span>
+      <span class="dsum tnum">${s.kcal===null?'—':(s.status==='est'?'≈':'')+s.kcal}</span></div>`;
+  });
+  const head=`<div class="drow dhead"><span class="dlab"></span><span class="cells">${MEALS.map(m=>`<span class="dcell">${m}</span>`).join('')}</span><span class="dsum">千卡</span></div>`;
+  return `<div class="dots">${head}${rowsCfg}</div>`;
+}
+function renderWeek(){
+  return `<section class="screen" id="s-week">
+    <div class="band"><h2>最近七天</h2><span class="meta">11/17–11/23</span></div>
+    <div class="chart" id="weekChart">
+      <div class="legend" style="margin:0 0 4px">
+        <span><i style="background:var(--ink-2)"></i>已记录</span>
+        <span><i style="background:repeating-linear-gradient(45deg,var(--ochre) 0 2px,rgba(255,255,255,.4) 2px 3px)"></i>≈ 含待估算</span>
+        <span><i style="background:#c4bfb2"></i>未记全</span>
+        <span><i style="background:repeating-linear-gradient(45deg,var(--red) 0 2px,rgba(255,255,255,.4) 2px 3px)"></i>今日≈</span>
+        <span><i style="background:var(--amber-soft);border:1px solid var(--ochre)"></i>参考区间</span>
+      </div>
+      ${weekChartSVG()}
+    </div>
+    <div class="band"><h2>餐次完整度</h2><span class="meta">点 = 一餐</span></div>
+    ${dotMatrix()}
+    <div class="band"><h2>所选日期</h2><span class="meta">${DAYS[weekSel].d} ${DAYS[weekSel].wk}</span></div>
+    <div id="weekDetailWrap">${weekDetail()}</div>
+  </section>`;
+}
+
+/* ============================================================
+   S39O-g-route: 路由与事件。hash 驱动，重建屏幕；局部交互就地更新
+   ============================================================ */
+const ROUTES=['today','new','result','week'];
+const META={
+  today:{t:"今日",s:"11月23日 周日 · 北邮食堂"},
+  new:{t:"新建一餐",s:"草稿保存于本机"},
+  result:{t:"单餐结果",s:"午餐 12:18 · 3 道菜"},
+  week:{t:"周视图",s:"最近七天 · 11/17–11/23"}
+};
+let route=location.hash.replace('#/','')||'today';
+if(!ROUTES.includes(route)) route='today';
+let lastWeekSel=weekSel;
+
+function pushInk(){
+  const tabs=[...document.querySelectorAll('.tab')];
+  const active=tabs.find(t=>t.dataset.route===route);
+  const ink=document.getElementById('tabInk');
+  if(!active) return;
+  tabs.forEach(t=>t.setAttribute('aria-selected',t===active?'true':'false'));
+  const parent=active.parentElement.getBoundingClientRect();
+  const r=active.getBoundingClientRect();
+  ink.style.width=(r.width-4)+'px';
+  ink.style.transform=`translateX(${r.left-parent.left-6+2}px)`;
+}
+function render(keepScroll){
+  const y=sheet.scrollTop;
+  const map={today:renderToday,new:renderNew,result:renderResult,week:renderWeek};
+  sheet.innerHTML=map[route]();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.add('on'));
+  document.getElementById('hTitle').textContent=META[route].t;
+  document.getElementById('hSub').textContent=META[route].s;
+  const st=dayStat(TODAY), wk=weekDays().filter(d=>d.s.kcal!==null).length;
+  const dst=draftStat(), lun=lunch();
+  document.getElementById('hStamp').innerHTML=
+    route==="today"?`<b><span class="tnum" style="font-size:13px">${st.kcal}</span> 千卡</b>今日已估算`:
+    route==="week"?`<b><span class="tnum" style="font-size:13px">${wk}</span>/7</b>天有记录`:
+    route==="new"?`<b><span class="tnum" style="font-size:13px">${dst.kcal}</span> 千卡</b>草稿合计`:
+    `<b><span class="tnum" style="font-size:13px">${lun.kcal}</span> 千卡</b>午餐合计`;
+  // tab 副标：真实表头数据
+  const ix=document.querySelector('.tab .ix[data-k="today"]');
+  if(ix){ix.textContent=`${st.rows.filter(r=>r.st).length}/3`;
+    document.querySelector('.tab .ix[data-k="new"]').textContent=dst.kcal;
+    document.querySelector('.tab .ix[data-k="result"]').textContent=lun.kcal;
+    document.querySelector('.tab .ix[data-k="week"]').textContent=`${wk}/7`;}
+  pushInk();
+  bind();
+  if(keepScroll) sheet.scrollTop=y; else sheet.scrollTop=0;
+}
+
+function goto(r){ if(!ROUTES.includes(r))return; route=r; location.hash='#/'+r; }
+
+/* 今日页：展开某餐 */
+function bindToday(){
+  document.querySelectorAll('#s-today tr.mealslot').forEach(tr=>{
+    tr.addEventListener('click',()=>{
+      const slot=tr.dataset.slot;
+      // 只让有数据餐进入结果页（无数据→新建）
+      const m=TODAY.meals.find(x=>x.slot===slot);
+      if(m&&m.items){ goto('result'); }
+      else { DRAFT.label=slot; goto('new'); }
+    });
+  });
+}
+/* 新建页：实时交互 */
+function bindNew(){
+  document.querySelectorAll('#draftChips button').forEach(b=>{
+    b.addEventListener('click',()=>{ draftFilter=b.dataset.cat; render(true); });
+  });
+  const q=document.getElementById('draftSearch');
+  if(q) q.addEventListener('input',e=>{
+    draftQuery=e.target.value.trim();
+    // 只重绘列表，保留输入焦点
+    const list=DB.filter(d=>draftFilter==="全部"||d.cat===draftFilter)
+      .filter(d=>!draftQuery||d.name.includes(draftQuery))
+      .map(d=>{
+        const kcalStd=kcalAt(d,d.ports[1].g);
+        return `<button class="pickrow" data-add="${d.id}">
+          <span class="dotcat" style="background:${catColor(d.cat)}"></span>
+          <span><span class="nm">${d.name}</span><span class="spec">${d.cat} · ${d.cook} · 标准份 <b class="tnum" style="color:var(--ink-2)">${kcalStd}</b> 千卡</span></span>
+          <span class="add"><svg viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M7 2v10M2 7h10"/></svg></span>
+        </button>`;
+      }).join('');
+    document.getElementById('draftPick').innerHTML=list||`<div class="inline-empty">没有匹配「${esc(draftQuery)}」的菜品<br>可用「手动补录」记录</div>`;
+    bindPickRows();
+  });
+  bindPickRows();
+  document.querySelectorAll('[data-add]').forEach(b=>b.addEventListener('click',()=>{
+    DRAFT.items.push({id:b.dataset.add,key:"standard"});
+    render(true);
+  }));
+  document.querySelectorAll('[data-del]').forEach(b=>b.addEventListener('click',()=>{
+    const i=+b.dataset.del; DRAFT.items.splice(i,1);
+    const line=b.closest('.draftline');
+    if(line){line.classList.add('leave'); setTimeout(()=>render(true),reduced?0:180);} else render(true);
+  }));
+  document.querySelectorAll('[data-seg]').forEach(b=>b.addEventListener('click',()=>{
+    const [i,key]=b.dataset.seg.split(':');
+    DRAFT.items[+i].key=key;
+    render(true);
+  }));
+  document.querySelector('[data-act="save"]')?.addEventListener('click',()=>{
+    // 保存后写到今日对应餐（这里演示回到今日并刷新）
+    goto('today');
+  });
+  document.querySelector('[data-act="shoot"]')?.addEventListener('click',()=>{
+    // 拍照入口：演示反馈（不联网）
+    const c=document.querySelector('.capture');
+    c.classList.add('enter'); setTimeout(()=>c.classList.remove('enter'),400);
+  });
+}
+function bindPickRows(){
+  document.querySelectorAll('[data-add]').forEach(b=>{
+    if(b.dataset.bound)return; b.dataset.bound='1';
+    b.addEventListener('click',()=>{ DRAFT.items.push({id:b.dataset.add,key:"standard"}); render(true); });
+  });
+}
+/* 结果页：展开菜品 */
+function bindResult(){
+  document.querySelectorAll('#resList [data-dish]').forEach(tr=>{
+    tr.addEventListener('click',()=>{
+      const i=+tr.dataset.dish;
+      openDish = (openDish===i? -1 : i);
+      render(true);
+    });
+  });
+}
+/* 周视图：点选柱 */
+function bindWeek(){
+  document.querySelectorAll('#weekChart .barhit').forEach(r=>{
+    r.addEventListener('click',()=>{
+      weekSel=+r.dataset.wk;
+      document.querySelector('#s-week').innerHTML=renderWeek().replace(/^.*?<section class="screen" id="s-week">/s,'').replace(/<\/section>$/,'');
+      // simplest: full re-render week
+      render(true);
+    });
+  });
+}
+function bind(){
+  if(route==="today") bindToday();
+  else if(route==="new") bindNew();
+  else if(route==="result") bindResult();
+  else if(route==="week") bindWeek();
+}
+
+/* tabs */
+document.querySelectorAll('.tab').forEach(t=>t.addEventListener('click',()=>goto(t.dataset.route)));
+window.addEventListener('hashchange',()=>{
+  const r=location.hash.replace('#/','')||'today';
+  if(ROUTES.includes(r)&&r!==route){route=r;render();}
+});
+window.addEventListener('resize',()=>{pushInk();if(route==="week")render(true);});
+
+render();
+/* 首屏数字滚动入场：仅 transform/opacity */
+if(!reduced){
+  requestAnimationFrame(()=>{
+    document.querySelectorAll('.meter .fill').forEach(f=>{const w=f.style.width;f.style.width='0';requestAnimationFrame(()=>{f.style.width=w;});});
+  });
+}
+</script>
+</body>
+</html>

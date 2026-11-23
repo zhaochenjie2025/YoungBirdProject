@@ -149,6 +149,48 @@ input{font:inherit;color:inherit}
 .face > .screw.bl{left:5px;bottom:5px}
 .face > .screw.br{right:5px;bottom:5px}
 
+/* ---------- unified instrument body: face + paper exit + tape as one chassis ---------- */
+.chassis{
+  position:relative;
+  margin:4px 12px 13px;
+  background:
+    var(--noise),
+    linear-gradient(180deg,#f1ebdd 0%,#e8e2d2 100%);
+  background-blend-mode:multiply,normal;
+  box-shadow:0 1px 0 rgba(255,255,255,.1),0 10px 22px rgba(0,0,0,.5),
+    inset 0 0 0 1px rgba(37,35,30,.28);
+}
+.face{
+  position:relative;
+  margin:0;
+  padding:13px 14px 15px;
+  color:var(--ink);
+  background:
+    var(--noise),
+    linear-gradient(158deg,#f3eee2 0%,#e9e4d6 52%,#d7d1c0 100%);
+  background-blend-mode:multiply,normal;
+  box-shadow:none;
+}
+.face::before{
+  content:"";position:absolute;inset:6px;pointer-events:none;
+  border:1px solid rgba(37,35,30,.2);
+}
+/* metal exit slot the tape feeds through */
+.exit-slot{position:relative;height:16px;margin:0 0 0;background:linear-gradient(180deg,#f3eee2,#dcd5c4);overflow:hidden}
+.exit-slot::before{content:"";position:absolute;left:10px;right:10px;top:2px;height:9px;border-radius:5px;
+  background:linear-gradient(180deg,#0a0c0d,#2a2c2b 60%,#3a3c39);
+  box-shadow:inset 0 2px 3px rgba(0,0,0,.9),0 1px 0 rgba(255,255,255,.5)}
+.exit-slot::after{content:"";position:absolute;left:14px;right:14px;bottom:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(37,35,30,.3),transparent)}
+/* the tape now hangs from the slot: remove its own outer card shadow + top radius */
+.tape{margin:0;position:relative;padding:0 0 2px}
+.tape-head{display:flex;align-items:baseline;gap:8px;padding:7px 20px 6px}
+.log{border:0;box-shadow:none;background:
+    var(--noise),
+    linear-gradient(180deg,#f0eadb 0%,#e6dfce 60%,#dcd5c4 100%);background-blend-mode:multiply,normal}
+.demo-link{margin-left:8px;font-size:11px;color:#8d8879;text-decoration:underline;text-underline-offset:2px;background:none;padding:0}
+
+
 /* ---------- status lamp ---------- */
 .status{display:inline-flex;align-items:center;gap:6px;font-size:11px;letter-spacing:.04em;color:var(--ink-2)}
 /* cf-justify: 状态灯是嵌入式指示灯珠，圆形+径向高光是灯罩本体 */
@@ -180,18 +222,25 @@ input{font:inherit;color:inherit}
 .mac-h{display:flex;align-items:baseline;justify-content:space-between;gap:4px}
 .mac-v{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:16px;color:var(--ink)}
 .mac-v small{font-size:11px;color:var(--ink-3);margin-left:1px}
-.segs{display:flex;gap:2px;height:5px;margin-top:5px}
-.seg{flex:1;background:rgba(37,35,30,.13)}
-.seg.on{background:#4a463a}
-.seg.warm{background:var(--amber)}
-.seg.void{background:repeating-linear-gradient(135deg,rgba(37,35,30,.14) 0 2px,transparent 2px 4px)}
+/* measuring trough: recessed slot, continuous fill, engraved graduations, reference tick */
+.trough{position:relative;height:7px;margin-top:6px;border-radius:1px;
+  background:linear-gradient(180deg,rgba(37,35,30,.2),rgba(37,35,30,.06));
+  box-shadow:inset 0 1px 2px rgba(37,35,30,.4),0 1px 0 rgba(255,255,255,.5)}
+.trough .fill{position:absolute;left:1px;top:1px;bottom:1px;background:linear-gradient(180deg,#5c574b,#3a372f);border-radius:1px}
+.trough .fill.void{left:1px;right:1px;background:repeating-linear-gradient(135deg,rgba(37,35,30,.22) 0 2px,transparent 2px 4px)}
+/* graduations every 25% carved into the metal */
+.trough .grad{position:absolute;inset:0;background-image:repeating-linear-gradient(90deg,rgba(37,35,30,.5) 0 1px,transparent 1px 25%);
+  -webkit-mask:linear-gradient(180deg,#000 0 40%,transparent 40%);mask:linear-gradient(180deg,#000 0 40%,transparent 40%)}
+/* reference target mark (the '/ max' denominator) */
+.trough .ref{position:absolute;top:-3px;bottom:-3px;width:1.5px;background:var(--ink-3)}
+.mac-ref{margin-top:4px;font-size:11px;color:var(--ink-3);letter-spacing:.02em}
 .mac-v.none{font-size:12px;color:var(--ink-3);letter-spacing:.04em}
 
 /* ---------- log tape ---------- */
 .tape{margin:0 12px;position:relative}
 .tape-head{display:flex;align-items:baseline;gap:8px;padding:2px 4px 7px}
-.tape-head .t{font-size:13px;letter-spacing:.06em;color:#cfc9b9}
-.tape-head .n{margin-left:auto;font-family:var(--mono);font-size:11px;color:#8d8879}
+.tape-head .t{font-size:12px;letter-spacing:.08em;color:var(--ink-2);font-weight:600}
+.tape-head .n{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
 .log{
   position:relative;
   color:var(--ink);
@@ -292,7 +341,7 @@ input{font:inherit;color:inherit}
   background:linear-gradient(90deg,transparent,rgba(255,255,255,.1) 20%,rgba(255,255,255,.1) 80%,transparent)}
 /* cf-justify: 快门沉槽是机身顶板上的圆形铣削凹坑，圆形由旋钮座决定 */
 .deck-socket{
-  position:relative;flex:none;width:82px;height:82px;border-radius:50%;
+  position:relative;flex:none;width:94px;height:94px;border-radius:50%;
   background:radial-gradient(circle at 50% 40%,#0c0f11 0%,#151a1d 72%,#1d2225 100%);
   box-shadow:
     inset 0 3px 7px rgba(0,0,0,.9),
@@ -304,18 +353,18 @@ input{font:inherit;color:inherit}
 /* machined bezel ring around the well */
 .deck-socket::before{content:"";position:absolute;inset:-4px;border-radius:50%;
   background:conic-gradient(from 210deg,#3a3f42,#1a1d20 25%,#2c3033 50%,#14171a 75%,#3a3f42);
-  -webkit-mask:radial-gradient(circle,transparent 0 41px,#000 41.5px 45px,transparent 45.5px);
-          mask:radial-gradient(circle,transparent 0 41px,#000 41.5px 45px,transparent 45.5px);}
+  -webkit-mask:radial-gradient(circle,transparent 0 47px,#000 47.5px 51px,transparent 51.5px);
+          mask:radial-gradient(circle,transparent 0 47px,#000 47.5px 51px,transparent 51.5px);}
 .deck-txt{min-width:0;flex:1}
-.deck-txt .h{font-size:16px;font-weight:600;color:#ece6d6;letter-spacing:.04em}
-.deck-txt .p{font-size:12px;color:#8d8879;margin-top:3px;line-height:1.4}
+.deck-txt .h{font-size:19px;font-weight:600;color:#f2ecdd;letter-spacing:.03em}
+.deck-txt .p{font-size:12px;color:#9a948a;margin-top:4px;line-height:1.45}
 
 .shutter-wrap{display:flex;align-items:center;gap:14px;margin:14px 12px 4px}
 /* cf-justify: 相机快门钮是滚花圆盘，圆形由旋转机构决定 */
 .shutter{
-  position:relative;width:64px;height:64px;flex:none;border-radius:50%;
+  position:relative;width:80px;height:80px;flex:none;border-radius:50%;
   background:
-    radial-gradient(circle at 38% 30%,#484d51 0%,#2b2f33 42%,#191c1f 78%,#0f1113 100%);
+    radial-gradient(circle at 38% 30%,#52575b 0%,#2f3337 42%,#1b1e21 78%,#0f1113 100%);
   box-shadow:
     inset 0 1px 1px rgba(255,255,255,.22),
     inset 0 -4px 8px rgba(0,0,0,.75),
@@ -324,23 +373,26 @@ input{font:inherit;color:inherit}
   display:grid;place-items:center;
   transition:transform .1s ease,box-shadow .1s ease;
 }
-.shutter:active{transform:scale(.96) translateY(1px);
-  box-shadow:inset 0 1px 1px rgba(255,255,255,.16),inset 0 -2px 5px rgba(0,0,0,.75),0 0 0 1px #060707,0 2px 6px rgba(0,0,0,.55)}
+.shutter:active{transform:scale(.95) translateY(2.5px);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.16),inset 0 -2px 5px rgba(0,0,0,.75),0 0 0 1px #060707,0 2px 6px rgba(0,0,0,.55),0 0 20px rgba(120,180,190,.35)}
+/* press feedback ring lights up on press */
+.shutter .lens-pip{position:absolute;width:11px;height:8px;border-radius:50%;left:50%;top:50%;transform:translate(-74%,-96%) rotate(-22deg);
+  background:radial-gradient(circle at 50% 50%,rgba(255,255,255,.95),rgba(255,255,255,0) 70%);pointer-events:none}
 .shutter::before{ /* milled knurl ring with raking highlight */
   content:"";position:absolute;inset:-7px;border-radius:50%;
   background:
     linear-gradient(145deg,rgba(255,255,255,.24) 0%,transparent 38%,transparent 60%,rgba(0,0,0,.45) 100%),
     repeating-conic-gradient(from 0deg,#4a4f53 0deg 1.6deg,#14171a 1.6deg 4.2deg,#313538 4.2deg 5.6deg);
-  -webkit-mask:radial-gradient(circle,transparent 0 26px,#000 26.6px 32px,transparent 32.6px);
-          mask:radial-gradient(circle,transparent 0 26px,#000 26.6px 32px,transparent 32.6px);
+  -webkit-mask:radial-gradient(circle,transparent 0 34px,#000 34.6px 41px,transparent 41.6px);
+          mask:radial-gradient(circle,transparent 0 34px,#000 34.6px 41px,transparent 41.6px);
   z-index:-1;
   box-shadow:0 0 0 1px rgba(0,0,0,.6);
 }
 /* cf-justify: 镜头玻璃是光学圆片 */
 .shutter::after{ /* domed lens glass with specular + chromatic rim */
-  content:"";position:absolute;width:30px;height:30px;border-radius:50%;
+  content:"";position:absolute;width:40px;height:40px;border-radius:50%;
   background:
-    radial-gradient(circle at 38% 30%,rgba(190,225,230,.75),rgba(54,86,96,.6) 34%,#0b0f12 74%),
+    radial-gradient(circle at 36% 30%,rgba(200,235,240,.85),rgba(54,96,108,.62) 32%,#0b0f12 74%),
     #0b0f12;
   box-shadow:
     inset 0 0 0 2px #05070a,
@@ -542,20 +594,19 @@ input{font:inherit;color:inherit}
 .wbar::before{content:"";position:absolute;top:-3px;left:-1px;right:-1px;height:4px;
   background:linear-gradient(180deg,transparent,#d9d2c1);
   clip-path:polygon(0 100%,8% 30%,18% 90%,30% 20%,42% 80%,55% 25%,68% 85%,80% 30%,92% 90%,100% 40%,100% 100%)}
-.wbar.inc{background:repeating-linear-gradient(135deg,var(--amber) 0 4px,#8e6a2c 4px 8px)}
+.wbar.inc{background:repeating-linear-gradient(135deg,#b7ad96 0 4px,#8f8674 4px 8px)}
+/* incomplete = same paper strip, but its top edge is a ragged gap (missing data), no bright symbol */
+.wbar.inc::before{background:linear-gradient(180deg,transparent,#b7ad96)}
 .wnone{position:absolute;inset:0;display:grid;place-items:center}
 .wnone span{font-family:var(--mono);font-size:15px;color:#5c574b;letter-spacing:.05em}
-/* incompleteness flag: stub pole rising from the top of the bar, into legend */
-.wflag{position:absolute;left:0;right:0;display:flex;justify-content:center;pointer-events:none}
-.wflag i{width:1px;height:12px;background:rgba(192,138,53,.6);position:relative}
-/* cf-justify: 警示点是接在旗杆顶端的打孔标记 */
-.wflag i::after{content:"";position:absolute;top:-4px;left:-3px;width:7px;height:7px;border-radius:50%;
-  background:var(--amber);box-shadow:0 0 6px rgba(192,138,53,.7)}
+
 .wday{font-family:var(--mono);font-size:11px;color:#8d8879;font-variant-numeric:tabular-nums;
   padding:7px 0 0;width:100%;text-align:center}
 .wday.val{color:#c9c3b3;letter-spacing:.02em}
 .wcol.today .wday.val{color:#ece6d6;font-weight:600}
-.wcol.today .wbar-wrap{box-shadow:inset 0 0 0 1px rgba(201,195,179,.18)}
+.wcol.today .wbar-wrap{box-shadow:none}
+.wcol.today .wbar{box-shadow:0 0 0 1.5px rgba(236,230,214,.7),0 0 10px rgba(220,214,200,.18),inset 1px 0 0 rgba(255,255,255,.18)}
+.wcol.today .wday{padding-top:6px;border-top:2px solid rgba(236,230,214,.6)}
 .wkol{display:grid;grid-template-columns:30px 1fr;margin:0 12px}
 .wkol .sp{grid-column:1}
 .wkol .days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:0 8px}
@@ -564,7 +615,7 @@ input{font:inherit;color:inherit}
 .legend{display:flex;flex-wrap:wrap;gap:10px 16px;margin:2px 12px 12px;padding:10px 12px;border-top:1px solid rgba(255,255,255,.08);font-size:11px;color:#8d8879}
 .legend span{display:inline-flex;align-items:center;gap:6px}
 .lg-sw{width:10px;height:10px;flex:none;background:#8b8474}
-.lg-sw.inc{background:repeating-linear-gradient(135deg,var(--amber) 0 3px,#8e6a2c 3px 6px)}
+.lg-sw.inc{background:repeating-linear-gradient(135deg,#b7ad96 0 3px,#8f8674 3px 6px)}
 .lg-sw.none{background:repeating-linear-gradient(45deg,rgba(255,255,255,.12) 0 2px,transparent 2px 5px);border:1px solid rgba(255,255,255,.15)}
 .week-stat{margin:0 12px 12px;display:grid;grid-template-columns:repeat(3,1fr);border:1px solid rgba(0,0,0,.5);background:linear-gradient(180deg,#1d2124,#16191b)}
 .week-stat div{padding:11px 13px;border-left:1px solid rgba(255,255,255,.07)}
@@ -583,7 +634,7 @@ input{font:inherit;color:inherit}
   box-shadow:inset 0 1px 0 rgba(255,255,255,.06);
 }
 /* cf-justify: 底部导航是仪器的机械档位滑轨，2px 圆角拟铣削铝槽，非卡片 */
-.nav-track{position:relative;display:grid;grid-template-columns:repeat(4,1fr);width:100%;border:1px solid rgba(255,255,255,.09);border-radius:2px;background:linear-gradient(180deg,#15181a,#1c2023)}
+.nav-track{position:relative;display:grid;grid-template-columns:repeat(4,1fr);width:100%;border:1px solid rgba(0,0,0,.6);border-radius:3px;background:linear-gradient(180deg,#14171a,#1d2124);box-shadow:inset 0 2px 4px rgba(0,0,0,.6),inset 0 -1px 0 rgba(255,255,255,.06)}
 .nav-knob{
   position:absolute;top:-1px;bottom:-1px;width:25%;
   background:linear-gradient(180deg,#3a3e41,#23272a);
@@ -594,10 +645,10 @@ input{font:inherit;color:inherit}
 .nav-knob::before,.nav-knob::after{content:"";position:absolute;top:0;bottom:0;width:1px;background:rgba(255,255,255,.12)}
 .nav-knob::before{left:0}
 .nav-knob::after{right:0}
-.nav-btn{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;padding:8px 2px 7px;color:#7d786c;transition:color .25s ease}
-.nav-btn .ico{width:19px;height:19px}
+.nav-btn{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:9px 2px 8px;color:#7d786c;transition:color .25s ease;border-right:1px solid rgba(0,0,0,.4);box-shadow:inset -1px 0 0 rgba(255,255,255,.03)}
+.nav-btn .ico{width:19px;height:19px;filter:drop-shadow(0 1px 0 rgba(0,0,0,.5))}
 .nav-btn .t{font-size:11px;letter-spacing:.04em}
-.nav-btn.on{color:#ece6d6}
+.nav-btn.on{color:#f2ecdd}.nav-btn.on .ico{filter:drop-shadow(0 1px 0 rgba(0,0,0,.5)) drop-shadow(0 0 4px rgba(210,205,190,.25))}
 
 /* misc */
 .hr-etch{height:1px;margin:0 12px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent)}
@@ -645,7 +696,8 @@ input{font:inherit;color:inherit}
 
       </div>
 
-      <div class="face ch" id="todayFace">
+      <div class="chassis">
+      <div class="face" id="todayFace">
         <i class="screw tl"></i><i class="screw tr"></i><i class="screw bl"></i><i class="screw br"></i>
         <div class="face-title">
           <span class="t">今日摄入</span>
@@ -662,12 +714,13 @@ input{font:inherit;color:inherit}
           </div>
         </div>
         <div class="macros" id="todayMacros"></div>
-      </div>
+      </div><!-- /face -->
+
+      <div class="exit-slot"><i></i></div>
 
       <div class="tape">
         <div class="tape-head">
           <span class="t">记录纸带</span>
-          <button class="btn btn-sm" id="stateToggle" aria-label="切换空状态演示" style="padding:5px 10px;font-size:11px;color:#a8a294">空状态</button>
           <span class="n" id="tapeCount">2 条记录</span>
         </div>
         <div class="log" id="todayLog"></div>
@@ -682,7 +735,8 @@ input{font:inherit;color:inherit}
             </button>
           </div>
         </div>
-      </div>
+      </div><!-- /tape -->
+      </div><!-- /chassis -->
 
       <div class="mini-note" id="todayNote">数值由菜品库按实际克数算出，缺失项不计入。</div>
     </section>
@@ -720,10 +774,17 @@ input{font:inherit;color:inherit}
             </radialGradient>
           </defs>
           <rect width="400" height="300" fill="url(#vfTable)"/>
+          <!-- plate contact shadow on the table -->
+          <ellipse cx="204" cy="182" rx="156" ry="120" fill="#050a07" opacity=".55" style="filter:blur(10px)"/>
           <ellipse cx="200" cy="165" rx="150" ry="118" fill="url(#vfPlate)"/>
           <ellipse cx="200" cy="165" rx="120" ry="92" fill="#eae5d7"/>
-          <ellipse cx="200" cy="165" rx="120" ry="92" fill="none" stroke="#c9c2af" stroke-width="2"/>
-          <!-- rice mound -->
+          <!-- porcelain rim: glazed highlight hugging upper-left, faint warm bounce lower-right -->
+          <path d="M84 130 A118 92 0 0 1 250 76" fill="none" stroke="#ffffff" stroke-width="3" opacity=".7" stroke-linecap="round"/>
+          <path d="M300 220 A120 92 0 0 1 150 250" fill="none" stroke="#fff6e2" stroke-width="2.5" opacity=".4" stroke-linecap="round"/>
+          <ellipse cx="200" cy="165" rx="120" ry="92" fill="none" stroke="#b6af9c" stroke-width="1.5"/>
+          <ellipse cx="200" cy="165" rx="118" ry="90" fill="none" stroke="#fff" stroke-width="1" opacity=".5"/>
+          <!-- food contact shadows (volume) -->
+          <ellipse cx="230" cy="214" rx="68" ry="30" fill="#b9b09a" opacity=".5"/>
           <ellipse cx="232" cy="205" rx="66" ry="40" fill="url(#vfRice)"/>
           <ellipse cx="232" cy="200" rx="66" ry="38" fill="#fbfaf4" opacity=".5"/>
           <path d="M176 200 q56 -34 112 0 q-14 26 -56 26 q-42 0 -56 -26z" fill="url(#vfRice)" opacity=".85"/>
@@ -737,6 +798,7 @@ input{font:inherit;color:inherit}
           <ellipse cx="146" cy="150" rx="17" ry="10" fill="url(#vfTom)" transform="rotate(-6 146 150)"/>
           <ellipse cx="188" cy="116" rx="14" ry="9" fill="#f7d97a"/>
           <ellipse cx="116" cy="146" rx="13" ry="9" fill="#f0c25a"/>
+          <ellipse cx="128" cy="176" rx="58" ry="26" fill="#a85a26" opacity=".35"/>
           <!-- greens -->
           <path d="M96 196 q26 -18 52 -2 q16 10 6 26 q-24 18 -52 6 q-16 -12 -6 -30z" fill="url(#vfGreen)"/>
           <path d="M104 190 q18 -10 34 0 q-6 14 -20 16 q-16 0 -14 -16z" fill="#6fa24e" opacity=".7"/>
@@ -952,15 +1014,38 @@ function ringPath(rOut, rIn){
     " A"+rIn+" "+rIn+" 0 1 0 "+b2[0].toFixed(2)+" "+b2[1].toFixed(2)+" Z";
 }
 
-/* ---- recessed annular well: outer rim shadow, inner wall highlight, band floor slightly deeper ---- */
-/* outer rim (shadow falling inward from bezel) */
-var rimShadow = el("path", { d: ringPath(148, 144), fill: "rgba(37,35,30,.22)" });
-/* the engraved band floor, a touch deeper than the plate */
-var band = el("path", { d: ringPath(144, 106), fill: "#e4ddcb", stroke: "rgba(37,35,30,.36)", "stroke-width": "1" });
-/* inner wall: thin bottom-lit lip where band meets the dial face */
+/* ---- recessed annular well: a real turned-metal bezel, not a flat stroke ---- */
+/* brushed metal bezel = conic sheen rotating with the arc + fine groove rings */
+var bezelMetal = el("linearGradient", { id: "bezelMetal", x1: "0", y1: "0", x2: "1", y2: "1" });
+bezelMetal.appendChild(el("stop", { offset: "0%",  "stop-color": "#fbf9f2" }));
+bezelMetal.appendChild(el("stop", { offset: "18%", "stop-color": "#b7b1a2" }));
+bezelMetal.appendChild(el("stop", { offset: "34%", "stop-color": "#e9e4d6" }));
+bezelMetal.appendChild(el("stop", { offset: "52%", "stop-color": "#8f897b" }));
+bezelMetal.appendChild(el("stop", { offset: "70%", "stop-color": "#dcd6c7" }));
+bezelMetal.appendChild(el("stop", { offset: "86%", "stop-color": "#b0aa9b" }));
+bezelMetal.appendChild(el("stop", { offset: "100%","stop-color": "#efe9db" }));
+defs.appendChild(bezelMetal);
+/* the raised metal ring band (outer) */
+var bezelRing = el("path", { d: ringPath(152, 143), fill: "url(#bezelMetal)" });
+/* a specular hotspot travelling along the upper arc (reads as polished curve: matcap-like) */
+var spec = el("radialGradient", { id: "bezelSpec", cx: "50%", cy: "8%", r: "60%" });
+spec.appendChild(el("stop", { offset: "0%", "stop-color": "#ffffff", "stop-opacity": ".9" }));
+spec.appendChild(el("stop", { offset: "40%", "stop-color": "#ffffff", "stop-opacity": ".18" }));
+spec.appendChild(el("stop", { offset: "100%", "stop-color": "#ffffff", "stop-opacity": "0" }));
+defs.appendChild(spec);
+var bezelSpec = el("path", { d: ringPath(152, 145), fill: "url(#bezelSpec)" });
+/* inner shadow the ring casts onto the well */
+var rimShadow = el("path", { d: ringPath(145, 106), fill: "url(#wellShade)" });
+var wellShade = el("radialGradient", { id: "wellShade", cx: "50%", cy: "18%", r: "70%" });
+wellShade.appendChild(el("stop", { offset: "0%", "stop-color": "#000", "stop-opacity": "0" }));
+wellShade.appendChild(el("stop", { offset: "100%", "stop-color": "#2a241a", "stop-opacity": ".4" }));
+defs.appendChild(wellShade);
+/* the engraved band floor */
+var band = el("path", { d: ringPath(143, 106), fill: "#e4ddcb" });
 var innerRing = el("path", { d: arcPath(106), fill: "none", stroke: "rgba(255,255,255,.7)", "stroke-width": "1.4" });
-var bezel = el("path", { d: arcPath(148), fill: "none", stroke: "rgba(37,35,30,.6)", "stroke-width": "2.4" });
-dial.appendChild(rimShadow); dial.appendChild(band); dial.appendChild(bezel); dial.appendChild(innerRing);
+var bezelEdge = el("path", { d: arcPath(143), fill: "none", stroke: "rgba(37,35,30,.4)", "stroke-width": ".8" });
+dial.appendChild(rimShadow); dial.appendChild(band); dial.appendChild(innerRing); dial.appendChild(bezelEdge);
+dial.appendChild(bezelRing); dial.appendChild(bezelSpec);
 
 /* caution zone: red hatched band spanning the full groove (1800–2000) + tiny engraved label */
 var CA1 = dialAngle(1800), CA2 = dialAngle(2000);
@@ -973,7 +1058,7 @@ var cautionBand = el("path", {
 });
 var cHatch = el("pattern", { id: "cautionHatch", width: "7", height: "7", patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" });
 cHatch.appendChild(el("rect", { width: "7", height: "7", fill: "rgba(189,67,39,.1)" }));
-cHatch.appendChild(el("rect", { width: "3", height: "7", fill: "rgba(189,67,39,.55)" }));
+cHatch.appendChild(el("rect", { width: "3", height: "7", fill: "rgba(178,64,38,.42)" }));
 defs.appendChild(cHatch);
 dial.appendChild(cautionBand);
 var cLab = polar(DIAL.cx, DIAL.cy, 80, (CA1 + CA2) / 2);
@@ -1020,14 +1105,6 @@ ticks().forEach(function(v){
 });
 dial.appendChild(gTicks);
 
-/* engraved range marking below the spindle — instrument vocabulary, real data */
-var rangeLabel = el("text", {
-  x: 170, y: 226, "text-anchor": "middle",
-  "font-size": "11", fill: "rgba(37,35,30,.5)", "letter-spacing": ".14em"
-});
-rangeLabel.textContent = "量程 0—2000 千卡";
-dial.appendChild(rangeLabel);
-
 /* centre hub + crosshair */
 dial.appendChild(el("circle", { cx: 170, cy: 176, r: 26, fill: "rgba(37,35,30,.045)", stroke: "rgba(37,35,30,.22)", "stroke-width": "1" }));
 dial.appendChild(el("path", { d: "M132 176 H208", stroke: "rgba(37,35,30,.2)", "stroke-width": "1" }));
@@ -1044,13 +1121,22 @@ dial.appendChild(gRef);
 
 var gNeedle = el("g", {});
 gNeedle.setAttribute("filter", "url(#needleShadow)");
-var tail = el("line", { x1: 170, y1: 176, x2: 170, y2: 198, stroke: "#7c2a18", "stroke-width": "3.4", "stroke-linecap": "round" });
-var needle = el("line", { x1: 170, y1: 176, x2: 170, y2: 74, stroke: "#bd4327", "stroke-width": "2.4", "stroke-linecap": "round" });
-var needleHi = el("line", { x1: 169.2, y1: 176, x2: 169.2, y2: 76, stroke: "rgba(255,235,225,.55)", "stroke-width": ".7", "stroke-linecap": "round" });
-var cap = el("circle", { cx: 170, cy: 176, r: 5.6, fill: "#2a2822", stroke: "#f2ecdd", "stroke-width": "1.2" });
-var capHi = el("circle", { cx: 168.6, cy: 174.4, r: 1.8, fill: "rgba(255,255,255,.35)" });
-gNeedle.appendChild(tail); gNeedle.appendChild(needle); gNeedle.appendChild(needleHi); gNeedle.appendChild(cap); gNeedle.appendChild(capHi);
+/* taper blade: a thin isoceles needle polygon, red core + brighter lit edge */
+var tail = el("path", { d: "M167.6 176 L172.4 176 L171 199 L169 199 Z", fill: "#6f2414" });
+var blade = el("path", { d: "M170 72 L172 176 L168 176 Z", fill: "#bd4327" });
+var bladeLit = el("path", { d: "M170 72 L170 176 L168 176 Z", fill: "rgba(240,150,120,.55)" });
+/* machined hub cap: brushed disc + knurl ticks + specular pip */
+var capRing = el("circle", { cx: 170, cy: 176, r: 6.4, fill: "#26241f", stroke: "rgba(255,255,255,.28)", "stroke-width": ".8" });
+var capFace = el("circle", { cx: 170, cy: 176, r: 4.8, fill: "url(#hubMetal)" });
+var capPip = el("ellipse", { cx: 168.4, cy: 173.8, rx: 1.9, ry: 1.3, fill: "rgba(255,255,255,.65)" });
+gNeedle.appendChild(tail); gNeedle.appendChild(blade); gNeedle.appendChild(bladeLit); gNeedle.appendChild(capRing); gNeedle.appendChild(capFace); gNeedle.appendChild(capPip);
 dial.appendChild(gNeedle);
+/* hub metal gradient */
+var hubMetal = el("radialGradient", { id: "hubMetal", cx: "38%", cy: "30%", r: "72%" });
+hubMetal.appendChild(el("stop", { offset: "0%", "stop-color": "#d9d2c2" }));
+hubMetal.appendChild(el("stop", { offset: "45%", "stop-color": "#8b8474" }));
+hubMetal.appendChild(el("stop", { offset: "100%", "stop-color": "#3a372f" }));
+defs.appendChild(hubMetal);
 
 /* needle drop-shadow filter (angle-independent soft real shadow) */
 var nsf = el("filter", { id: "needleShadow", x: "-30%", y: "-30%", width: "160%", height: "160%" });
@@ -1171,14 +1257,14 @@ function macroChannels(m){
   ];
   return chans.map(function(c){
     if (c.v === null || c.v === undefined){
-      var voidCells = "";
-      for (var j=0;j<10;j++) voidCells += '<i class="seg void"></i>';
-      return '<div class="mac"><div class="mac-h"><span class="lbl">'+c.k+'</span><span class="mac-v none">暂无</span></div><div class="segs">'+voidCells+'</div></div>';
+      return '<div class="mac"><div class="mac-h"><span class="lbl">'+c.k+'</span><span class="mac-v none">暂无</span></div>'+
+        '<div class="trough"><span class="fill void"></span><span class="grad"></span></div>'+
+        '<div class="mac-ref">参考上限 '+'—</div></div>';
     }
-    var n = Math.max(0, Math.min(10, Math.round(c.v / c.max * 10)));
-    var cells = "";
-    for (var i=0;i<10;i++) cells += '<i class="seg'+(i<n?" on":"")+'"></i>';
-    return '<div class="mac"><div class="mac-h"><span class="lbl">'+c.k+'</span><span class="mac-v">'+c.v+'<small>'+c.u+'</small></span></div><div class="segs">'+cells+'</div></div>';
+    var pct = Math.max(0, Math.min(100, c.v / c.max * 100)).toFixed(1);
+    return '<div class="mac"><div class="mac-h"><span class="lbl">'+c.k+'</span><span class="mac-v">'+c.v+'<small>'+c.u+'</small></span></div>'+
+      '<div class="trough"><span class="fill" style="width:calc('+pct+'% - 2px)"></span><span class="grad"></span></div>'+
+      '<div class="mac-ref">参考上限 '+c.max+' '+c.u+'</div></div>';
   }).join("");
 }
 
@@ -1213,7 +1299,6 @@ function renderToday(){
     todayStatusEl.innerHTML = '<i class="lamp"></i><span>今日未记录</span>';
     document.getElementById("todayMealCount").textContent = "0 / 4 餐";
   }
-  document.getElementById("stateToggle").textContent = logged ? "空状态" : "载入示例";
 }
 
 /* ---------- new meal ---------- */
@@ -1412,8 +1497,7 @@ function renderWeek(){
     if (d.state === "none"){
       body = '<div class="wnone"><span>—</span></div>';
     } else {
-      var flag = d.state === "inc" ? '<div class="wflag" style="bottom:'+h+'%"><i></i></div>' : '';
-      body = '<i class="wbar'+(d.state==="inc"?" inc":"")+'" style="height:'+h+'%"></i>'+flag;
+      body = '<i class="wbar'+(d.state==="inc"?" inc":"")+'" style="height:'+h+'%"></i>';
     }
     bars += '<div class="wcol'+(d.state==="today"?" today":"")+'">'+
       '<div class="wbar-wrap">'+body+'</div>'+
@@ -1461,10 +1545,8 @@ document.addEventListener("click", function(e){
   if (g) go(g.dataset.goto);
 });
 document.getElementById("btnShutter").addEventListener("click", function(){ go("new"); });
-document.getElementById("stateToggle").addEventListener("click", function(){
-  state.empty = !state.empty;
-  renderToday();
-});
+/* empty state is reachable only via ?empty=1 (demo/testing), not a UI control */
+if (/[?&]empty=1/.test(location.search)) { state.empty = true; }
 
 /* ---------- boot ---------- */
 renderToday();
