@@ -260,7 +260,7 @@ svg{display:block}
   position:fixed;left:50%;bottom:calc(var(--dock-h) + var(--safe-b) + 78px);z-index:30;
   transform:translate3d(-50%,10px,0);opacity:0;pointer-events:none;
   max-width:min(86vw,340px);text-align:center;
-  padding:10px 15px;border-radius:14px;
+  padding:10px 15px;border-radius:var(--r-well);
   font-size:var(--fs-2);font-weight:500;line-height:1.4;color:var(--ink);
   background:rgba(255,255,255,.86);
   backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);
@@ -374,7 +374,7 @@ svg{display:block}
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
   font-size:14px;font-weight:600;letter-spacing:-.005em;
-  border-radius:16px;padding:0 20px;height:48px;
+  border-radius:var(--r-well);padding:0 20px;height:48px;
   transition:transform .28s var(--ease-pop),box-shadow .3s,background .2s;
 }
 .btn svg{width:18px;height:18px}
@@ -384,7 +384,7 @@ svg{display:block}
   background:radial-gradient(130% 130% at 30% 14%,#F07A3E 0%,#DC5A22 48%,#C24916 100%);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.42),inset 0 -3px 8px rgba(120,40,0,.28),0 2px 4px rgba(150,50,10,.22),0 14px 26px -12px rgba(190,70,20,.6);
 }
-.btn--sm{height:40px;padding:0 15px;font-size:13px;border-radius:13px}
+.btn--sm{height:40px;padding:0 15px;font-size:var(--fs-2);border-radius:var(--r-well)}
 .btn--quiet{color:var(--ink-2);background:rgba(16,19,23,.05);box-shadow:inset 0 1px 0 rgba(255,255,255,.6)}
 .btn--ghost{color:var(--ink);background:var(--paper);box-shadow:0 0 0 1px var(--hair-2),inset 0 1px 0 #fff,0 2px 6px -4px rgba(16,19,23,.3)}
 .btn--block{display:flex;width:100%}
@@ -861,7 +861,7 @@ svg{display:block}
     <div class="dish-detail">
       <details class="dish-card" open>
         <summary>
-          <span class="dish-ic" style="width:36px;height:36px;border-radius:10px;background:linear-gradient(152deg,#F6F0E7,#EFE5D5)" aria-hidden="true">
+          <span class="dish-ic" style="width:36px;height:36px;border-radius:var(--r-well);background:linear-gradient(152deg,#F6F0E7,#EFE5D5)" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="#5C6470" stroke-width="1.75" stroke-linecap="round"><path d="M4 11h16c0 3.9-2.6 7-8 7s-8-3.1-8-7Z"/><path d="M8.5 8.2c.8-1.6 2-2.4 3.5-2.4s2.7.8 3.5 2.4"/></svg>
           </span>
           <span class="dc-main">
@@ -888,7 +888,7 @@ svg{display:block}
 
       <details class="dish-card">
         <summary>
-          <span class="dish-ic" style="width:36px;height:36px;border-radius:10px;background:linear-gradient(152deg,#F7EDE7,#F0DCD0)" aria-hidden="true">
+          <span class="dish-ic" style="width:36px;height:36px;border-radius:var(--r-well);background:linear-gradient(152deg,#F7EDE7,#F0DCD0)" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="#5C6470" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="7.5"/><path d="M12 8v8M8.6 10l6.8 4M15.4 10l-6.8 4"/></svg>
           </span>
           <span class="dc-main">
@@ -915,7 +915,7 @@ svg{display:block}
 
       <details class="dish-card">
         <summary>
-          <span class="dish-ic" style="width:36px;height:36px;border-radius:10px;background:linear-gradient(152deg,#EDF2ED,#DCE7DE)" aria-hidden="true">
+          <span class="dish-ic" style="width:36px;height:36px;border-radius:var(--r-well);background:linear-gradient(152deg,#EDF2ED,#DCE7DE)" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="#5C6470" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M19 5c-7 0-12 3.4-12 9 0 2 .8 3.6 2 4.6C11 15 14.5 12.4 19 11"/><path d="M9 18.6c-1.2 1-2 2.4-2 2.4"/></svg>
           </span>
           <span class="dc-main">
@@ -942,7 +942,7 @@ svg{display:block}
     </div>
 
     <div class="paper" style="margin-top:16px;padding:15px 16px;border-radius:var(--r-card);display:flex;align-items:center;gap:12px">
-      <span class="meal-glyph-xl" style="width:36px;height:36px;border-radius:10px;background:linear-gradient(150deg,#EEF1F5,#DFE6EE)" aria-hidden="true">
+      <span class="meal-glyph-xl" style="width:36px;height:36px;border-radius:var(--r-well);background:linear-gradient(150deg,#EEF1F5,#DFE6EE)" aria-hidden="true">
         <svg viewBox="0 0 24 24" fill="none" stroke="#3B6E96" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.5.4.8 1 .8 1.6h5.4c0-.6.3-1.2.8-1.6A6 6 0 0 0 12 3Z"/></svg>
       </span>
       <div style="flex:1">
@@ -990,7 +990,7 @@ svg{display:block}
 
     <div class="paper" style="margin-top:18px;padding:16px 18px;border-radius:var(--r-card)">
       <div style="display:flex;align-items:flex-start;gap:11px">
-        <span class="meal-glyph-xl" style="width:34px;height:34px;border-radius:10px;background:var(--ember-wash)" aria-hidden="true">
+        <span class="meal-glyph-xl" style="width:34px;height:34px;border-radius:var(--r-well);background:var(--ember-wash)" aria-hidden="true">
           <svg viewBox="0 0 24 24" fill="none" stroke="var(--ember)" stroke-width="2" stroke-linecap="round"><path d="M12 8v5M12 16h.01"/><circle cx="12" cy="12" r="9"/></svg>
         </span>
         <div style="flex:1">
