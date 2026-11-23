@@ -82,11 +82,10 @@ input{font:inherit;color:inherit}
 }
 .plate-sub{font-size:12px;letter-spacing:.05em;color:#8d8879;margin-top:2px}
 .plate-serial{
-  margin-left:auto;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:#6f6b60;
-  /* cf-justify: 铭牌序列号是压印金属小标，2px 小圆角是铝板冲压的真实倒角，不是卡片默认圆角 */
-  border:1px solid rgba(255,255,255,.12);padding:3px 7px;border-radius:2px;
-  background:linear-gradient(180deg,#1b1e20,#15171a);
-  box-shadow:inset 0 1px 2px rgba(0,0,0,.6),0 1px 0 rgba(255,255,255,.05);
+  margin-left:auto;font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:#8f8a7b;padding:3px 8px;
+  border-radius:2px;background:#14171a;
+  box-shadow:inset 0 1px 3px rgba(0,0,0,.85),inset 0 -1px 0 rgba(255,255,255,.08);
+  text-shadow:0 1px 0 rgba(0,0,0,.6);
 }
 
 /* ---------- screens ---------- */
@@ -195,35 +194,54 @@ input{font:inherit;color:inherit}
 .tape-head .n{margin-left:auto;font-family:var(--mono);font-size:11px;color:#8d8879}
 .log{
   position:relative;
-  border:1px solid rgba(0,0,0,.5);
-  background:linear-gradient(180deg,#1f2325,#171a1c);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.05),0 6px 14px rgba(0,0,0,.35);
+  color:var(--ink);
+  background:
+    var(--noise),
+    linear-gradient(180deg,#f2ecdd 0%,#e7e1d1 60%,#ddd6c4 100%);
+  background-blend-mode:multiply,normal;
+  box-shadow:0 1px 0 rgba(255,255,255,.08),0 12px 22px rgba(0,0,0,.5),inset 0 0 0 1px rgba(37,35,30,.18);
+  overflow:hidden;
 }
+/* side sprocket feed: real punched holes showing the dark chassis behind the paper */
+.log::before,.log::after{
+  content:"";position:absolute;top:0;bottom:0;width:15px;z-index:2;pointer-events:none;
+  background:
+    radial-gradient(circle at 50% 50%,
+      #0b0d0e 0 2.7px,
+      rgba(0,0,0,.55) 3.1px,
+      rgba(255,255,255,.7) 3.4px,
+      transparent 4.3px);
+  background-size:15px 19px;
+  background-repeat:repeat-y;
+  background-position:center 7px;
+}
+.log::before{left:0;box-shadow:inset -1px 0 0 rgba(37,35,30,.12)}
+.log::after{right:0;box-shadow:inset 1px 0 0 rgba(37,35,30,.12)}
 .meal-row{
-  display:grid;grid-template-columns:12px 1fr auto;gap:10px;align-items:center;
-  width:100%;text-align:left;padding:12px 12px 12px 8px;
-  border-top:1px dashed rgba(255,255,255,.09);
+  position:relative;
+  display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;
+  width:100%;text-align:left;padding:13px 16px 13px 24px;
   transition:background .2s ease;
 }
-.meal-row:first-child{border-top:0}
-.meal-row:active{background:rgba(255,255,255,.04)}
-.punch{
-  width:14px;align-self:stretch;
-  background:radial-gradient(circle at 50% 50%, #050607 0 2.8px, rgba(0,0,0,.5) 3.2px, rgba(255,255,255,.07) 3.6px, transparent 4.6px);
-  background-size:14px 18px;
-  background-repeat:repeat-y;
-  background-position:0 6px;
+/* perforation tear line between records */
+.meal-row + .meal-row::before{
+  content:"";position:absolute;top:0;left:20px;right:20px;height:2px;
+  background-image:repeating-linear-gradient(90deg,rgba(37,35,30,.5) 0 3px,transparent 3px 8px);
+  -webkit-mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+          mask:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
 }
+.meal-row:active{background:rgba(37,35,30,.06)}
 .meal-mid{min-width:0;display:flex;flex-direction:column;gap:3px}
 .meal-top{display:flex;align-items:baseline;gap:8px}
-.slot{font-size:14px;color:#e4decd;letter-spacing:.04em}
-.mtime{font-family:var(--mono);font-size:11px;color:#8d8879;font-variant-numeric:tabular-nums}
-.meal-names{display:block;font-size:12px;color:#a8a294;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.slot{font-size:14px;color:var(--ink);letter-spacing:.04em;font-weight:600}
+.mtime{font-family:var(--mono);font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.meal-names{display:block;font-size:12px;color:var(--ink-2);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .meal-kcal{text-align:right}
-.meal-kcal .k{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:19px;color:#efe9d9;line-height:1.05;display:block}
-.meal-kcal .u{font-size:11px;color:#8d8879}
-.meal-kcal .k.pending{color:#c9a35e}
-.rowflag{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:#c9a35e;margin-top:2px}
+.meal-kcal .k{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:19px;color:var(--ink);line-height:1.05;display:block}
+.meal-kcal .u{font-size:11px;color:var(--ink-3)}
+.meal-kcal .k.pending{color:#9a6b1f}
+.rowflag{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:#9a6b1f;margin-top:2px}
+.tape-head .t{color:#cfc9b9}
 
 /* empty state */
 .empty{
@@ -260,32 +278,41 @@ input{font:inherit;color:inherit}
 .shutter-wrap{display:flex;align-items:center;gap:14px;margin:14px 12px 4px}
 /* cf-justify: 相机快门钮是滚花圆盘，圆形由旋转机构决定 */
 .shutter{
-  position:relative;width:74px;height:74px;flex:none;border-radius:50%;
+  position:relative;width:76px;height:76px;flex:none;border-radius:50%;
   background:
-    radial-gradient(circle at 50% 35%,#3b3f42 0%,#22262a 48%,#14171a 100%);
+    radial-gradient(circle at 38% 30%,#484d51 0%,#2b2f33 42%,#191c1f 78%,#0f1113 100%);
   box-shadow:
-    inset 0 0 0 1px rgba(255,255,255,.1),
-    inset 0 2px 4px rgba(255,255,255,.08),
-    inset 0 -3px 6px rgba(0,0,0,.7),
-    0 0 0 1px #0a0b0c,0 5px 12px rgba(0,0,0,.5);
+    inset 0 1px 1px rgba(255,255,255,.22),
+    inset 0 -4px 8px rgba(0,0,0,.75),
+    inset 3px 3px 8px rgba(255,255,255,.05),
+    0 0 0 1px #060707,0 6px 14px rgba(0,0,0,.55),0 2px 0 rgba(255,255,255,.04);
   display:grid;place-items:center;
-  transition:transform .12s ease;
+  transition:transform .1s ease,box-shadow .1s ease;
 }
-.shutter:active{transform:scale(.95)}
-.shutter::before{ /* milled knurl ring */
-  content:"";position:absolute;inset:-7px;border-radius:50%;
-  background:repeating-conic-gradient(from 0deg,#2a2e31 0deg 2.4deg,#15181a 2.4deg 5.4deg);
-  -webkit-mask:radial-gradient(circle,transparent 0 31px,#000 31.6px 36.5px,transparent 37px);
-          mask:radial-gradient(circle,transparent 0 31px,#000 31.6px 36.5px,transparent 37px);
+.shutter:active{transform:scale(.96) translateY(1px);
+  box-shadow:inset 0 1px 1px rgba(255,255,255,.16),inset 0 -2px 5px rgba(0,0,0,.75),0 0 0 1px #060707,0 2px 6px rgba(0,0,0,.55)}
+.shutter::before{ /* milled knurl ring with raking highlight */
+  content:"";position:absolute;inset:-8px;border-radius:50%;
+  background:
+    linear-gradient(145deg,rgba(255,255,255,.16) 0%,transparent 40%,transparent 60%,rgba(0,0,0,.4) 100%),
+    repeating-conic-gradient(from 0deg,#34383b 0deg 1.6deg,#14171a 1.6deg 4.2deg,#26292c 4.2deg 5.6deg);
+  -webkit-mask:radial-gradient(circle,transparent 0 32px,#000 32.6px 38px,transparent 38.6px);
+          mask:radial-gradient(circle,transparent 0 32px,#000 32.6px 38px,transparent 38.6px);
   z-index:-1;
+  box-shadow:0 0 0 1px rgba(0,0,0,.6);
 }
 /* cf-justify: 镜头玻璃是光学圆片 */
-.shutter::after{ /* lens glass */
-  content:"";position:absolute;width:34px;height:34px;border-radius:50%;
+.shutter::after{ /* domed lens glass with specular + chromatic rim */
+  content:"";position:absolute;width:36px;height:36px;border-radius:50%;
   background:
-    radial-gradient(circle at 40% 33%,rgba(150,200,205,.55),rgba(40,70,80,.5) 38%,#0d1114 72%),
-    #0d1114;
-  box-shadow:inset 0 0 0 2px #05070a,inset 0 2px 6px rgba(255,255,255,.12),0 0 0 1px rgba(255,255,255,.08);
+    radial-gradient(circle at 38% 30%,rgba(190,225,230,.75),rgba(54,86,96,.6) 34%,#0b0f12 74%),
+    #0b0f12;
+  box-shadow:
+    inset 0 0 0 2px #05070a,
+    inset 0 3px 7px rgba(255,255,255,.16),
+    inset 0 -3px 6px rgba(0,0,0,.6),
+    0 0 0 1px rgba(255,255,255,.1),
+    0 1px 1px rgba(255,255,255,.12);
 }
 /* cf-justify: 环形导光圈是快门钮外的同心圆环 */
 .shutter-ring{
@@ -307,6 +334,7 @@ input{font:inherit;color:inherit}
   overflow:hidden;
   display:grid;place-items:center;
 }
+.vf-scene{position:absolute;inset:0;width:100%;height:100%;display:block}
 .vf-grid{position:absolute;inset:0;pointer-events:none;
   background:
     linear-gradient(rgba(220,235,220,.16) 1px,transparent 1px) 0 33.33%/100% 33.33%,
@@ -319,7 +347,7 @@ input{font:inherit;color:inherit}
 .vf-corner.b{right:10px;top:10px;border-left:0;border-bottom:0}
 .vf-corner.c{left:10px;bottom:10px;border-right:0;border-top:0}
 .vf-corner.d{right:10px;bottom:10px;border-left:0;border-top:0}
-.vf-reticle{position:relative;width:58%;aspect-ratio:1.35;border:1px dashed rgba(190,220,195,.5)}
+.vf-reticle{position:relative;width:58%;aspect-ratio:1.35;border:1px solid rgba(190,220,195,.28);box-shadow:0 0 0 4px rgba(0,0,0,.08)}
 .vf-reticle::before,.vf-reticle::after{content:"";position:absolute;background:rgba(190,220,195,.65)}
 .vf-reticle::before{left:50%;top:-8px;bottom:-8px;width:1px;transform:translateX(-.5px)}
 .vf-reticle::after{top:50%;left:-8px;right:-8px;height:1px;transform:translateY(-.5px)}
@@ -344,8 +372,13 @@ input{font:inherit;color:inherit}
 .conf b{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12px;color:#d9d3c3}
 .cand-name{display:block;font-size:14px;color:#e9e3d3;letter-spacing:.02em}
 .cand-meta{display:block;font-size:11px;color:#8d8879;margin-top:2px}
-.cand-btn{font-size:12px;padding:7px 11px;color:var(--ink);
-  background:linear-gradient(180deg,#efeade,#d5cfbd);box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 2px 0 #6f6a5d}
+/* cf-justify: 加入键 = 冲压黄铜键，斜切角 + 压印字面 + 2px 行程 */
+.cand-btn{font-size:12px;padding:7px 12px;color:#3a2f19;letter-spacing:.04em;
+  background:linear-gradient(180deg,#e7d9b6,#cdbb8d 55%,#b7a274);
+  box-shadow:inset 0 1px 0 rgba(255,250,230,.8),inset 0 -1px 0 rgba(60,45,20,.35),0 2px 0 #6f5d38,0 3px 6px rgba(0,0,0,.35);
+  clip-path:polygon(4px 0,100% 0,100% calc(100% - 4px),calc(100% - 4px) 100%,0 100%,0 4px);
+  text-shadow:0 1px 0 rgba(255,250,230,.5);transition:transform .08s ease,box-shadow .08s ease}
+.cand-btn:active{transform:translateY(2px);box-shadow:inset 0 1px 0 rgba(255,250,230,.6),0 0 0 #6f5d38,0 1px 3px rgba(0,0,0,.3)}
 
 /* ---------- loading cartridges (added dishes) ---------- */
 .cart{margin:4px 12px 12px;border:1px solid rgba(0,0,0,.5);background:linear-gradient(180deg,#1f2325,#171a1c);box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
@@ -358,10 +391,17 @@ input{font:inherit;color:inherit}
 .cart-meta{display:block;font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:11px;color:#8d8879;margin-top:3px}
 .cart-k{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:16px;color:#ece6d6;text-align:right}
 .cart-k.pending{color:#c9a35e;font-size:12px}
-.stepper{display:flex;align-items:center;gap:0;margin-top:7px;width:max-content;border:1px solid rgba(255,255,255,.12)}
-.stepper button{width:30px;height:26px;display:grid;place-items:center;color:#cfc9b9;font-size:15px;line-height:1}
-.stepper button:active{background:rgba(255,255,255,.07)}
-.stepper .val{min-width:56px;text-align:center;font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12px;color:#d9d3c3;border-left:1px solid rgba(255,255,255,.1);border-right:1px solid rgba(255,255,255,.1);height:26px;line-height:26px}
+.stepper{display:flex;align-items:center;gap:0;margin-top:8px;width:max-content;
+  border:1px solid rgba(0,0,0,.6);border-radius:3px;
+  background:linear-gradient(180deg,#2a2e31,#16191b);
+  box-shadow:inset 0 2px 4px rgba(0,0,0,.6),inset 0 -1px 0 rgba(255,255,255,.08)}
+.stepper button{width:30px;height:28px;display:grid;place-items:center;color:#cfc9b9;font-size:15px;line-height:1;
+  background:linear-gradient(180deg,#34383b,#1c2023);transition:transform .08s ease}
+.stepper button:active{transform:translateY(1px);background:linear-gradient(180deg,#2a2e31,#14171a)}
+.stepper button:first-child.b{border-right:1px solid rgba(0,0,0,.6)}
+.stepper .val{min-width:60px;text-align:center;font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:12px;color:#e2dccb;
+  border-left:1px solid rgba(0,0,0,.5);border-right:1px solid rgba(0,0,0,.5);height:28px;line-height:28px;
+  background:repeating-linear-gradient(0deg,rgba(255,255,255,.03) 0 1px,transparent 1px 4px)}
 
 /* ---------- live total bar (vernier) ---------- */
 .live-total{
@@ -397,7 +437,11 @@ input{font:inherit;color:inherit}
 .spec-face .screw::after{top:3px;height:1.2px}
 .spec-title{display:flex;align-items:baseline;gap:8px}
 .spec-title h3{font-size:19px;letter-spacing:.03em;color:var(--ink);font-weight:600}
-.spec-title .cat{margin-left:auto;font-size:11px;color:var(--ink-2);border:1px solid var(--line-hard);padding:2px 6px;letter-spacing:.05em}
+.spec-title .cat{margin-left:auto;font-size:11px;color:var(--ink-2);padding:3px 9px 3px 7px;letter-spacing:.05em;
+  background:
+    radial-gradient(circle at 5px 50%,transparent 0 2px,rgba(37,35,30,.14) 2.2px,transparent 2.8px),
+    rgba(37,35,30,.04);
+  border:1px solid var(--line-hard);border-radius:2px;box-shadow:inset 0 1px 0 rgba(255,255,255,.4)}
 .stack{display:grid;grid-template-columns:auto 1fr;gap:0;margin-top:11px;border-top:1px solid var(--line)}
 .stack .sk{padding:8px 0 8px;font-size:12px;color:var(--ink-2);border-bottom:1px solid var(--line);letter-spacing:.03em}
 .stack .sv{padding:8px 0;text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:13px;color:var(--ink);border-bottom:1px solid var(--line)}
@@ -414,42 +458,68 @@ input{font:inherit;color:inherit}
 .prov-txt .note{color:var(--ink-3)}
 
 /* result items */
-.res-item{margin:0 12px 9px;border:1px solid rgba(0,0,0,.5);background:linear-gradient(180deg,#1f2325,#171a1c)}
+.res-item{margin:0 12px 9px;color:var(--ink);
+  background:var(--noise),linear-gradient(180deg,#f1ebdc,#e6e0d0);background-blend-mode:multiply,normal;
+  box-shadow:0 10px 18px rgba(0,0,0,.45),inset 0 0 0 1px rgba(37,35,30,.2)}
 .res-head{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;width:100%;text-align:left;padding:12px}
-.res-item.open .res-head{background:rgba(255,255,255,.03)}
-.res-name{display:block;font-size:14px;color:#e6e0d0}
-.res-sub{display:block;font-size:11px;color:#8d8879;margin-top:2px}
-.res-k{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:16px;color:#ece6d6;text-align:right}
+.res-item.open .res-head{background:rgba(37,35,30,.05)}
+.res-name{display:block;font-size:14px;color:var(--ink);font-weight:600}
+.res-sub{display:block;font-size:11px;color:var(--ink-2);margin-top:2px}
+.res-k{font-family:var(--mono);font-variant-numeric:tabular-nums;font-size:16px;color:var(--ink);text-align:right}
 .res-body{max-height:0;overflow:hidden;transition:max-height .4s cubic-bezier(.3,.9,.35,1)}
 .res-item.open .res-body{max-height:460px}
-.res-body-in{padding:2px 12px 14px;border-top:1px dashed rgba(255,255,255,.1)}
-.res-body .stack .sk,.res-body .stack .sv{border-color:rgba(255,255,255,.09);color:#b4ae9f}
-.res-body .stack .sv{color:#e2dccb}
-.res-body .stack .sv.pend{color:#c9a35e}
-.res-body .prov{border-color:rgba(255,255,255,.14)}
-.res-body .prov-mark{color:#b4ae9f;border-color:rgba(255,255,255,.25)}
-.res-body .prov-txt{color:#a8a294}
-.res-body .prov-txt b{color:#e2dccb}
+.res-body-in{padding:2px 12px 14px;border-top:1px solid rgba(37,35,30,.22)}
+.res-body .stack{border-color:rgba(37,35,30,.2)}
+.res-body .stack .sk,.res-body .stack .sv{border-color:rgba(37,35,30,.16);color:var(--ink-2)}
+.res-body .stack .sv{color:var(--ink)}
+.res-body .stack .sv.pend{color:#9a6b1f}
+.res-body .prov{border-color:rgba(37,35,30,.4)}
+.res-body .prov-mark{color:var(--ink-2);border-color:var(--ink-2)}
+.res-body .prov-txt{color:var(--ink-2)}
+.res-body .prov-txt b{color:var(--ink)}
 
 /* ---------- week recorder ---------- */
-.week{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:4px 12px 10px}
-.wcol{display:flex;flex-direction:column;align-items:center;gap:6px;padding:0}
-.wbar-wrap{position:relative;width:100%;height:clamp(150px,30vh,240px);border:1px solid rgba(255,255,255,.08);background:linear-gradient(180deg,#14181a,#1b1f22);display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
-.wbar{width:58%;background:linear-gradient(180deg,#cfc9b9,#8b8474);transition:height .55s cubic-bezier(.3,.9,.35,1);transform-origin:bottom}
+/* week recorder: shared carved scale on the left, tape strips growing out of slots */
+.wk-frame{position:relative;display:grid;grid-template-columns:30px 1fr;margin:0 12px 6px;
+  border:1px solid rgba(0,0,0,.55);background:linear-gradient(180deg,#1a1e20,#14171a);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.05)}
+.wk-scale{border-right:1px solid rgba(255,255,255,.08);padding-top:8px}
+.wk-track{position:relative;height:clamp(150px,30vh,240px)}
+.wk-track .lab{position:absolute;right:6px;transform:translateY(50%);font-family:var(--mono);font-size:11px;color:#7d786c;font-variant-numeric:tabular-nums}
+.wk-track .lab::after{content:"";position:absolute;right:-6px;top:50%;width:5px;height:1px;background:rgba(255,255,255,.25)}
+.wk-track .lab.dim{color:#5c574b}
+.week{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:8px 8px 0;position:relative}
+.wcol{display:flex;flex-direction:column;align-items:center;gap:0;padding:0;position:relative}
+.wbar-wrap{position:relative;width:100%;height:clamp(150px,30vh,240px);display:flex;align-items:flex-end;justify-content:center;overflow:hidden}
+/* slot shadow behind each strip */
+.wbar-wrap::after{content:"";position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:62%;height:100%;
+  background:linear-gradient(180deg,transparent,rgba(0,0,0,.25));pointer-events:none}
+.wbar{position:relative;width:60%;background:
+    repeating-linear-gradient(0deg,rgba(37,35,30,.05) 0 1px,transparent 1px 5px),
+    linear-gradient(180deg,#d9d2c1,#a9a190 60%,#8b8474);
+  transition:height .55s cubic-bezier(.3,.9,.35,1);transform-origin:bottom;
+  box-shadow:0 0 0 1px rgba(0,0,0,.3),inset 1px 0 0 rgba(255,255,255,.18),inset -1px 0 0 rgba(0,0,0,.12)}
+/* torn paper top edge on each strip */
+.wbar::before{content:"";position:absolute;top:-3px;left:-1px;right:-1px;height:4px;
+  background:linear-gradient(180deg,transparent,#d9d2c1);
+  clip-path:polygon(0 100%,8% 30%,18% 90%,30% 20%,42% 80%,55% 25%,68% 85%,80% 30%,92% 90%,100% 40%,100% 100%)}
 .wbar.inc{background:repeating-linear-gradient(135deg,var(--amber) 0 4px,#8e6a2c 4px 8px)}
-.wbar.none{display:none}
-.wnone{position:absolute;inset:0;display:grid;place-items:center;
-  background:repeating-linear-gradient(45deg,rgba(255,255,255,.025) 0 3px,transparent 3px 7px)}
-.wnone::before{content:"";position:absolute;left:0;right:0;bottom:0;height:4px;
-  background:repeating-linear-gradient(90deg,rgba(189,67,39,.35) 0 3px,transparent 3px 6px)}
-.wnone span{position:relative;font-size:11px;color:#6d685d;letter-spacing:.14em;writing-mode:vertical-rl;padding:5px 3px;border-top:1px solid rgba(255,255,255,.1);border-bottom:1px solid rgba(255,255,255,.1)}
-.wflag{position:absolute;top:5px;left:0;right:0;display:flex;justify-content:center}
-/* cf-justify: 数据不完整标记是纸带上的打孔警示点 */
-.wflag i{width:6px;height:6px;border-radius:50%;background:var(--amber);box-shadow:0 0 6px rgba(192,138,53,.7)}
-.wday{font-family:var(--mono);font-size:11px;color:#8d8879;font-variant-numeric:tabular-nums}
-.wcol.today .wday{color:#c9c3b3}
-.wcol.today .wbar-wrap{box-shadow:0 0 0 1px rgba(201,195,179,.45),0 0 12px rgba(201,195,179,.12)}
-.wkol{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin:0 12px}
+.wnone{position:absolute;inset:0;display:grid;place-items:center}
+.wnone span{font-family:var(--mono);font-size:15px;color:#5c574b;letter-spacing:.05em}
+/* incompleteness flag: stub pole rising from the top of the bar, into legend */
+.wflag{position:absolute;left:0;right:0;display:flex;justify-content:center;pointer-events:none}
+.wflag i{width:1px;height:12px;background:rgba(192,138,53,.6);position:relative}
+.wflag i::after{content:"";position:absolute;top:-4px;left:-3px;width:7px;height:7px;border-radius:50%;
+  background:var(--amber);box-shadow:0 0 6px rgba(192,138,53,.7)}
+.wday{font-family:var(--mono);font-size:11px;color:#8d8879;font-variant-numeric:tabular-nums;
+  padding:7px 0 0;width:100%;text-align:center}
+.wday.val{color:#c9c3b3;letter-spacing:.02em}
+.wcol.today .wday.val{color:#ece6d6;font-weight:600}
+.wcol.today .wbar-wrap{box-shadow:inset 0 0 0 1px rgba(201,195,179,.18)}
+.wkol{display:grid;grid-template-columns:30px 1fr;margin:0 12px}
+.wkol .sp{grid-column:1}
+.wkol .days{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;padding:0 8px}
+.wkol .days span{text-align:center;font-family:var(--mono);font-size:11px;color:#8d8879}
 /* legend */
 .legend{display:flex;flex-wrap:wrap;gap:10px 16px;margin:2px 12px 12px;padding:10px 12px;border-top:1px solid rgba(255,255,255,.08);font-size:11px;color:#8d8879}
 .legend span{display:inline-flex;align-items:center;gap:6px}
@@ -510,7 +580,7 @@ input{font:inherit;color:inherit}
       <span class="plate-brand">CalorieSnap</span>
       <span class="plate-sub">卡路里记录仪 · 北邮食堂</span>
     </div>
-    <span class="plate-serial mono">2026-11-23</span>
+    <span class="plate-serial mono">No. 1123</span>
   </header>
 
   <div class="screens">
@@ -582,6 +652,58 @@ input{font:inherit;color:inherit}
       </div>
 
       <div class="vf ch">
+        <svg class="vf-scene" viewBox="0 0 400 300" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+          <defs>
+            <radialGradient id="vfTable" cx="50%" cy="30%" r="80%">
+              <stop offset="0%" stop-color="#3a4438"/><stop offset="100%" stop-color="#151b16"/>
+            </radialGradient>
+            <radialGradient id="vfPlate" cx="42%" cy="36%" r="70%">
+              <stop offset="0%" stop-color="#f2efe6"/><stop offset="70%" stop-color="#d8d3c4"/><stop offset="100%" stop-color="#b7b1a0"/>
+            </radialGradient>
+            <radialGradient id="vfEgg" cx="40%" cy="34%" r="70%">
+              <stop offset="0%" stop-color="#f6d66a"/><stop offset="55%" stop-color="#e8a83c"/><stop offset="100%" stop-color="#c2702a"/>
+            </radialGradient>
+            <radialGradient id="vfTom" cx="38%" cy="32%" r="70%">
+              <stop offset="0%" stop-color="#e0573c"/><stop offset="100%" stop-color="#9c2a19"/>
+            </radialGradient>
+            <radialGradient id="vfRice" cx="42%" cy="38%" r="70%">
+              <stop offset="0%" stop-color="#fbfaf4"/><stop offset="100%" stop-color="#d6d0c0"/>
+            </radialGradient>
+            <radialGradient id="vfGreen" cx="40%" cy="34%" r="72%">
+              <stop offset="0%" stop-color="#6fa24e"/><stop offset="100%" stop-color="#3c6428"/>
+            </radialGradient>
+            <radialGradient id="vfVig" cx="50%" cy="46%" r="66%">
+              <stop offset="60%" stop-color="#000" stop-opacity="0"/><stop offset="100%" stop-color="#000" stop-opacity=".5"/>
+            </radialGradient>
+          </defs>
+          <rect width="400" height="300" fill="url(#vfTable)"/>
+          <ellipse cx="200" cy="165" rx="150" ry="118" fill="url(#vfPlate)"/>
+          <ellipse cx="200" cy="165" rx="120" ry="92" fill="#eae5d7"/>
+          <ellipse cx="200" cy="165" rx="120" ry="92" fill="none" stroke="#c9c2af" stroke-width="2"/>
+          <!-- rice mound -->
+          <ellipse cx="232" cy="205" rx="66" ry="40" fill="url(#vfRice)"/>
+          <ellipse cx="232" cy="200" rx="66" ry="38" fill="#fbfaf4" opacity=".5"/>
+          <path d="M176 200 q56 -34 112 0 q-14 26 -56 26 q-42 0 -56 -26z" fill="url(#vfRice)" opacity=".85"/>
+          <!-- tomato-egg -->
+          <g>
+            <path d="M104 130 q6 -20 30 -20 q10 -14 30 -10 q20 -12 36 2 q16 4 12 22 q6 14 -12 22 q-18 12 -40 6 q-20 8 -38 -2 q-18 -8 -18 -20z" fill="url(#vfEgg)"/>
+            <path d="M118 122 q14 -10 30 -4 q14 -8 28 2 q10 8 -2 16 q-16 8 -34 2 q-16 4 -24 -6 q-6 -6 2 -10z" fill="#f6d066" opacity=".85"/>
+          </g>
+          <ellipse cx="126" cy="120" rx="20" ry="13" fill="url(#vfTom)" transform="rotate(-18 126 120)"/>
+          <ellipse cx="168" cy="138" rx="22" ry="13" fill="url(#vfTom)" transform="rotate(12 168 138)"/>
+          <ellipse cx="146" cy="150" rx="17" ry="10" fill="url(#vfTom)" transform="rotate(-6 146 150)"/>
+          <ellipse cx="188" cy="116" rx="14" ry="9" fill="#f7d97a"/>
+          <ellipse cx="116" cy="146" rx="13" ry="9" fill="#f0c25a"/>
+          <!-- greens -->
+          <path d="M96 196 q26 -18 52 -2 q16 10 6 26 q-24 18 -52 6 q-16 -12 -6 -30z" fill="url(#vfGreen)"/>
+          <path d="M104 190 q18 -10 34 0 q-6 14 -20 16 q-16 0 -14 -16z" fill="#6fa24e" opacity=".7"/>
+          <!-- steam wisps -->
+          <g stroke="#e9e6dc" stroke-width="3" fill="none" opacity=".16" stroke-linecap="round">
+            <path d="M150 96 q-10 -16 4 -30 q12 -12 2 -26"/>
+            <path d="M186 92 q-10 -16 4 -30"/>
+          </g>
+          <rect width="400" height="300" fill="url(#vfVig)"/>
+        </svg>
         <div class="vf-grid"></div>
         <i class="vf-corner a"></i><i class="vf-corner b"></i><i class="vf-corner c"></i><i class="vf-corner d"></i>
         <div class="vf-reticle"></div>
@@ -676,7 +798,10 @@ input{font:inherit;color:inherit}
         </div>
       </div>
 
-      <div class="week" id="week"></div>
+      <div class="wk-frame">
+        <div class="wk-scale" id="wkScale"></div>
+        <div class="week" id="week"></div>
+      </div>
       <div class="wkol" id="weekLabels"></div>
       <div class="legend">
         <span><i class="lg-sw"></i>完整记录</span>
@@ -784,19 +909,41 @@ function ringPath(rOut, rIn){
     " A"+rIn+" "+rIn+" 0 1 0 "+b2[0].toFixed(2)+" "+b2[1].toFixed(2)+" Z";
 }
 
-/* printed scale band (annulus) + outer bezel edge + inner hairline */
-var band = el("path", { d: ringPath(148, 104), fill: "#ece6d7", stroke: "rgba(37,35,30,.34)", "stroke-width": "1.1" });
-var bezel = el("path", { d: arcPath(148), fill: "none", stroke: "rgba(37,35,30,.55)", "stroke-width": "2.2" });
-var innerRing = el("path", { d: arcPath(104), fill: "none", stroke: "rgba(37,35,30,.2)", "stroke-width": "1" });
-dial.appendChild(band); dial.appendChild(bezel); dial.appendChild(innerRing);
+/* ---- recessed annular well: outer rim shadow, inner wall highlight, band floor slightly deeper ---- */
+/* outer rim (shadow falling inward from bezel) */
+var rimShadow = el("path", { d: ringPath(148, 144), fill: "rgba(37,35,30,.22)" });
+/* the engraved band floor, a touch deeper than the plate */
+var band = el("path", { d: ringPath(144, 106), fill: "#e4ddcb", stroke: "rgba(37,35,30,.36)", "stroke-width": "1" });
+/* inner wall: thin bottom-lit lip where band meets the dial face */
+var innerRing = el("path", { d: arcPath(106), fill: "none", stroke: "rgba(255,255,255,.7)", "stroke-width": "1.4" });
+var bezel = el("path", { d: arcPath(148), fill: "none", stroke: "rgba(37,35,30,.6)", "stroke-width": "2.4" });
+dial.appendChild(rimShadow); dial.appendChild(band); dial.appendChild(bezel); dial.appendChild(innerRing);
 
-/* caution arc: 1800–2000 kcal printed in oxide red, drawn with same projection */
-var cautionA = dialAngle(1800), cautionB = dialAngle(2000);
-var c1 = polar(DIAL.cx, DIAL.cy, 101, cautionA), c2 = polar(DIAL.cx, DIAL.cy, 101, cautionB);
-dial.appendChild(el("path", {
-  d: "M"+c1[0].toFixed(2)+" "+c1[1].toFixed(2)+" A101 101 0 0 1 "+c2[0].toFixed(2)+" "+c2[1].toFixed(2),
-  fill: "none", stroke: "rgba(189,67,39,.55)", "stroke-width": "3.2", "stroke-linecap": "butt"
-}));
+/* caution zone: red hatched band spanning the full groove (1800–2000) + tiny engraved label */
+var CA1 = dialAngle(1800), CA2 = dialAngle(2000);
+var cautionBand = el("path", {
+  d: ringPathAt(144, 106, CA1, CA2),
+  fill: "url(#cautionHatch)", stroke: "rgba(150,45,26,.5)", "stroke-width": ".8"
+});
+var cHatch = el("pattern", { id: "cautionHatch", width: "7", height: "7", patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" });
+cHatch.appendChild(el("rect", { width: "7", height: "7", fill: "rgba(189,67,39,.1)" }));
+cHatch.appendChild(el("rect", { width: "3", height: "7", fill: "rgba(189,67,39,.55)" }));
+defs.appendChild(cHatch);
+dial.appendChild(cautionBand);
+var cLab = polar(DIAL.cx, DIAL.cy, 80, (CA1 + CA2) / 2);
+var cautionLabel = el("text", { x: cLab[0].toFixed(2), y: cLab[1].toFixed(2), "text-anchor": "middle", "font-size": "11", fill: "rgba(150,45,26,.9)", "letter-spacing": ".14em", "font-weight": "600" });
+cautionLabel.textContent = "警戒";
+dial.appendChild(cautionLabel);
+
+/* ringPath between arbitrary angles (for caution sector) */
+function ringPathAt(rOut, rIn, angA, angB){
+  var a1 = polar(DIAL.cx, DIAL.cy, rOut, angA), a2 = polar(DIAL.cx, DIAL.cy, rOut, angB);
+  var b1 = polar(DIAL.cx, DIAL.cy, rIn, angB), b2 = polar(DIAL.cx, DIAL.cy, rIn, angA);
+  return "M"+a1[0].toFixed(2)+" "+a1[1].toFixed(2)+
+    " A"+rOut+" "+rOut+" 0 0 1 "+a2[0].toFixed(2)+" "+a2[1].toFixed(2)+
+    " L"+b1[0].toFixed(2)+" "+b1[1].toFixed(2)+
+    " A"+rIn+" "+rIn+" 0 0 0 "+b2[0].toFixed(2)+" "+b2[1].toFixed(2)+" Z";
+}
 
 /* tick field, one projection */
 var gTicks = el("g", {});
@@ -806,8 +953,8 @@ ticks().forEach(function(v){
   var len = major ? 13 : (mid ? 9 : 5);
   var w = major ? 1.8 : (mid ? 1.1 : 0.8);
   var ang = dialAngle(v);
-  var p1 = polar(DIAL.cx, DIAL.cy, 104, ang);
-  var p2 = polar(DIAL.cx, DIAL.cy, 104 - len, ang);
+  var p1 = polar(DIAL.cx, DIAL.cy, 108, ang);
+  var p2 = polar(DIAL.cx, DIAL.cy, 108 - len, ang);
   gTicks.appendChild(el("line", {
     x1: p1[0].toFixed(2), y1: p1[1].toFixed(2),
     x2: p2[0].toFixed(2), y2: p2[1].toFixed(2),
@@ -815,7 +962,7 @@ ticks().forEach(function(v){
     "stroke-width": w, "stroke-linecap": "butt"
   }));
   if (major){
-    var lp = polar(DIAL.cx, DIAL.cy, 128, ang);
+    var lp = polar(DIAL.cx, DIAL.cy, 130, ang);
     var t = el("text", {
       x: lp[0].toFixed(2), y: lp[1].toFixed(2),
       "text-anchor": "middle", "dominant-baseline": "middle",
@@ -840,23 +987,52 @@ dial.appendChild(el("circle", { cx: 170, cy: 176, r: 26, fill: "rgba(37,35,30,.0
 dial.appendChild(el("path", { d: "M132 176 H208", stroke: "rgba(37,35,30,.2)", "stroke-width": "1" }));
 dial.appendChild(el("path", { d: "M170 148 V200", stroke: "rgba(37,35,30,.12)", "stroke-width": "1" }));
 
-/* reference needles (memory needle + today pointer) */
+/* yesterday reference: dashed slender rod + open diamond head, tagged 昨 */
 var gRef = el("g", {});
-var refNeedle = el("line", { x1: 170, y1: 176, x2: 170, y2: 82, stroke: "rgba(37,35,30,.34)", "stroke-width": "1.2" });
-var refDot = el("circle", { cx: 170, cy: 82, r: 2.6, fill: "rgba(37,35,30,.35)" });
-gRef.appendChild(refNeedle); gRef.appendChild(refDot);
+var refRod = el("line", { x1: 170, y1: 176, x2: 170, y2: 96, stroke: "rgba(37,35,30,.4)", "stroke-width": "1.1", "stroke-dasharray": "2.5 3" });
+var refHead = el("path", { d: "M170 84 L175 92 L170 100 L165 92 Z", fill: "#f2ecdd", stroke: "rgba(37,35,30,.5)", "stroke-width": "1.1" });
+var refTag = el("text", { x: 170, y: 70, "text-anchor": "middle", "font-size": "11", fill: "rgba(37,35,30,.6)", "font-weight": "600", "data-ref": "tag" });
+refTag.textContent = "昨";
+gRef.appendChild(refRod); gRef.appendChild(refHead); gRef.appendChild(refTag);
 dial.appendChild(gRef);
 
 var gNeedle = el("g", {});
-var needleShadow = el("line", { x1: 171.2, y1: 178, x2: 171.2, y2: 80, stroke: "rgba(37,35,30,.07)", "stroke-width": "2.8", "stroke-linecap": "round" });
+gNeedle.setAttribute("filter", "url(#needleShadow)");
 var tail = el("line", { x1: 170, y1: 176, x2: 170, y2: 198, stroke: "#7c2a18", "stroke-width": "3.4", "stroke-linecap": "round" });
-var needle = el("line", { x1: 170, y1: 176, x2: 170, y2: 76, stroke: "#bd4327", "stroke-width": "2.2", "stroke-linecap": "round" });
-var cap = el("circle", { cx: 170, cy: 176, r: 5.4, fill: "#2a2822", stroke: "#e9e3d3", "stroke-width": "1.2" });
-gNeedle.appendChild(needleShadow); gNeedle.appendChild(tail); gNeedle.appendChild(needle); gNeedle.appendChild(cap);
+var needle = el("line", { x1: 170, y1: 176, x2: 170, y2: 74, stroke: "#bd4327", "stroke-width": "2.4", "stroke-linecap": "round" });
+var needleHi = el("line", { x1: 169.2, y1: 176, x2: 169.2, y2: 76, stroke: "rgba(255,235,225,.55)", "stroke-width": ".7", "stroke-linecap": "round" });
+var cap = el("circle", { cx: 170, cy: 176, r: 5.6, fill: "#2a2822", stroke: "#f2ecdd", "stroke-width": "1.2" });
+var capHi = el("circle", { cx: 168.6, cy: 174.4, r: 1.8, fill: "rgba(255,255,255,.35)" });
+gNeedle.appendChild(tail); gNeedle.appendChild(needle); gNeedle.appendChild(needleHi); gNeedle.appendChild(cap); gNeedle.appendChild(capHi);
 dial.appendChild(gNeedle);
 
-/* glass sheen */
-dial.appendChild(el("path", { d: arcPath(147), fill: "none", stroke: "rgba(255,255,255,.5)", "stroke-width": "1" }));
+/* needle drop-shadow filter (angle-independent soft real shadow) */
+var nsf = el("filter", { id: "needleShadow", x: "-30%", y: "-30%", width: "160%", height: "160%" });
+nsf.appendChild(el("feDropShadow", { dx: "1.6", dy: "2.4", stdDeviation: "1.1", "flood-color": "rgba(20,16,10,.35)" }));
+defs.appendChild(nsf);
+
+/* domed glass overlay: specular sweep + vignette, purely decorative */
+var glass = el("g", { "pointer-events": "none" });
+glass.appendChild(el("path", { d: ringPath(148, 104), fill: "url(#glassSpec)" }));
+glass.appendChild(el("path", {
+  d: ringPath(148, 104),
+  fill: "url(#vignette)",
+  opacity: ".5"
+}));
+// specular gradient
+var gSpec = el("linearGradient", { id: "glassSpec", x1: "0", y1: "0", x2: "0.8", y2: "1" });
+gSpec.appendChild(el("stop", { offset: "0%", "stop-color": "#ffffff", "stop-opacity": ".5" }));
+gSpec.appendChild(el("stop", { offset: "30%", "stop-color": "#ffffff", "stop-opacity": ".06" }));
+gSpec.appendChild(el("stop", { offset: "58%", "stop-color": "#ffffff", "stop-opacity": "0" }));
+gSpec.appendChild(el("stop", { offset: "100%", "stop-color": "#000000", "stop-opacity": ".12" }));
+defs.appendChild(gSpec);
+var vign = el("radialGradient", { id: "vignette", cx: "50%", cy: "40%", r: "62%" });
+vign.appendChild(el("stop", { offset: "60%", "stop-color": "#000000", "stop-opacity": "0" }));
+vign.appendChild(el("stop", { offset: "100%", "stop-color": "#1c1710", "stop-opacity": ".22" }));
+defs.appendChild(vign);
+// specular highlight streak on the glass shoulder
+glass.appendChild(el("path", { d: arcPath(142), fill: "none", stroke: "rgba(255,255,255,.55)", "stroke-width": "2", "stroke-dasharray": "60 500", "stroke-linecap": "round" }));
+dial.appendChild(glass);
 
 function setNeedle(kcal, refKcal, animate){
   var a = dialAngle(kcal);
@@ -868,6 +1044,7 @@ function setNeedle(kcal, refKcal, animate){
   gNeedle.style.transform = "rotate(" + a + "deg)";
   gRef.style.transformOrigin = "170px 176px";
   gRef.style.transform = "rotate(" + ar + "deg)";
+  if (refTag) refTag.setAttribute("transform", "rotate(" + (-ar) + " 170 70)");
 }
 
 /* ---------- demo data ---------- */
@@ -956,13 +1133,11 @@ function renderToday(){
     todayMacrosEl.innerHTML = macroChannels({protein:33.3, fat:34.6, carbs:91.2});
     todayLogEl.innerHTML =
       '<button class="meal-row" data-goto="result">'+
-        '<span class="punch"></span>'+
         '<span class="meal-mid"><span class="meal-top"><span class="slot">午餐</span><span class="mtime">12:40</span></span>'+
         '<span class="meal-names">番茄炒蛋、米饭、清炒青菜</span></span>'+
         '<span class="meal-kcal"><span class="k mono">386</span><span class="u">千卡 · 3 道</span></span>'+
       '</button>'+
       '<button class="meal-row" data-goto="result">'+
-        '<span class="punch"></span>'+
         '<span class="meal-mid"><span class="meal-top"><span class="slot">早餐</span><span class="mtime">07:42</span></span>'+
         '<span class="meal-names">鸡蛋灌饼、豆浆</span></span>'+
         '<span class="meal-kcal"><span class="k mono">428</span><span class="u">千卡 · 2 道</span></span>'+
@@ -1159,28 +1334,35 @@ var weekData = [
 function renderWeek(){
   var weekEl = document.getElementById("week");
   var labelsEl = document.getElementById("weekLabels");
+  var scaleEl = document.getElementById("wkScale");
   var bars = "", labels = "";
-  var majors = ticks().filter(function(v){ return v % MAJOR === 0 && v > 0; });
+
+  // left carved scale, same SCALE_MAX projection as the dial
+  var step = 500, labs = "";
+  for (var v = 0; v <= SCALE_MAX; v += step){
+    var pct = v / SCALE_MAX * 100;
+    // anchor labels to strips area: padding-top 8 in .week already; use absolute within wk-scale
+    labs += '<span class="lab'+(v===0?" dim":"")+'" style="bottom:calc('+pct+'% - 2px)">'+v+'</span>';
+  }
+  scaleEl.innerHTML = '<div class="wk-track">'+labs+'</div>';
+
   weekData.forEach(function(d){
     var h = Math.min(100, d.kcal / SCALE_MAX * 100);
-    var grid = majors.map(function(v){
-      return '<i style="position:absolute;left:0;right:0;bottom:'+(v/SCALE_MAX*100)+'%;height:1px;background:rgba(255,255,255,'+(v%1000===0?".11":".05")+')"></i>';
-    }).join("");
-    var body = "";
+    var body;
     if (d.state === "none"){
-      body = '<div class="wnone"><span>未记录</span></div>';
+      body = '<div class="wnone"><span>—</span></div>';
     } else {
-      body = '<i class="wbar'+(d.state==="inc"?" inc":"")+'" style="height:'+h+'%"></i>'+
-             (d.state==="inc" ? '<div class="wflag"><i></i></div>' : '');
+      var flag = d.state === "inc" ? '<div class="wflag" style="bottom:'+h+'%"><i></i></div>' : '';
+      body = '<i class="wbar'+(d.state==="inc"?" inc":"")+'" style="height:'+h+'%"></i>'+flag;
     }
     bars += '<div class="wcol'+(d.state==="today"?" today":"")+'">'+
-      '<div class="wbar-wrap">'+grid+body+'</div>'+
-      '<span class="wday">'+d.kcal+'</span>'+
+      '<div class="wbar-wrap">'+body+'</div>'+
+      '<span class="wday val">'+(d.state==="none"?"—":d.kcal)+'</span>'+
     '</div>';
-    labels += '<span class="wday" style="text-align:center">'+d.wd+'</span>';
+    labels += '<span>'+d.wd+'</span>';
   });
   weekEl.innerHTML = bars;
-  labelsEl.innerHTML = labels;
+  labelsEl.innerHTML = '<span class="sp"></span><span class="days">'+labels+'</span>';
   var logged = weekData.filter(function(d){ return d.state !== "none"; });
   var full = weekData.filter(function(d){ return d.state === "full" || d.state === "today"; });
   var sum = full.reduce(function(a,d){ return a + d.kcal; }, 0);
