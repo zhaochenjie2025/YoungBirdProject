@@ -1317,8 +1317,11 @@ function drawHeroRuler(){
   document.getElementById('hr-cap').style.left = p(1900)+'%';
   // 刻度数字：每 600 千卡一格（轨道每 8.33% 一小格，即 200 千卡）
   const axis = document.getElementById('hr-axis');
-  axis.innerHTML = [0,600,1200,1800,2400].map((k,i)=>
-    `<span class="${i===0?'e':(i===4?'s':'')}" style="left:${p(k)}%">${k}</span>`).join('');
+  axis.innerHTML = [0,600,1200,1800,2400].map((k,i)=>{
+    const cls = i===0?'e':(i===4?'s':'');
+    // 首尾用类锚定（left:0 / right:0），中间才用 p(k) 定位，避免 100% 撑出边界
+    return `<span class="${cls}"${cls?'':` style="left:${p(k)}%"`}>${k}</span>`;
+  }).join('');
 }
 function drawRange(el){
   const lo=+el.dataset.lo, hi=+el.dataset.hi, pt=+el.dataset.pt;
