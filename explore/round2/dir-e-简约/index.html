@@ -79,7 +79,7 @@ svg{display:block}
 }
 .grain{position:fixed;inset:0;z-index:0;pointer-events:none;background-image:var(--noise);opacity:.06;mix-blend-mode:multiply}
 /* 纸纤维：只落在纸面卡内部，跟着卡片一起受光 */
-.paper::before,.meal-row::before,.dish-row::before,.day-cell::before,.dish-card::before,.week-sum::before{
+.paper::before,.meal-row::before,.dish-row::before,.dish-card::before,.week-card::before{
   content:"";position:absolute;inset:0;border-radius:inherit;pointer-events:none;
   background-image:var(--noise);opacity:.03;mix-blend-mode:multiply;
 }
@@ -549,49 +549,94 @@ svg{display:block}
 .dcr-lbl{display:flex;justify-content:space-between;font-size:var(--fs-1);color:var(--ink-3);margin-top:7px;font-weight:500;font-variant-numeric:tabular-nums;padding:0 4px}
 .dcr-lbl b{font-weight:600;color:var(--ink)}
 
-/* ---------- 周视图（Bento 非对称宫格） ---------- */
-.week-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-top:16px}
-.day-cell{ /* cf-justify: 周格 = --r-well Bento 单元，非对称由跨列承担而非改形状 */ 
-  position:relative;border-radius:var(--r-well);padding:12px 11px 11px;min-height:96px;
-  display:flex;flex-direction:column;justify-content:space-between;
-  background:linear-gradient(176deg,#FFFFFF,#FDFCFB);
-  box-shadow:0 0 0 1px var(--hair),var(--e1);
-  transition:transform .3s var(--ease-out);
-}
-.span2{grid-column:span 2}
-.span3{grid-column:span 3}
-.day-cell{min-height:100px}
-.day-cell.is-today{box-shadow:0 0 0 1.5px rgba(178,70,26,.55),var(--e2)}
-.day-cell.is-miss{background:rgba(255,255,255,.5);box-shadow:0 0 0 1px var(--hair),inset 0 1px 0 rgba(255,255,255,.7)}
-.dc-day{display:flex;align-items:baseline;justify-content:space-between}
-.dc-dow{font-size:11px;font-weight:600;color:var(--ink-3)}
-.dc-date{font-size:11px;font-weight:500;color:var(--ink-4)}
-.day-cell.is-today .dc-dow{color:var(--ember-ink)}
-.dc-num{font-size:23px;font-weight:700;letter-spacing:-.03em;line-height:1;margin-top:6px}
-.dc-num .u{font-size:11px;font-weight:500;color:var(--ink-4);margin-left:2px;letter-spacing:0}
-.dc-num.is-miss{font-size:13px;font-weight:600;color:var(--ink-4);letter-spacing:0}
-.dc-status{display:inline-flex;align-items:center;gap:5px;font-size:11px;font-weight:600;margin-top:8px}
-.dc-status .d{width:5px;height:5px;border-radius:50%}
-.dc-status.s-ok{color:var(--mint)}.dc-status.s-ok .d{background:var(--mint)}
-.dc-status.s-part{color:var(--sky)}.dc-status.s-part .d{background:var(--sky)}
-.dc-status.s-miss{color:var(--ink-4)}.dc-status.s-miss .d{background:var(--ink-4);opacity:.6}
-/* 迷你柱状：当天的热量在整周里的位置 */
-/* 每格底部的一条相对热量刻度（整周同一分母），替代重复的第二套图 */
-.day-cell{overflow:hidden}
-.day-fill{position:absolute;left:0;right:0;bottom:0;height:3px;background:rgba(16,19,23,.07)}
-.day-fill i{position:absolute;left:0;bottom:0;top:0;border-radius:0 2px 2px 0;transition:width .8s var(--ease-out)}
-.day-cell.s-ok .day-fill i{background:rgba(44,133,115,.55)}
-.day-cell.s-part .day-fill i{background:rgba(59,126,161,.6)}
-.day-cell.s-today .day-fill i{background:var(--ember)}
-.week-legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:16px;padding:0 4px;font-size:11px;color:var(--ink-3);font-weight:500}
-.week-legend span{display:inline-flex;align-items:center;gap:5px}
-.week-legend .d{width:6px;height:6px;border-radius:50%}
-.week-sum{ /* cf-justify: 汇总条 = --r-card 纸面，与其余纸面卡同族 */ margin-top:16px;padding:16px 18px;border-radius:var(--r-card);display:flex;align-items:stretch;gap:16px;background:linear-gradient(176deg,#FFFFFF,#FDFCFB);box-shadow:0 0 0 1px var(--hair),var(--e1)}
-.ws-block{flex:1}
-.ws-block .k{font-size:11px;font-weight:600;color:var(--ink-3)}
-.ws-block .v{font-size:19px;font-weight:700;letter-spacing:-.03em;margin-top:4px}
-.ws-block .v .u{font-size:11px;font-weight:500;color:var(--ink-4);margin-left:2px;letter-spacing:0}
-.ws-div{width:1px;background:var(--hair)}
+/* ============================================================
+   周视图：一张卡，一个图，一行脚注。
+   信息量没变（7 天热量 / 合计 / 日均 / 3 种状态 / 待补录），
+   但容器从 7 格 + 汇总条 + 图例 + 警示卡 = 10 块压到 1 块。
+   ============================================================ */
+.week-card{padding:20px 20px 16px;border-radius:var(--r-hero)}
+.week-head{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.week-total .k{font-size:var(--fs-1);font-weight:600;color:var(--ink-3)}
+.week-total .v{display:flex;align-items:baseline;gap:var(--ug);margin-top:3px}
+.week-total .v .n{font-size:34px;font-weight:700;letter-spacing:-.035em;line-height:1}
+.week-total .v .u{font-size:var(--fs-2);font-weight:500;color:var(--ink-3)}
+.week-side{text-align:right}
+.week-side .k{font-size:var(--fs-1);font-weight:600;color:var(--ink-3)}
+.week-side .v{font-size:var(--fs-4);font-weight:600;letter-spacing:-.02em;margin-top:3px}
+.week-side .v .u{font-size:var(--fs-1);font-weight:500;color:var(--ink-4);margin-left:2px}
+
+/* 变体切换：仅用于对比，属于工具而非内容 */
+.wk-switch{display:flex;justify-content:front;margin:16px 0 0}
+.vw{position:relative;padding:16px 0 4px}
+
+/* ---- 变体 A：径向色块表盘（7 根同起点、长度可比） ---- */
+.ring-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;padding:4px 0 0}
+.ring-svg{width:168px;height:168px;flex:none}
+.ring-axis{display:grid;grid-template-columns:repeat(7,1fr);gap:0;width:100%;padding:0 2px}
+.ring-axis span{display:flex;flex-direction:column;align-items:center;gap:2px;font-variant-numeric:tabular-nums}
+.ring-axis .dw{font-size:var(--fs-1);font-weight:500;color:var(--ink-3)}
+.ring-axis .kv{font-size:var(--fs-1);font-weight:600;color:var(--ink-2)}
+.ring-axis span.is-today .dw{color:var(--ember-ink)}
+.ring-axis span.is-today .kv{color:var(--ember-ink)}
+.ring-axis span.is-miss .kv{color:var(--ink-4);font-weight:500}
+
+/* ---- 变体 B：苹果式柱 + y 轴刻度 + 均值线（同一坐标系） ---- */
+.bar-wrap{display:grid;grid-template-columns:26px 1fr;column-gap:8px;padding:2px 2px 0}
+/* 柱区 / 网格 / 均值线的唯一坐标系：132px 绘图高 */
+.bar-plot{position:relative;height:132px}
+.bar-grid{position:absolute;inset:0;pointer-events:none}
+.bar-grid i{position:absolute;left:0;right:0;height:1px;background:rgba(16,19,23,.055)}
+.bar-grid i.zero{background:rgba(16,19,23,.11)}
+.bars{position:absolute;inset:0;display:flex;align-items:flex-end;gap:8px;padding:0 4px}
+.bcol{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%;position:relative}
+.bcol .b{ /* cf-justify: 柱图条，顶部 5px 圆角是数据条端头收口，非容器 */ width:100%;max-width:24px;border-radius:5px 5px 2px 2px;background:rgba(16,19,23,.14);transition:height .8s var(--ease-out)}
+.bcol.is-today .b{background:var(--ember)}
+.bcol.is-part .b{background:rgba(59,126,161,.55)}
+.bcol.is-miss .b{ /* cf-justify: 未记录日用 3px 空心短横占位，是“零值基线”而非容器 */ background:transparent;box-shadow:inset 0 0 0 1px rgba(16,19,23,.13);height:3px!important;border-radius:2px}
+/* 柱顶数值：手机无 hover，直接标出来（苹果屏用时间在触屏上同样常显） */
+.bcol .bv{position:absolute;left:50%;transform:translateX(-50%);font-size:var(--fs-1);font-weight:600;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap;line-height:1;pointer-events:none}
+.bcol.is-today .bv{color:var(--ember-ink)}
+.bcol.is-miss .bv{color:var(--ink-4);font-weight:500}
+.bcol.is-miss .bv{top:auto;bottom:2px}
+/* y 轴刻度：左列，与网格逐格对齐 */
+.baxis-y{position:relative;height:132px}
+.baxis-y span{position:absolute;right:0;transform:translateY(50%);font-size:var(--fs-1);font-weight:500;color:var(--ink-3);font-variant-numeric:tabular-nums;line-height:1;white-space:nowrap}
+.avg-line{position:absolute;left:0;right:0;height:0;border-top:1px dashed rgba(178,70,26,.62);pointer-events:none;z-index:2}
+/* 均值线本身不挂文字：数值已在表头「日均」处；线只作参考，避免与柱顶数值相撞 */
+.wk-key{display:inline-flex;align-items:center;gap:5px;margin-top:3px}
+.wk-key i{width:16px;height:0;border-top:1.5px dashed rgba(178,70,26,.75);display:block}
+.baxis{display:flex;gap:8px;margin:9px 0 0;padding:0 4px;grid-column:2}
+.baxis span{flex:1;text-align:center;font-size:var(--fs-1);font-weight:500;color:var(--ink-3)}
+.baxis span.is-today{color:var(--ember-ink);font-weight:600}
+
+/* ---- 变体 C：7 个色块 ---- */
+.heat-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;padding:6px 0 0}
+.heat-cell{ /* cf-justify: 热力方块本身就是数据编码（色深=热量），10px 圆角是格子端头 */ position:relative;aspect-ratio:1;border-radius:10px;display:grid;place-items:end center;padding-bottom:7px;transition:transform .3s var(--ease-out)}
+.heat-cell .hl{font-size:var(--fs-1);font-weight:600;color:var(--ink-2);line-height:1;font-variant-numeric:tabular-nums}
+.heat-cell.is-miss{box-shadow:inset 0 0 0 1px rgba(16,19,23,.10);background:repeating-linear-gradient(135deg,rgba(16,19,23,.05) 0 1px,transparent 1px 5px)}
+.heat-cell.is-miss .hl{color:var(--ink-4);font-weight:500}
+/* 今天不换色相，只在同一明度阶梯上加一圈描边——否则 585 的橙块会被误读成最高值 */
+.heat-cell.is-today{box-shadow:0 0 0 2px var(--ember),inset 0 0 0 2px #fff}
+.heat-cell.is-today .hl{color:var(--ink)}
+.heat-days{display:grid;grid-template-columns:repeat(7,1fr);gap:8px;margin-top:8px}
+.heat-days span{text-align:center;font-size:var(--fs-1);font-weight:500;color:var(--ink-3);font-variant-numeric:tabular-nums}
+.heat-days span.is-today{color:var(--ember-ink);font-weight:600}
+/* 轴标签抬到 ink-3 的对比度层级 */
+.baxis span{color:var(--ink-3)}
+.heat-days span{color:var(--ink-3)}
+
+/* 对比用的三向切换（URL ?wk= 是主入口，这里只是让对比免于改地址栏） */
+.wk-tabs{ /* cf-justify: 分段控件是 iOS 系统级凹槽形态，与份量控件同一套语言 */ display:inline-flex;padding:3px;border-radius:10px;background:rgba(16,19,23,.05);box-shadow:inset 0 1px 1px rgba(16,19,23,.06)}
+.wk-tabs button{font-size:var(--fs-1);font-weight:600;color:var(--ink-3);padding:5px 9px;border-radius:7px; /* cf-justify: 内滑块 = 10−3 内边距，嵌套减法 */line-height:1;transition:background .2s,color .2s}
+.wk-tabs button[aria-selected="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(16,19,23,.12)}
+
+/* ---- 共用脚注：状态只留一句话 ---- */
+.week-foot{display:flex;align-items:center;gap:8px;margin-top:16px;padding-top:13px;border-top:1px solid var(--hair);font-size:var(--fs-1);color:var(--ink-3);font-weight:500;flex-wrap:wrap}
+.week-foot .dots{display:inline-flex;align-items:center;gap:10px}
+.week-foot .dj{display:inline-flex;align-items:center;gap:4px}
+.week-foot .dj i{width:5px;height:5px;border-radius:50%;display:block}
+.week-foot .ask{margin-left:auto;color:var(--ember-ink);font-weight:600}
+
 /* 推荐词条（药丸，带内阴影） */
 .sug{
   display:inline-flex;align-items:center;gap:7px;
@@ -957,46 +1002,39 @@ svg{display:block}
       <div>
         <div class="kicker">11月17日 – 11月23日</div>
         <h1>最近七天</h1>
-        <p class="page-sub">记录 5 天（今日进行中），其中 1 天估算</p>
+        <p class="page-sub" id="wk-sub">—</p>
       </div>
       <div class="head-actions">
-        <button class="ghost-btn" type="button" aria-label="上一周">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="m15 6-6 6 6 6"/></svg>
-        </button>
+        <span class="wk-tabs" role="tablist" aria-label="周视图样式">
+          <button type="button" role="tab" data-wk="ring">轮盘</button>
+          <button type="button" role="tab" data-wk="bar">柱</button>
+          <button type="button" role="tab" data-wk="heat">块</button>
+        </span>
       </div>
     </header>
 
-    <div class="week-sum" aria-label="本周汇总">
-      <div class="ws-block">
-        <div class="k">七天合计（含今天）</div>
-        <div class="v"><span id="wk-sum">—</span><span class="u">千卡</span></div>
-      </div>
-      <div class="ws-div"></div>
-      <div class="ws-block">
-        <div class="k">日均（不含进行中）</div>
-        <div class="v"><span id="wk-avg">—</span><span class="u">千卡</span></div>
-      </div>
-    </div>
-
-    <div class="week-grid" id="week-grid"></div>
-
-    <div class="week-legend">
-      <span><i class="d" style="background:var(--mint)"></i>完整</span>
-      <span><i class="d" style="background:var(--sky)"></i>估算</span>
-      <span><i class="d" style="background:var(--ink-4);opacity:.6"></i>未记录</span>
-      <span><i class="d" style="background:var(--ember)"></i>今天</span>
-    </div>
-
-    <div class="paper" style="margin-top:18px;padding:16px 18px;border-radius:var(--r-card)">
-      <div style="display:flex;align-items:flex-start;gap:11px">
-        <span class="meal-glyph-xl" style="width:34px;height:34px;border-radius:var(--r-well);background:var(--ember-wash)" aria-hidden="true">
-          <svg viewBox="0 0 24 24" fill="none" stroke="var(--ember)" stroke-width="2" stroke-linecap="round"><path d="M12 8v5M12 16h.01"/><circle cx="12" cy="12" r="9"/></svg>
-        </span>
-        <div style="flex:1">
-          <div style="font-size:var(--fs-2);font-weight:600" id="part-title">11/20 · 数据不完整</div>
-          <div style="font-size:var(--fs-2);color:var(--ink-3);margin-top:4px;line-height:1.5" id="part-note">晚餐有 1 道待估算菜品，该日热量按已确认部分计入。补录后回到完整状态。</div>
-          <button class="btn btn--ghost btn--sm" type="button" data-goto="new" style="margin-top:11px">去补录</button>
+    <div class="paper week-card" aria-label="最近七天概览">
+      <div class="week-head">
+        <div class="week-total">
+          <div class="k">七天合计</div>
+          <div class="v"><span class="n" id="wk-sum">—</span><span class="u">千卡</span></div>
         </div>
+        <div class="week-side">
+          <div class="k">日均 · 不含今天</div>
+          <div class="v"><span id="wk-avg">—</span><span class="u">千卡</span></div>
+          <div class="wk-key" id="wk-key" aria-hidden="true"><i></i><span style="font-size:var(--fs-1);font-weight:500;color:var(--ink-3)">图中虚线</span></div>
+        </div>
+      </div>
+
+      <div class="vw" id="week-viz"></div>
+
+      <div class="week-foot">
+        <span class="dots">
+          <span class="dj"><i style="background:#9DC6BE"></i>完整</span>
+          <span class="dj"><i style="background:#9DBCCB"></i>估算</span>
+          <span class="dj"><i style="background:#C9CED5"></i>未记录</span>
+        </span>
+        <button class="ask" type="button" data-goto="new" id="wk-ask">11/20 待补录 →</button>
       </div>
     </div>
   </section>
@@ -1269,6 +1307,17 @@ WEEK.forEach(d=>{ const t=new Date(d.iso+'T12:00:00'); d.dow=DOW[t.getDay()]; d.
 const PART = WEEK.find(d=>d.status==='part');
 
 function renderWeekSummary(){
+  // 副标题由数据推导，避免手写数字与实际记录打架
+  const rec = WEEK.filter(d=>d.kcal).length;
+  const miss = WEEK.filter(d=>!d.kcal);
+  const part = WEEK.filter(d=>d.status==='part').length;
+  const sub = document.getElementById('wk-sub');
+  if(sub){
+    const bits = [`记录 ${rec} 天`];
+    if(part) bits.push(`${part} 天估算`);
+    if(miss.length) bits.push(`${miss.length} 天缺`);
+    sub.textContent = bits.join(' · ');
+  }
   const recorded = WEEK.filter(d=>d.kcal);
   const sum = recorded.reduce((a,d)=>a+d.kcal,0);
   // 进行中的今天不参与日均，避免把半天当成一天
@@ -1278,29 +1327,126 @@ function renderWeekSummary(){
   if(s1) s1.textContent = sum.toLocaleString();
   if(s2) s2.textContent = avg.toLocaleString();
 }
-function renderWeek(){
-  const grid = document.getElementById('week-grid');
-  const maxK = Math.max(...WEEK.filter(d=>d.kcal).map(d=>d.kcal));
-  grid.innerHTML = WEEK.map((d,i)=>{
-    const isMiss = d.status==='miss';
-    const spanCls = (i===0||i===1||i===5||i===6)?'span3':'span2';
-    const today = d.status==='today';
-    const cls = ['day-cell',spanCls,'s-'+(d.status==='part'?'part':d.status),today?'is-today':'',isMiss?'is-miss':''].filter(Boolean).join(' ');
-    const fillW = d.kcal ? Math.round(d.kcal/maxK*100) : 0;
-    let statusEl = '';
-    if(today) statusEl = `<span class="dc-status" style="color:var(--ember-ink)"><span class="d" style="background:var(--ember)"></span>今天 · 进行中</span>`;
-    else if(isMiss) statusEl = `<span class="dc-status s-miss"><span class="d"></span>未记录</span>`;
-    else if(d.status==='part') statusEl = `<span class="dc-status s-part"><span class="d"></span>估算</span>`;
-    else statusEl = `<span class="dc-status s-ok"><span class="d"></span>完整</span>`;
-    const num = isMiss ? `<div class="dc-num is-miss">—</div>` : `<div class="dc-num">${today?d.kcal.toLocaleString():d.kcal.toLocaleString()}<span class="u">千卡</span></div>`;
-    const spark = '';
-    return `<div class="${cls}">
-      <div class="dc-day"><span class="dc-dow">${d.dow}</span><span class="dc-date">${d.md}</span></div>
-      <div>${num}${statusEl}</div>
-      <span class="day-fill"><i style="width:${fillW}%"></i></span>
+/* ---------- 周视图：三个平行变体，共用 WEEK 数据 ---------- */
+/* ---------- 周视图：三个平行变体，共用 WEEK 数据 ---------- */
+const WK_MODE = (new URLSearchParams(location.search).get('wk') || 'bar').toLowerCase();
+/* 图例色 = 图形实际合成色（弧/柱是 46% 叠加在白纸上的观感），不再用令牌实色 */
+const STATE_COLOR = {ok:'#9DC6BE', part:'#9DBCCB', today:'#DC5A22', miss:'#C9CED5'};
+const wkMax = Math.max(...WEEK.filter(d=>d.kcal).map(d=>d.kcal));
+const wkDone = WEEK.filter(d=>d.kcal && d.status!=='today');
+const wkAvg = Math.round(wkDone.reduce((a,d)=>a+d.kcal,0)/wkDone.length);
+
+/* A · 径向色块表盘：7 根同起点、长度 = 当天热量（色块 + 轮盘 + 可比） */
+function vizRing(){
+  const S=168, c=S/2, r0=30, r1=72, LW=13;    // 内半径/外半径/环宽
+  const span = Math.PI*2/7;                    // 每根占 1/7 角度槽
+  const maxK = wkMax;
+  const arcPath=(a0,a1)=>{
+    const P=(r,a)=>`${(c+r*Math.cos(a)).toFixed(2)} ${(c+r*Math.sin(a)).toFixed(2)}`;
+    const large=(a1-a0)>Math.PI?1:0;
+    return `M ${P(r0,a0)} A ${r0} ${r0} 0 ${large} 1 ${P(r0,a1)} L ${P(r1,a1)} A ${r1} ${r1} 0 ${large} 0 ${P(r1,a0)} Z`;
+  };
+  let segs='';
+  WEEK.forEach((d,i)=>{
+    const mid = -Math.PI/2 + i*span + span/2;
+    const cap = 0.018;                          // 端头留白（弧度）
+    const a0=mid-span/2+cap, a1=mid+span/2-cap;
+    if(!d.kcal){
+      // 未记录：同一槽位留虚线空槽，形态一致、语义明确
+      segs += `<path d="${arcPath(a0,a1)}" fill="none" stroke="#D8DCE2" stroke-width="1" stroke-dasharray="2 4"/>`;
+      return;
+    }
+    const frac = Math.max(0.06, d.kcal/maxK);
+    const len = frac*(span-2*cap);
+    const s0 = mid-len/2, s1 = mid+len/2;
+    const col = d.status==='today' ? 'var(--ember)' : d.status==='part' ? 'rgba(59,126,161,.55)' : 'rgba(44,133,115,.46)';
+    segs += `<path d="${arcPath(s0,s1)}" fill="${col}"/>`;
+  });
+  // 基准圆：所有色块从这里长出，长度才可比
+  const base = `<circle cx="${c}" cy="${c}" r="${r0-3}" fill="none" stroke="rgba(16,19,23,.10)" stroke-width="1"/>`;
+  // 中心：最高一天的直接读数（新信息，不与页头合计重复）
+  const peak = WEEK.reduce((m,d)=> (d.kcal||0)>(m.kcal||0)?d:m, WEEK[0]);
+  const svg = `<svg class="ring-svg" viewBox="0 0 ${S} ${S}" role="img" aria-label="七天热量对照，最高 ${peak.dow} ${peak.kcal} 千卡">
+      ${base}${segs}
+      <text x="${c}" y="${c-3}" text-anchor="middle" font-size="19" font-weight="700" letter-spacing="-0.6" fill="var(--ink)" style="font-variant-numeric:tabular-nums">${peak.kcal.toLocaleString()}</text>
+      <text x="${c}" y="${c+13}" text-anchor="middle" font-size="9.5" font-weight="500" fill="var(--ink-3)">最高 · ${peak.dow}</text>
+    </svg>`;
+  const axis = `<div class="ring-axis">${WEEK.map(d=>`
+    <span class="${d.status==='today'?'is-today':''} ${!d.kcal?'is-miss':''}">
+      <i class="dw" style="font-style:normal">${d.dow.slice(1)}</i>
+      <i class="kv" style="font-style:normal">${d.kcal?d.kcal.toLocaleString():'—'}</i>
+    </span>`).join('')}</div>`;
+  return `<div class="ring-wrap">${svg}${axis}</div>`;
+}
+
+/* B · 苹果式柱 + y 轴刻度 + 均值虚线（柱 / 网格 / 刻度 / 线同一坐标系） */
+function vizBar(){
+  const TICKS=[0,600,1200,1800];
+  const maxV = 1800;                          // 刻度上限决定坐标系，柱高 = kcal/maxV
+  const pct = k => Math.max(0,Math.min(100,(k||0)/maxV*100));
+  const grid = TICKS.map(t=>`<i class="${t===0?'zero':''}" style="bottom:${pct(t)}%"></i>`).join('');
+  const yaxis = TICKS.map(t=>`<span style="bottom:${pct(t)}%">${t}</span>`).join('');
+  const bars = WEEK.map(d=>{
+    const cls = ['bcol', d.status==='today'?'is-today':'', d.status==='part'?'is-part':'', !d.kcal?'is-miss':''].filter(Boolean).join(' ');
+    const h = d.kcal ? Math.max(2,pct(d.kcal)) : 0;
+    // 数值标签贴在柱顶：柱足够高时标在顶上一行，柱顶贴近顶部时标在柱内
+    const nearTop = h > 86;
+    const label = `<span class="bv" style="bottom:calc(${h}% + 4px)">${d.kcal?d.kcal.toLocaleString():'未记录'}</span>`;
+    const labelInner = d.kcal ? `<span class="bv" style="bottom:calc(${h}% - 15px);color:#fff">${d.kcal.toLocaleString()}</span>` : '';
+    return `<div class="${cls}" title="${d.dow} ${d.md} · ${d.kcal?d.kcal.toLocaleString()+' 千卡':'未记录'}">
+      <span class="b" style="height:${h}%"></span>${d.kcal?(nearTop?labelInner:label):`<span class="bv" style="bottom:2px">—</span>`}
     </div>`;
   }).join('');
+  const axisDays = WEEK.map(d=>`<span class="${d.status==='today'?'is-today':''}">${d.dow.slice(1)}</span>`).join('');
+  return `<div class="bar-wrap">
+    <div class="baxis-y">${yaxis}</div>
+    <div class="bar-plot">
+      <div class="bar-grid">${grid}</div>
+      <div class="bars">${bars}</div>
+      <div class="avg-line" style="bottom:${pct(wkAvg)}%"></div>
+    </div>
+    <div class="baxis">${axisDays}</div>
+  </div>`;
 }
+
+/* C · 7 个色块：明度 = 热量；今天只加描边、不换色相 */
+function vizHeat(){
+  const lo=1000, hi=1500;
+  const t = k => Math.max(0,Math.min(1,(k-lo)/(hi-lo)));
+  const cell = d=>{
+    if(!d.kcal) return `<div class="heat-cell is-miss"><span class="hl">${d.dow.slice(1)}</span></div>`;
+    const a = 0.12 + t(d.kcal)*0.66;
+    const dark = t(d.kcal) > 0.52;
+    const st = `background:rgba(44,133,115,${a.toFixed(2)})`;
+    const ink = dark ? '#fff' : 'var(--ink-2)';
+    return `<div class="heat-cell ${d.status==='today'?'is-today':''}" style="${st}"><span class="hl" style="color:${ink}">${d.dow.slice(1)}</span></div>`;
+  };
+  const nums = WEEK.map(d=>`<span class="${d.status==='today'?'is-today':''}">${d.kcal?d.kcal.toLocaleString():'—'}</span>`).join('');
+  return `<div class="heat-grid">${WEEK.map(cell).join('')}</div><div class="heat-days">${nums}</div>`;
+}
+
+function renderWeek(){
+  const host = document.getElementById('week-viz');
+  if(!host) return;
+  const built = {ring:vizRing, bar:vizBar, heat:vizHeat};
+  const mode = built[WK_MODE] ? WK_MODE : 'bar';
+  host.innerHTML = built[mode]();
+  document.documentElement.dataset.wk = mode;
+  const key = document.getElementById('wk-key'); if(key) key.style.display = mode==='bar' ? '' : 'none';
+  document.querySelectorAll('.wk-tabs [data-wk]').forEach(b=>{
+    b.setAttribute('aria-selected', b.dataset.wk===mode ? 'true':'false');
+  });
+}
+document.addEventListener('click', e=>{
+  const b = e.target.closest('[data-wk]');
+  if(!b) return;
+  const m = b.dataset.wk;
+  history.replaceState(null,'',`?wk=${m}`);
+  const built = {ring:vizRing, bar:vizBar, heat:vizHeat};
+  if(built[m]){ document.getElementById('week-viz').innerHTML = built[m](); document.documentElement.dataset.wk = m;
+    const k2=document.getElementById('wk-key'); if(k2) k2.style.display = m==='bar' ? '' : 'none';
+    document.querySelectorAll('.wk-tabs [data-wk]').forEach(x=>x.setAttribute('aria-selected', x.dataset.wk===m?'true':'false')); }
+});
 
 /* ---------- 量尺：唯一的线性映射 ---------- */
 function drawHeroRuler(){

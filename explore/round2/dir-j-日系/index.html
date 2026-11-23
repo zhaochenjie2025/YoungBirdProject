@@ -23,7 +23,6 @@
   --shu:#A93A2C;
   --mark:#8E8A80; /* 量尺上的「参考区间」刻：比正文浅、比发丝深，只用于区间刻段，集中登记 */
   --f-sans:-apple-system,"PingFang SC","Hiragino Sans GB","Noto Sans CJK SC","Source Han Sans SC","Microsoft YaHei",system-ui,sans-serif;
-  --f-serif:"Noto Serif CJK SC","Source Han Serif SC","Songti SC","STSong","Hiragino Mincho ProN","Noto Serif CJK JP",serif;
   --ease:cubic-bezier(.22,.72,.16,1);
 }
 @media (max-width:379px){:root{--shaku:120px;--u:12px;--ma:24px}}
@@ -99,7 +98,7 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
 .cm{padding:0 .03em;opacity:.55}
 .dash{opacity:.4}
 /* 空账页的「未记」：衬线、字距拉开，字号小于主数字，明确不是读数 */
-.empty-mark{font-family:var(--f-serif);font-size:24.5px;color:var(--ink-3);letter-spacing:.28em;padding-left:.28em;font-weight:400;align-items:baseline;height:auto}
+.empty-mark{font-family:var(--f-sans);font-size:24.5px;color:var(--ink-3);letter-spacing:.28em;padding-left:.28em;font-weight:400;align-items:baseline;height:auto}
 .empty-mark span{display:inline-block}
 .num-xl{font-size:44px;font-weight:200;letter-spacing:-.02em}
 .num-l{font-size:24.5px;font-weight:300}
@@ -164,7 +163,7 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
 }
 .meal:first-child{border-top:0}
 .mk{width:calc(var(--u) * 1.9);flex:none;display:flex;flex-direction:column;align-items:center;gap:calc(var(--u)*.22)}
-.mk-c{font-family:var(--f-serif);font-size:19.5px;line-height:1;letter-spacing:0;color:var(--ink);writing-mode:vertical-rl}
+.mk-c{font-family:var(--f-sans);font-size:19.5px;line-height:1;letter-spacing:0;color:var(--ink);writing-mode:vertical-rl}
 .mk-t{font-size:11px;letter-spacing:-.01em;color:var(--ink-3);font-variant-numeric:tabular-nums;line-height:1;white-space:nowrap}
 .mc{flex:1;min-width:0;display:flex;flex-direction:column;justify-content:center;gap:.18em}
 .mc-1{font-size:15.5px;letter-spacing:.03em;line-height:1.5}
@@ -180,7 +179,7 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
 
 /* 空状态：一屏一主行动，不重复 CTA */
 .empty-note{padding:calc(var(--ma) * 1.4) var(--ma);text-align:center}
-.empty-note .en-1{font-family:var(--f-serif);font-size:19.5px;letter-spacing:.08em;color:var(--ink-2)}
+.empty-note .en-1{font-family:var(--f-sans);font-size:19.5px;letter-spacing:.08em;color:var(--ink-2)}
 .empty-note .en-2{font-size:13px;letter-spacing:.03em;color:var(--ink-3);margin-top:.7em}
 
 /* ---------- 新建一餐 ---------- */
@@ -189,7 +188,7 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
 .slotpick{display:flex;gap:0;margin:calc(var(--u)*1.25) var(--ma) 0;border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
 .slotpick button{
   flex:1;padding:.62em 0;font-size:13px;letter-spacing:.08em;color:var(--ink-3);position:relative;
-  font-family:var(--f-serif);
+  font-family:var(--f-sans);
 }
 .slotpick button.on{color:var(--ink);font-weight:400}
 .slotpick button.on::after{content:"";position:absolute;left:22%;right:22%;bottom:-1px;height:1px;background:var(--ink)}
@@ -236,14 +235,14 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
 .seg button.on::before{opacity:.9}
 /* 朱滑针：选中档上方的帽，形如量尺的游标 */
 .seg button.on::after{
-  content:"";position:absolute;left:50%;top:-9px;width:5px;height:7px;background:var(--shu);
+  content:"";position:absolute;left:50%;top:-9px;width:5px;height:7px;background:var(--ink);
   transform:translateX(-50%);border-radius:1px;
 }
 .seg button.on::after{clip-path:polygon(0 0,100% 0,100% 55%,50% 100%,0 55%)}
 .dcal{flex:none;min-width:2.9em;text-align:right;font-size:15.5px;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
 .dcal em{font-style:normal;font-size:11px;color:var(--ink-3);margin-left:.2em}
 .dx{flex:none;width:28px;height:28px;display:grid;place-items:center;color:var(--ink-3);margin-left:-4px}
-.dx:active{color:var(--shu)}
+.dx:active{color:var(--ink)}
 .dx svg{width:13px;height:13px}
 
 /* 合計条 + 保存 */
@@ -267,11 +266,11 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
 /* 上下墨线两端各缩进一小段，像尺规画出来没到头的一笔 */
 .save::before,.save::after{content:"";position:absolute;height:2px;background:var(--paper);width:7px}
 .save::before{top:-2px;left:0} .save::after{bottom:-2px;right:0}
-.save .stampMark{position:absolute;right:calc(50% - 4.6em);top:50%;width:5px;height:5px;margin-top:-2.5px;background:var(--shu);opacity:.9;transition:opacity .2s}
+.save .stampMark{position:absolute;right:calc(50% - 4.6em);top:50%;width:5px;height:5px;margin-top:-2.5px;background:var(--ink-2);opacity:.85;transition:opacity .2s}
 .save:active{background:var(--ink);color:var(--paper);transform:scale(.996)}
 .save:active .stampMark{opacity:0}
 /* 按下时从字心落下一枚极淡的朱印痕，再被墨吃掉——「盖章」这件事真的发生一次 */
-.save .stamp{position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;background:var(--shu);opacity:0;transform:scale(.4);pointer-events:none;z-index:0}
+.save .stamp{position:absolute;left:50%;top:50%;width:26px;height:26px;margin:-13px 0 0 -13px;background:var(--ink);opacity:0;transform:scale(.4);pointer-events:none;z-index:0}
 .save.pressing .stamp{animation:stampIn .34s var(--ease) forwards}
 @keyframes stampIn{0%{opacity:0;transform:scale(.5) rotate(-6deg)}38%{opacity:.5;transform:scale(1) rotate(-3deg)}100%{opacity:0;transform:scale(1.04) rotate(-3deg)}}
 .save[disabled]{color:var(--ink-3);pointer-events:none}
@@ -280,19 +279,19 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
 
 /* ---------- 单餐结果 ---------- */
 .res-hero{padding:calc(var(--ma)*.7) var(--ma) 0;display:flex;align-items:flex-end;justify-content:space-between;gap:var(--u)}
-.res-hero .rh-1{font-size:12px;letter-spacing:.05em;color:var(--ink-3);line-height:1.7;font-family:var(--f-serif)}
+.res-hero .rh-1{font-size:12px;letter-spacing:.05em;color:var(--ink-3);line-height:1.7}
 .res-hero .rh-1 b{display:block;font-weight:400;font-size:13px;color:var(--ink-2);font-variant-numeric:tabular-nums;letter-spacing:.02em}
 /* 展开明细：左侧一道细竖界线（日式注釈的界） */
 .dish.open{background:var(--paper-2)}
 .detail{padding:calc(var(--u)*.7) var(--ma) calc(var(--u)*1.1) calc(var(--ma) + var(--u));
   margin:0 var(--ma);border-left:1px solid var(--ink-3);position:relative}
 .detail dl{display:grid;grid-template-columns:5.2em 1fr;gap:.34em var(--u);font-size:13px;letter-spacing:.02em}
-.detail dt{color:var(--ink-3);font-family:var(--f-serif);letter-spacing:.06em}
+.detail dt{color:var(--ink-3);font-family:var(--f-sans);letter-spacing:.06em}
 .detail dd{font-variant-numeric:tabular-nums;color:var(--ink-2)}
 /* 注釈三行：左标签成列、右正文悬挂缩进——断行永不破词，右缘齐整 */
 .detail .src{font-size:11px;line-height:1.8;color:var(--ink-3);margin-top:calc(var(--u)*.7);letter-spacing:.02em}
 .detail .sr{display:grid;grid-template-columns:2.4em 1fr;gap:0 .5em;padding-left:.2em}
-.detail .sk{font-family:var(--f-serif);letter-spacing:.04em;color:var(--ink-3);opacity:.85;white-space:nowrap}
+.detail .sk{font-family:var(--f-sans);letter-spacing:.04em;color:var(--ink-3);opacity:.85;white-space:nowrap}
 .detail .sv{word-break:normal;overflow-wrap:break-word;text-align:justify;text-justify:inter-ideograph;text-wrap:pretty}
 /* 区间条：一根 1px 轨，区间实段 + 两端细刻 + 折算点 */
 /* 结果屏区间 = 一把迷你刻度尺：主弧的梳齿语言缩到 18px 高，
@@ -304,75 +303,79 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
 .rb .tick.major{top:8px;height:6px;opacity:.6}
 .rb .band{position:absolute;top:6px;height:9px;background:var(--ink-2);opacity:.16}
 .rb .cap{position:absolute;top:3px;width:1px;height:12px;background:var(--ink-2);opacity:.7}
-.rb .pt{position:absolute;top:1px;width:1.6px;height:14px;background:var(--shu);border-radius:1px}
+.rb .pt{position:absolute;top:1px;width:1.8px;height:14px;background:var(--ink);border-radius:1px}
 .rb-l{display:flex;justify-content:space-between;font-size:11px;letter-spacing:.02em;color:var(--ink-3);font-variant-numeric:tabular-nums;margin-top:.42em}
-.rb-l b{font-weight:400;color:var(--shu)}
+.rb-l b{font-weight:400;color:var(--ink)}
 
-/* ---------- 周视图 ---------- */
-.week-dots{margin:calc(var(--ma)*.95) var(--ma) 0}
-.wd-head,.wd-body,.wd-foot{display:grid;grid-template-columns:repeat(7,1fr);gap:0}
-.wd-head div{text-align:center;font-size:12px;letter-spacing:.02em;color:var(--ink-2);font-variant-numeric:tabular-nums;padding-bottom:.5em}
-.wd-head div i{display:block;font-style:normal;font-size:11px;color:var(--ink-3);letter-spacing:.04em;margin-top:.1em}
-.wd-head div.today{color:var(--ink)}
-.wd-col{display:flex;flex-direction:column;align-items:center;gap:13px;padding:calc(var(--u)*1.05) 0;position:relative}
-.wd-col .pt{/* cf-justify: 正圆本义，点阵的最小单位；7px 圆点撑起周屏的主结构 */width:7px;height:7px;border-radius:50%;border:1px solid var(--hair);background:transparent}
-.wd-col .pt.on{background:var(--ink);border-color:var(--ink)}
-.wd-col .pt.est{background:var(--ink);border-color:var(--ink);opacity:.34}
-.wd-col .pt.none{background:transparent;border-color:var(--ink-3);opacity:.62}
-.wd-col.blank .pt{border-color:var(--ink-3);opacity:.4}
-/* 今天标记：一条朱线从点阵顶进到底，止于 .wd-body 的下界；数字在本身之外，不被穿过 */
-.wd-col.today::before{content:"";position:absolute;top:calc(var(--u)*.7 - 6px);bottom:calc(var(--u)*.7 - 6px);left:50%;width:1px;background:var(--shu);opacity:.5;transform:translateX(-.5px);z-index:0}
-.wd-body{position:relative}
-.wd-col .pt{position:relative;z-index:1}
-.wd-line{border-top:1px solid var(--hair)}
-.wd-foot div{text-align:center;font-size:11px;font-variant-numeric:tabular-nums;letter-spacing:-.01em;color:var(--ink-2);padding-top:.8em;position:relative}
-.wd-foot div.blank{color:var(--ink-3);opacity:.7}
-/* 含估算：贴在数字右侧的 ≈，只在本身脚注出现，不再漂到两列之间 */
-.wd-foot div.est .tick{display:inline-block;margin-left:.15em;color:var(--ink-3)}
-.wd-foot div.est::after{content:"含估算";display:block;font-size:11px;letter-spacing:.04em;color:var(--ink-3);line-height:1.5;margin-top:.1em}
-@media (max-width:359px){.wd-foot div.est::after{display:none}.wd-head div{font-size:11px}}
-.wd-foot div.today{color:var(--ink)}
-.legend{display:flex;gap:calc(var(--u)*1.1);justify-content:center;margin-top:calc(var(--u)*1.5);font-size:11px;letter-spacing:.04em;color:var(--ink-3)}
-.legend span{display:inline-flex;align-items:center;gap:.42em}
-.legend i{/* cf-justify: 图例与点阵同形，必须与 .wd-col .pt 完全一致才是真图例 */width:7px;height:7px;border-radius:50%;border:1px solid var(--hair);display:inline-block;font-style:normal}
-.legend i.on{background:var(--ink);border-color:var(--ink)}
-.legend i.est{background:var(--ink);border-color:var(--ink);opacity:.34}
+/* ---------- 周视图 · 灰阶堆叠柱 ----------
+   结构借苹果「屏幕使用时间」周柱（y 轴刻度 / 极淡网格 / 按成分堆叠 / 平均虚线），
+   视觉严守法：只用黑白灰，直角（无圆角），宏量三项用「灰阶深浅 + 线型」区分，
+   不用色相。朱红只做「今天」一处强调。 */
+:root{
+  --g1:#231F1C;   /* 蛋白 · 最深，对纸 17:1 */
+  --g2:#5C564F;   /* 脂肪 · 中灰，对纸 6.4:1 */
+  --g3:#8E887E;   /* 碳水 · 浅灰，对纸 3.1:1（≥3:1 可读底线） */
+}
+/* 顶部总量 */
+.wk-total{margin:calc(var(--u)*1.05) var(--ma) 0;display:flex;align-items:flex-end;justify-content:space-between;gap:var(--u)}
+.wk-total .wt-n{display:flex;align-items:baseline}
+.wk-total .wt-k{font-size:13px;letter-spacing:.04em;color:var(--ink-3);align-self:flex-end;padding-bottom:.5em}
+.wk-total .wt-sub{font-size:11px;letter-spacing:.03em;color:var(--ink-3);text-align:right;line-height:1.7;font-variant-numeric:tabular-nums}
+.wk-total .wt-sub b{font-weight:400;color:var(--ink-2)}
+/* 图例：小三格竖条 + 两字标签，与柱身自顶到底同序 */
+.wk-legend{display:flex;gap:.85em;justify-content:center;align-items:center;margin:calc(var(--u)*.95) var(--ma) 0;font-size:11px;letter-spacing:.04em;color:var(--ink-3);flex-wrap:wrap}
+.wk-legend span{display:inline-flex;align-items:center;gap:.34em}
+.wk-legend i{width:8px;height:8px;display:inline-block}
+.wk-legend i.p{background:var(--g1)} .wk-legend i.f{background:var(--g2)} .wk-legend i.c{background:var(--g3)}
+.wk-legend .stackkey{display:inline-flex;flex-direction:column;width:8px;overflow:hidden;margin-right:.1em}
+.wk-legend .stackkey i{width:8px;height:4px;border-radius:0}
+.wk-legend .u{color:var(--ink-3);opacity:.72;letter-spacing:.02em}
 
-/* 周收口：一把 0–7200 的长尺，实段是五日合计，浅灰带是五日的参考区间 */
-/* 周屏用整屏高度分配：内容在上，收口尺压到坞上沿，空白不再全部堆在底部 */
-#s-week.on{display:flex;flex-direction:column;min-height:calc(100svh - 92px - env(safe-area-inset-bottom));padding-bottom:calc(var(--u)*1.1)}
-#s-week .week-close{margin-top:auto}
-.week-close{padding-top:calc(var(--u)*.75);display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:.2em var(--u)}
-.week-close .wc-k{font-size:11px;letter-spacing:.08em;color:var(--ink-3)}
-.week-close .wc-n{display:flex;align-items:baseline;justify-self:end}
-/* 收口尺做重：全宽实刻基线 + 每 600 一根副刻、每 2400 一根长刻与端挡，
-   区间为实段、当日合计为朱针——与主弧同族，但尺寸足以压住整屏。 */
-.wc-scale{grid-column:1/-1;position:relative;height:46px;margin-top:calc(var(--u)*.8)}
-.wc-track{position:absolute;left:0;right:0;top:20px;height:2px;background:var(--ink);opacity:.85}
-.wc-band{position:absolute;top:9px;height:15px;background:var(--ink-2);opacity:.2}
-.wc-mark{position:absolute;top:4px;width:2.5px;height:26px;background:var(--shu);border-radius:1px}
-.wc-tick{position:absolute;top:27px;font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums;letter-spacing:.02em;transform:translateX(-50%)}
-.wc-minor{position:absolute;top:16px;width:1px;height:6px;background:var(--ink-3);opacity:.4}
-.wc-major{position:absolute;top:12px;width:1px;height:12px;background:var(--ink-3);opacity:.7}
-.wc-l{grid-column:1/-1;font-size:11px;letter-spacing:.04em;color:var(--ink-3);margin-top:.2em;font-variant-numeric:tabular-nums;line-height:1.75}
+.wk-chart{margin:calc(var(--u)*1.15) var(--ma) 0;display:grid;grid-template-columns:30px 1fr;column-gap:6px}
+.wk-yax{position:relative;height:var(--plot-h,180px)}
+.wk-yax b{position:absolute;right:0;transform:translateY(50%);font-weight:400;font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums;letter-spacing:.02em;line-height:1}
+/* 侧沿量尺刻齿：每行刻度一道短齿，外加细分的小齿，读作立在纸边的尺 */
+.wk-tick{position:absolute;left:9px;width:6px;border-top:1px solid var(--ink-3);opacity:.6;pointer-events:none}
+.wk-plot{position:relative;height:var(--plot-h,180px);border-bottom:1px solid var(--ink)}
+.wk-grid{position:absolute;left:0;right:0;border-top:1px solid var(--hair);pointer-events:none}
+.wk-bars{position:absolute;inset:0;display:flex;align-items:flex-end;gap:0}
+.wk-col{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;position:relative}
+/* 柱：直角，无圆角 */
+.wk-bar{width:56%;display:flex;flex-direction:column;position:relative}
+.wk-bar .sg{width:100%;display:block;box-shadow:inset 1px 0 0 rgba(255,255,255,.05),inset -1px 0 0 rgba(0,0,0,.06)}
+.wk-bar .sg.p{background:var(--g1)} .wk-bar .sg.f{background:var(--g2)} .wk-bar .sg.c{background:var(--g3)}
+/* 段间 1px 纸色缝，把三色切开（苹果 Screen Time 的细分隔） */
+.wk-bar .sg+.sg{box-shadow:0 -1px 0 0 var(--paper)}
+/* 极值柱顶标值：只标最高最低两根 */
+.wk-bar .wk-val{position:absolute;top:-1.35em;left:50%;transform:translateX(-50%);font-size:11px;line-height:1;color:var(--ink-2);font-variant-numeric:tabular-nums;white-space:nowrap}
+/* 含估算：柱顶内嵌一点「≈」（底色之上用纸白），字号足 */
+.wk-bar .wk-tag{position:absolute;top:-1.35em;left:50%;transform:translateX(-50%);font-size:11px;line-height:1;color:var(--ink-2);letter-spacing:0;z-index:2}
+/* 未记录日：虚线空心格占位，与实柱同宽同位 */
+.wk-bar.empty{/* cf-justify: 未记录=虚线空心格，「缺」本身就是格状；直角与实柱一致 */height:20%;background:transparent;width:56%;border:1px dashed var(--hair);border-bottom:1px solid var(--hair)}
+/* 今天（进行中）：柱顶一道纸白虚缝，表示还没封口 */
 
-/* 餐次覆盖：三行小尺，每行 7 格 = 七天，实格=已记；这是本周真实覆盖，不是装饰 */
-.cover{display:grid;gap:calc(var(--u)*.42);padding-top:calc(var(--u)*.85)}
-.cover .cr{display:grid;grid-template-columns:2.2em 1fr auto;align-items:center;gap:var(--u)}
-.cover .ck{font-family:var(--f-serif);font-size:13px;color:var(--ink-2);letter-spacing:.06em}
-.cover .cbar{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
-.cover .cbar i{height:5px;background:var(--hair);display:block}
-.cover .cbar i.on{background:var(--ink)}
-.cover .cbar i.est{background:var(--ink);opacity:.34}
-.cover .cv{font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums;letter-spacing:.02em}
-.cover .cv b{font-weight:400;color:var(--ink-2)}
+/* 平均虚线与标注 */
+.wk-avg{position:absolute;left:0;right:0;border-top:1px dashed var(--ink-3);opacity:.62;pointer-events:none}
+.wk-avg b{position:absolute;right:2px;top:-1.5em;font-weight:400;font-size:11px;color:var(--ink-2);font-variant-numeric:tabular-nums;letter-spacing:.02em;background:var(--paper);padding:0 .2em}
+/* x 轴：日 + 号，今天一道朱短刻 */
+.wk-xax{grid-column:2;display:flex;margin-top:.5em}
+.wk-xax div{flex:1;text-align:center;font-size:11px;color:var(--ink-2);font-variant-numeric:tabular-nums;letter-spacing:.02em;position:relative;line-height:1.45}
+.wk-xax div i{display:block;font-style:normal;color:var(--ink-3);font-size:11px}
+.wk-xax div.today{color:var(--ink)}
+.wk-xax div.today::after{content:"";position:absolute;left:50%;top:-.45em;width:10px;height:2px;margin-left:-5px;background:var(--shu)}
+/* 变体 3：每格 200 千卡的灰阶分格（填几格即多少；成分按灰阶自上而下） */
+.wk-cells{position:absolute;inset:0;display:flex;align-items:flex-end}
+.wk-cells .cl{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:2px}
+.wk-cells .cell{/* cf-justify: 量尺的「格」，正方刻度格是其本义；空格只留极淡描边 */width:52%;height:calc((100% - 16px)/9);background:transparent;border:1px solid var(--hair-2)}
+.wk-cells .cell.p{background:var(--g1);border-color:var(--g1)} .wk-cells .cell.f{background:var(--g2);border-color:var(--g2)} .wk-cells .cell.c{background:var(--g3);border-color:var(--g3)}
+.wk-cells .cell.empty{background:transparent;border-color:var(--hair-2)}
 
-.stat3{display:grid;grid-template-columns:repeat(3,1fr);margin-top:calc(var(--ma)*1.1);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
-.stat3>div{padding:calc(var(--u)*1.35) 0 calc(var(--u)*1.25);text-align:center}
-.stat3>div+div{border-left:1px solid var(--hair-2)}
-.stat3 .k{font-size:11px;letter-spacing:.08em;color:var(--ink-3)}
-.stat3 .v{margin-top:.2em;display:flex;justify-content:center;align-items:baseline}
-.stat3 .t{font-size:11px;letter-spacing:.05em;color:var(--ink-3);margin-left:.2em}
+/* 页脚：一行读数 + 一行细注，堆叠不混排 */
+.wk-foot{margin:calc(var(--ma)*.95) var(--ma) 0;padding-top:calc(var(--u)*.95);border-top:1px solid var(--ink)}
+.wk-foot .wf-1{font-size:15.5px;color:var(--ink-2);letter-spacing:.02em;line-height:1.6;font-variant-numeric:tabular-nums}
+.wk-foot .wf-1 b{font-weight:400;color:var(--ink)}
+.wk-foot .wf-2{font-size:11px;color:var(--ink-3);letter-spacing:.03em;line-height:1.75;margin-top:.3em;font-variant-numeric:tabular-nums}
+.wk-note{margin:calc(var(--u)*.7) var(--ma) 0;font-size:11px;line-height:1.8;color:var(--ink-3);letter-spacing:.03em}
 
 </style>
 </head>
@@ -487,51 +490,30 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
     <div class="hd-r rise" style="--d:90ms" id="weekSpan">11.17 – 11.23</div>
   </header>
 
-  <div class="week-dots rise" style="--d:150ms">
-    <div class="wd-head" id="wdHead"></div>
-    <div class="wd-line"></div>
-    <div class="wd-body" id="wdBody"></div>
-    <div class="wd-line"></div>
-    <div class="wd-foot" id="wdFoot"></div>
-  </div>
-  <div class="legend rise" style="--d:200ms">
-    <span><i class="on"></i>已记录</span>
-    <span><i class="est"></i>含估算</span>
-    <span><i></i>未记录</span>
+  <div class="wk-total rise" style="--d:120ms">
+    <div class="wt-n"><span class="num num-l" id="wkTotal"></span><span class="wt-k">千卡 · 本周</span></div>
+    <div class="wt-sub" id="wkTotalSub"></div>
   </div>
 
-  <div class="wrap">
-    <div class="stat3 rise" style="--d:260ms">
-      <div><div class="k">记录天数</div><div class="v"><span class="num num-m" id="wDays"></span><span class="t">/ 7</span></div></div>
-      <div><div class="k">日均</div><div class="v"><span class="num num-m" id="wAvg"></span><span class="t">千卡</span></div></div>
-      <div><div class="k">数据缺</div><div class="v"><span class="num num-m" id="wGap"></span><span class="t">天</span></div></div>
-    </div>
+  <div class="wk-legend rise" style="--d:160ms">
+    <span><i class="p"></i>蛋白</span>
+    <span><i class="f"></i>脂肪</span>
+    <span><i class="c"></i>碳水</span>
+    <span class="u" id="wkLegendU">柱高＝热量</span>
   </div>
 
-  <div class="wrap">
-    <div class="cover rise" style="--d:300ms" id="wCover"></div>
+  <div class="wk-chart rise" style="--d:190ms" id="wkChart">
+    <div class="wk-yax" id="wkY"></div>
+    <div class="wk-plot" id="wkPlot"></div>
+    <div class="wk-xax" id="wkX"></div>
+    <div class="wk-cover" id="wkCover" hidden></div>
   </div>
 
-  <div class="wrap" style="margin-top:calc(var(--u)*.9)">
-    <div class="hd-note" style="line-height:1.9">日均只计已完成的五天，今天只记了早午，不计入。<br>「含估算」指当天有菜品缺营养数据，总数偏低。</div>
+  <div class="wk-foot rise" style="--d:250ms">
+    <div class="wf-1" id="wkFoot1"></div>
+    <div class="wf-2" id="wkFoot2"></div>
   </div>
-
-  <!-- 收口：本周总额落在同一把量尺上，与参考带对比；这是真实数据，不是装饰 -->
-  <div class="rule rule-m"></div>
-  <div class="wrap week-close">
-    <div class="wc-k">五日合计</div>
-    <div class="wc-n"><span class="num num-l" id="wSum"></span><span class="unit">千卡</span></div>
-    <div class="wc-scale" aria-hidden="true">
-      <div class="wc-track" id="wTrack"></div>
-      <div class="wc-band" id="wBand"></div>
-      <div class="wc-mark" id="wMark"></div>
-      <div class="wc-tick" style="left:0;transform:none">0</div>
-      <div class="wc-tick" style="left:33.33%">2,400</div>
-      <div class="wc-tick" style="left:66.66%">4,800</div>
-      <div class="wc-tick" style="left:100%;transform:translateX(-100%)">7,200</div>
-    </div>
-    <div class="wc-l" id="wSumNote"></div>
-  </div>
+  <div class="wk-note rise" style="--d:290ms" id="wkNote"></div>
 </section>
 
 </div><!-- /app -->
@@ -617,14 +599,18 @@ function mealStat(m){
   return {kcal,lo,hi,p,f,c,known,pend:m.pending.length,items:m.items,pending:m.pending};
 }
 function dayStat(day){
-  let kcal=0,lo=0,hi=0,pend=0,logged=0;
+  let kcal=0,lo=0,hi=0,pend=0,logged=0,p=0,f=0,c=0;
   for(const k of ["breakfast","lunch","dinner"]){
     const m=day[k]; if(!m) continue;
     const st=mealStat(m); if(!st) continue;
     logged++; kcal+=st.kcal; lo+=st.lo; hi+=st.hi; pend+=st.pend;
+    p+=st.p; f+=st.f; c+=st.c;
   }
-  if(!logged) return {status:"none",kcal:null,lo:null,hi:null,pend:0,logged:0};
-  return {status:pend>0?"est":"ok",kcal,lo,hi,pend,logged};
+  /* 宏量供能（千卡）：蛋白×4、脂肪×9、碳水×4。只用于图表配色比例，
+     柱高始终取 kcal 真值，段占比按此能量归一，避免"柱高与图例各说各话"。 */
+  const pe=p*4, fe=f*9, ce=c*4, mtot=pe+fe+ce||1;
+  if(!logged) return {status:"none",kcal:null,lo:null,hi:null,pend:0,logged:0,p,f,c,pe,fe,ce,mtot};
+  return {status:pend>0?"est":"ok",kcal,lo,hi,pend,logged,p,f,c,pe,fe,ce,mtot};
 }
 
 /* 本周数据：11/17 周一起，11/23 今天（周日）。今天只有早、午已记，晚餐空。 */
@@ -929,69 +915,149 @@ function renderResult(){
 }
 
 /* ============================================================
-   S39O-j-week: 近七日点阵 + 数字
+   S39O-j-week: 近七日分色堆叠柱。读完这里应能回答：
+   这周吃了多少（柱高+平均线）、哪天多哪天少（柱高对比）、
+   营养构成（三色占比）、哪餐没记（变体2覆盖点）、哪天缺数据（斜纹柱）。
+   三个变体由 URL 参数 wk=1、wk=2、wk=3 切换，默认 2（柱+覆盖点）。
    ============================================================ */
+const WK_VARIANTS={1:'堆叠柱 + 平均线',2:'堆叠柱 + 三餐覆盖点',3:'每格 200 千卡的宏量分格'};
 function renderWeek(){
+  const WK=Math.min(3, Math.max(1, parseInt((new URLSearchParams(location.search).get('wk')||'1'),10)||1));
   const cols=WEEK.map(day=>{
     const st=dayStat(day.meals);
-    const dots=SLOTS.map(slot=>{
-      const m=day.meals[slot];
-      if(!m) return `<span class="pt none"></span>`;
-      const s=mealStat(m);
-      return `<span class="pt ${s.pend?'est':'on'}"></span>`;
-    }).join('');
-    const label = st.status==='none' ? '—' : comma(st.kcal);
-    return {day,st,dots,label};
+    return {day,st,empty:st.status==='none'};
   });
-  $('#wdHead').innerHTML = cols.map(c=>
-    `<div class="${c.day.today?'today':''}">${c.day.d}<i>${c.day.w}</i></div>`).join('');
-  $('#wdBody').innerHTML = cols.map(c=>
-    `<div class="wd-col${c.st.status==='none'?' blank':''}${c.day.today?' today':''}" role="img" aria-label="${c.day.d} ${c.st.status==='none'?'未记录':(c.st.status==='est'?'含估算 '+c.st.kcal:'')}">${c.dots}</div>`).join('');
-  $('#wdFoot').innerHTML = cols.map(c=>{
-    const cls=[c.st.status==='none'?'blank':'', c.st.status==='est'?'est':'', c.day.today?'today':''].filter(Boolean).join(' ');
-    const txt = c.st.status==='none' ? '—' : comma(c.st.kcal)+(c.st.status==='est'?'<span class="tick">≈</span>':'');
-    return `<div class="${cls}">${txt}</div>`;
+  /* y 轴上限：取七日最大热量向上取整到 600 的倍数，至少 1800，避免柱贴顶 */
+  /* y 轴上限只看七日实际最大值（不含今天可避免被进行中的低值压扁）；
+     向上取整到 600 倍数，最低 1800，保证柱头离顶有一格呼吸。 */
+  const dataMax=Math.max(...cols.filter(c=>!c.day.today).map(c=>c.st.kcal||0), ...cols.map(c=>c.st.kcal||0), 0);
+  const YMAX=Math.max(1800, Math.ceil(dataMax/600)*600);
+  const YMAX3=Math.ceil(Math.max(...cols.map(c=>c.st.kcal||0),1800)/200)*200; // 变体3 用 200 刻度
+  const H=180;
+
+  /* --- y 轴 + 网格 --- */
+  const yv=WK===3?YMAX3:YMAX;
+  const stepY=WK===3?400:600;
+  const yTicks=[]; for(let v=0;v<=yv;v+=stepY) yTicks.push(v);
+  if(yTicks[yTicks.length-1]!==yv) yTicks.push(yv);
+  $('#wkY').style.setProperty('--plot-h',H+'px');
+  $('#wkPlot').style.setProperty('--plot-h',H+'px');
+  $('#wkY').innerHTML=yTicks.map(v=>{
+    const t=100-v/yv*100;
+    return `<b style="top:${t}%">${comma(v)}</b>`;
+  }).join('');
+  /* 侧沿刻齿：每根主刻度一道短齿，让 y 轴读作量尺而非普通坐标轴 */
+  { let tg='';
+    yTicks.forEach(v=>{ const t=100-v/yv*100; tg+=`<span class="wk-tick" style="top:${t}%"></span>`; });
+    $('#wkY').innerHTML+=tg;
+  }
+  const grids=yTicks.map(v=>{
+    const t=100-v/yv*100;
+    return `<div class="wk-grid" style="top:${t}%"></div>`;
   }).join('');
 
-  /* 餐次覆盖：每个餐次在七天里记了几次 */
-  const cov=SLOTS.map(slot=>{
-    let on=0, est=0;
-    const cells=WEEK.map(d=>{
-      const m=d.meals[slot];
-      if(!m) return '<i></i>';
-      const st=mealStat(m);
-      if(st.pend){est++;on++;return '<i class="est"></i>';}
-      on++;return '<i class="on"></i>';
+  /* --- 柱 / 分格 --- */
+  const logged=cols.filter(c=>!c.empty&&!c.day.today);
+  const avg=logged.length?Math.round(logged.reduce((a,c)=>a+c.st.kcal,0)/logged.length):0;
+  let plotInner=grids;
+
+  if(WK===1||WK===2){
+    /* 最高/最低两根柱顶标值（Apple Screen Time 的克制做法），今天不参与最高最低 */
+    const ranked=cols.filter(c=>!c.empty&&!c.day.today).slice().sort((a,b)=>b.st.kcal-a.st.kcal);
+    const hiK=ranked[0]?ranked[0].st.kcal:null, loK=ranked[ranked.length-1]?ranked[ranked.length-1].st.kcal:null;
+    const bars=cols.map(c=>{
+      const isTod=c.day.today;
+      if(c.empty) return `<div class="wk-col${isTod?' today':''}"><div class="wk-bar empty"></div></div>`;
+      const h=Math.max(3,(c.st.kcal||0)/yv*100);
+      const segs=[['p',c.st.pe],['f',c.st.fe],['c',c.st.ce]];
+      /* 段序自顶到底：蛋白→脂肪→碳水，与图例小柱同序 */
+      const segHTML=segs.map(([cls,e])=>{
+        const share=Math.max(0, e/c.st.mtot*100);
+        return share>0.5?`<span class="sg ${cls}" style="height:${share.toFixed(2)}%"></span>`:'';
+      }).join('');
+      const showVal=!isTod&&(c.st.kcal===hiK||c.st.kcal===loK)&&ranked.length>1;
+      const tag=c.st.status==='est'?`<span class="wk-tag">≈</span>`:'';
+      const val=showVal?`<span class="wk-val">${comma(c.st.kcal)}</span>`:'';
+      return `<div class="wk-col${isTod?' today':''}">
+        <div class="wk-bar" style="height:${h.toFixed(2)}%">${segHTML}${val}${tag}</div>
+      </div>`;
     }).join('');
-    return {slot,cells,on,est};
-  });
-  $('#wCover').innerHTML = cov.map(c=>`<div class="cr">
-      <span class="ck">${SLOT_CN[c.slot][0]}</span>
-      <span class="cbar">${c.cells}</span>
-      <span class="cv"><b>${c.on}</b>/7${c.est?` <span style="opacity:.8">含估算</span>`:''}</span>
-    </div>`).join('');
-
-  const logged=cols.filter(c=>c.st.status!=='none'&&!c.day.today);
-  const sum=logged.reduce((a,c)=>a+c.st.kcal,0);
-  const avg=logged.length?Math.round(sum/logged.length):0;
-  const gaps=cols.filter(c=>c.st.status==='est').length;
-  ticker($('#wDays'), logged.length, 'num-m');
-  ticker($('#wAvg'), avg, 'num-m');
-  ticker($('#wGap'), gaps, 'num-m');
-
-  /* 周收口尺：0–7200 千卡（五天 × 每日 1440 上沿），实段=五日合计，浅带=五日参考区间 */
-  const loSum=logged.reduce((a,c)=>a+c.st.lo,0), hiSum=logged.reduce((a,c)=>a+c.st.hi,0);
-  const MAXW=7200, p=v=>Math.max(0,Math.min(100,v/MAXW*100));
-  { let t='';
-    for(let v=600;v<MAXW;v+=600){ t+=`<span class="${v%2400===0?'wc-major':'wc-minor'}" style="left:${p(v).toFixed(2)}%"></span>`; }
-    document.getElementById('wTrack').innerHTML=t;
+    plotInner+=`<div class="wk-bars">${bars}</div>`;
+  }else{
+    /* 变体3：每列 9 格，每格 200 千卡；填到当日热量为止，格色按宏量能量顺序铺 */
+    const cellsPct=100/yv*200; // 单格占 y 轴的高度百分比（200/yv*100 同义，此处逐列算）
+    const colsHTML=cols.map(c=>{
+      const cap=Math.round(yv/200); // 整列格数
+      let filled = c.empty?0:Math.round((c.st.kcal||0)/200);
+      const segOrder=[]; // 逐格宏量色
+      if(!c.empty){
+        const plan=[['p',c.st.pe],['f',c.st.fe],['c',c.st.ce]];
+        let budget=filled;
+        for(const [cls,e] of plan){
+          const n=Math.round(e/c.st.mtot*filled);
+          for(let i=0;i<n && segOrder.length<filled;i++) segOrder.push(cls);
+        }
+        while(segOrder.length<filled) segOrder.push('c');
+      }
+      let cellHTML='';
+      for(let i=0;i<cap;i++){
+        const fromBottom=i; // 自底向上
+        const isFilled=fromBottom<filled;
+        const cls=isFilled?(segOrder[fromBottom]||'c'):'';
+        cellHTML+=`<span class="cell ${cls}${(!isFilled&&c.empty)?' empty':''}"></span>`;
+      }
+      return `<div class="cl" aria-label="${c.day.d} ${c.empty?'未记录':c.st.kcal+'千卡'}">${cellHTML}</div>`;
+    }).join('');
+    plotInner+=`<div class="wk-cells">${colsHTML}</div>`;
   }
-  ticker($('#wSum'), sum, 'num-l');
-  $('#wBand').style.left=p(loSum).toFixed(2)+'%';
-  $('#wBand').style.width=(p(hiSum)-p(loSum)).toFixed(2)+'%';
-  $('#wMark').style.left=p(sum).toFixed(2)+'%';
-  const dayMin=Math.round(loSum/logged.length), dayMax=Math.round(hiSum/logged.length);
-  $('#wSumNote').innerHTML = `${logged.length} 日合计，参考区间 ${comma(loSum)} – ${comma(hiSum)}<br>折日均 ${comma(dayMin)} – ${comma(dayMax)} 千卡`;
+
+  /* --- 平均虚线（三个变体都画：读图不必读字就知道均值在哪） --- */
+  if(avg>0&&avg<yv){
+    const t=100-avg/yv*100;
+    plotInner+=`<div class="wk-avg" style="top:${t.toFixed(2)}%"><b>日均 ${comma(avg)}</b></div>`;
+  }
+  $('#wkPlot').innerHTML=plotInner;
+
+  /* --- x 轴 --- */
+  $('#wkX').innerHTML=cols.map(c=>
+    `<div class="${c.day.today?'today':''}">${c.day.d.slice(-2)}<i>${c.day.w}</i></div>`).join('');
+
+  /* 变体 2 的装饰圆点已按质询删除：无像素级工艺的小点被读成加载态。
+     若日后要保留餐次信息，应改为柱下真实小格（早/午/晚），不再用孤立圆点。 */
+  $('#wkCover').hidden=true;
+
+  /* --- 顶部总量（图的第一眼） --- */
+  const sum0=cols.filter(c=>!c.empty&&!c.day.today).reduce((a,c)=>a+c.st.kcal,0);
+  ticker($('#wkTotal'), sum0, 'num-l');
+  $('#wkTotalSub').innerHTML = `<b>${comma(avg)}</b> 日均 · <b>${logged.length}</b> 天`;
+
+  /* --- 页脚读数 --- */
+  const sum=logged.reduce((a,c)=>a+c.st.kcal,0);
+  const maxDay=logged.length?logged.reduce((a,c)=>c.st.kcal>a.st.kcal?c:a):null;
+  const minDay=logged.length?logged.reduce((a,c)=>c.st.kcal<a.st.kcal?c:a):null;
+  const gaps=cols.filter(c=>c.st.status==='est').length;
+  const none=cols.filter(c=>c.empty).length;
+  const spanTxt = (maxDay&&minDay&&maxDay!==minDay)
+    ? `高 <b>${maxDay.day.d.slice(-2)}日</b> ${comma(maxDay.st.kcal)} · 低 <b>${minDay.day.d.slice(-2)}日</b> ${comma(minDay.st.kcal)}`
+    : (maxDay?`仅 <b>${maxDay.day.d.slice(-2)}日</b>一天记录`:'');
+  $('#wkFoot1').innerHTML=spanTxt;
+  const dmin=Math.round(logged.reduce((a,c)=>a+c.st.lo,0)/Math.max(logged.length,1));
+  const dmax=Math.round(logged.reduce((a,c)=>a+c.st.hi,0)/Math.max(logged.length,1));
+  $('#wkFoot2').innerHTML =
+    `日均区间 ${comma(dmin)}–${comma(dmax)}`
+    + `${gaps?` · 含估算 ${gaps} 天`:''}${none?` · 未记 ${none} 天`:''}`;
+  let note=`日均不计今天。`;
+  if(gaps) note+=`≈ 表示当天有菜品缺营养数据。`;
+  if(none) note+=`虚线空框＝未记录。`;
+  note+=`灰阶＝蛋白／脂肪／碳水，柱高＝热量。`;
+  $('#wkNote').textContent=note;
+  /* legend 说明随变体 */
+  $('#wkLegendU').textContent = WK===3 ? '每格 200 千卡' : '柱高＝热量';
+
+  /* aria：给整图一个可读摘要（读屏与质询代理的机器可读入口） */
+  $('#wkPlot').setAttribute('role','img');
+  $('#wkPlot').setAttribute('aria-label',
+    `近七日热量柱状图。${cols.map(c=>`${c.day.w}:${c.empty?'未记录':c.st.kcal+'千卡'}`).join('；')}。日均 ${avg} 千卡。`);
 }
 
 /* ============================================================
