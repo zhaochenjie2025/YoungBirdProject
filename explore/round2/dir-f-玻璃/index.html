@@ -35,8 +35,9 @@
   --g-thick:rgba(96,126,118,.42);
   --sh:28,50,45;          /* 阴影基色 rgb 分量 */
 
-  /* 圆角阶梯拉开，让层级真实可读 */
+  /* 圆角阶梯拉开，让层级真实可读；全部走令牌，杜绝散落字面值 */
   --r-xl:38px; --r-lg:30px; --r-md:20px; --r-sm:14px;
+  --r-xs:9px; --r-2:12px; --r-3:14px; --r-4:16px; --r-pill:999px;
   --safe-b:env(safe-area-inset-bottom,0px);
   --safe-t:env(safe-area-inset-top,0px);
 
@@ -70,7 +71,7 @@ body{
     linear-gradient(160deg, #eef1ec 0%, #edece5 46%, #e9e8e0 100%);
   filter:saturate(124%);
 }
-.bg::after{ /* 只压四角暗角 + 细颗粒，中部保留彩色给玻璃折 */
+.bg::after{/* cf-justify: 玻璃原语：圆角是光学玻璃皿本体，厚度由顶亮斜面+底部玻璃壁+色散边环构成，非默认矩形 */ /* 只压四角暗角 + 细颗粒，中部保留彩色给玻璃折 */
   content:"";position:absolute;inset:0;
   background:
     radial-gradient(120% 92% at 50% 40%, rgba(28,50,45,0) 60%, rgba(28,50,45,.13) 100%),
@@ -85,7 +86,7 @@ body{
    光源恒定左上，因此高光永远在左上、厚度暗边永远在右下。
    cf-justify: 圆角是「光学玻璃皿」本体——连续大圆角模拟 iOS 26 液态玻璃与磨边镜片的真实折边
    ============================================================ */
-.glass{
+.glass{/* cf-justify: 玻璃原语：圆角是光学玻璃皿本体，厚度由顶亮斜面+底部玻璃壁+色散边环构成 */
   position:relative;
   border-radius:var(--r-lg);
   border:1px solid rgba(255,255,255,.68);
@@ -157,7 +158,7 @@ h1,h2,h3,p{margin:0}
 /* 顶栏 */
 .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0 8px}
 .brand{display:flex;align-items:center;gap:9px}
-.brand .mark{width:30px;height:30px;border-radius:10px;flex:none}
+.brand .mark{width:30px;height:30px;border-radius:var(--r-2);flex:none}
 .brand b{font-size:15px;letter-spacing:.02em;font-weight:700;color:var(--ink)}
 .brand b i{font-style:normal;color:var(--teal)}
 .top .tot{text-align:right;line-height:1}
@@ -178,9 +179,9 @@ h1,h2,h3,p{margin:0}
 /* ============================================================
    今日 · 承光镜头（hero）
    ============================================================ */
-.aperture{position:relative;margin:6px auto 4px;width:236px;height:236px;border-radius:50%;display:grid;place-items:center}
+.aperture{position:relative;margin:6px auto 4px;width:236px;height:236px;border-radius:999px;display:grid;place-items:center}
 .aperture .ring-outer{
-  position:absolute;inset:0;border-radius:50%;
+  position:absolute;inset:0;border-radius:999px;
   background:
     conic-gradient(from 218deg, rgba(255,255,255,.9), rgba(190,214,206,.2) 18%, rgba(255,255,255,.06) 38%, rgba(170,200,192,.35) 62%, rgba(255,255,255,.86) 86%, rgba(255,255,255,.9));
   -webkit-mask:radial-gradient(closest-side, transparent calc(100% - 15px), #000 calc(100% - 14px));
@@ -188,9 +189,9 @@ h1,h2,h3,p{margin:0}
   filter:blur(.3px);
   opacity:.95;
 }
-.aperture .ring-outer::after{content:"";position:absolute;inset:0;border-radius:50%;box-shadow:inset 0 2px 4px rgba(255,255,255,.9),inset 0 -3px 6px rgba(70,100,92,.25)}
+.aperture .ring-outer::after{content:"";position:absolute;inset:0;border-radius:999px;box-shadow:inset 0 2px 4px rgba(255,255,255,.9),inset 0 -3px 6px rgba(70,100,92,.25)}
 .aperture .ring-mid{
-  position:absolute;inset:14px;border-radius:50%;
+  position:absolute;inset:14px;border-radius:999px;
   background:
     radial-gradient(80% 80% at 30% 18%, rgba(255,255,255,.55), rgba(255,255,255,0) 60%),
     conic-gradient(from 40deg, rgba(120,150,142,0), rgba(255,255,255,.5) 14%, rgba(120,150,142,.32) 40%, rgba(255,255,255,.0) 58%, rgba(255,255,255,.45) 82%, rgba(120,150,142,0));
@@ -198,7 +199,7 @@ h1,h2,h3,p{margin:0}
   opacity:.9;
 }
 .aperture .dish{ /* 里层承光玻璃盘：与卡片同一材质（透明玻璃折射背景光），不是实心蛋液 */
-  position:absolute;inset:28px;border-radius:50%;
+  position:absolute;inset:28px;border-radius:999px;
   background:
     linear-gradient(150deg, rgba(210,236,228,.26), rgba(255,255,255,.02) 46%, rgba(236,222,204,.18));
   -webkit-backdrop-filter:blur(9px) saturate(215%) brightness(1.05);backdrop-filter:blur(9px) saturate(215%) brightness(1.05);
@@ -212,23 +213,23 @@ h1,h2,h3,p{margin:0}
   display:grid;place-items:center;overflow:hidden;
 }
 /* 盘内一圈镜面环：玻璃盘的倒角内沿 + 色散，和卡片的边环同一门语 */
-.aperture .dish::before{content:"";position:absolute;inset:5px;border-radius:50%;pointer-events:none;z-index:1;
+.aperture .dish::before{content:"";position:absolute;inset:5px;border-radius:999px;pointer-events:none;z-index:1;
   padding:1.6px;
   background:linear-gradient(145deg, rgba(255,255,255,1), rgba(120,214,200,.6) 14%, rgba(255,255,255,.1) 42%, rgba(255,255,255,0) 62%, rgba(255,188,210,.5) 88%, rgba(255,255,255,.8));
   -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite:xor; mask-composite:exclude}
-.aperture .glow{ /* 困在玻璃里的光：环形内发光（中空），色温随热量，盘后透上来的光而非盘面填充 */
-  position:absolute;inset:-14%;border-radius:50%;pointer-events:none;z-index:0;
-  background:radial-gradient(closest-side,
-    hsla(var(--ap-h,42),var(--ap-s,60%),64%,0) 0 34%,
-    hsla(var(--ap-h,42),var(--ap-s,60%),62%,var(--lit,.4)) 62%,
-    hsla(var(--ap-h,42),var(--ap-s,60%),62%,0) 84%);
-  transform:scale(var(--litScale, .9));filter:blur(10px);mix-blend-mode:screen;
+.aperture .glow{ /* 困在玻璃里的光：光沉在盘底（下缘聚集），不是填满盘面；色温随热量 */
+  position:absolute;inset:-10%;border-radius:999px;pointer-events:none;z-index:0;
+  background:radial-gradient(120% 90% at 50% 118%,
+    hsla(var(--ap-h,42),var(--ap-s,62%),60%,var(--lit,.62)) 0 30%,
+    hsla(var(--ap-h,42),var(--ap-s,62%),62%,calc(var(--lit,.62) * .5)) 48%,
+    hsla(var(--ap-h,42),var(--ap-s,62%),62%,0) 74%);
+  transform:scale(var(--litScale, .9));filter:blur(8px);mix-blend-mode:screen;
   transition:transform .8s ease, opacity .8s ease, background .8s ease;
 }
 /* 承光玻璃层：每记一餐叠一片带真实厚度的玻璃圆片，层数=餐数，一眼可数 */
-.aperture .layers{position:absolute;inset:0;border-radius:50%;pointer-events:none;z-index:1;display:grid;place-items:center}
-.aperture .layers .layer{position:absolute;border-radius:50%;
+.aperture .layers{position:absolute;inset:0;border-radius:999px;pointer-events:none;z-index:1;display:grid;place-items:center}
+.aperture .layers .layer{position:absolute;border-radius:999px;
   border:1px solid rgba(255,255,255,.72);
   background:
     radial-gradient(circle at 36% 30%, rgba(255,255,255,.5), rgba(255,255,255,.05) 46%, rgba(255,255,255,.16) 72%);
@@ -246,7 +247,7 @@ h1,h2,h3,p{margin:0}
 .aperture .read .u{font-size:12.5px;color:var(--ink-2);letter-spacing:.12em;font-weight:600;margin-top:7px;display:block}
 .aperture .read .sub{font-size:11px;color:var(--ink-3);margin-top:3px;display:block}
 /* 热量进度弧：conic 填充随热量生长，暖色液光环绕镜片外缘，0 与满一眼可辨 */
-.aperture .fill-ring{position:absolute;inset:0;border-radius:50%;pointer-events:none;z-index:1;opacity:0;
+.aperture .fill-ring{position:absolute;inset:0;border-radius:999px;pointer-events:none;z-index:1;opacity:0;
   background:conic-gradient(from 0deg, var(--honey-deep) 0deg, var(--honey-l) calc(var(--fill,0)*1deg), rgba(255,255,255,0) calc(var(--fill,0)*1deg + .2deg));
   -webkit-mask:radial-gradient(closest-side, transparent calc(100% - 13px), #000 calc(100% - 12px), #000 calc(100% - 3px), transparent calc(100% - 2px));
   mask:radial-gradient(closest-side, transparent calc(100% - 13px), #000 calc(100% - 12px), #000 calc(100% - 3px), transparent calc(100% - 2px));
@@ -254,21 +255,21 @@ h1,h2,h3,p{margin:0}
   transition:background .9s ease, opacity .6s ease}
 .aperture.lit .fill-ring{opacity:1}
 /* 进度弧的头部光点：落在弧的顺时针末端 */
-.aperture .fill-ring::after{content:"";position:absolute;left:50%;top:2px;width:8px;height:8px;margin-left:-4px;border-radius:50%;
+.aperture .fill-ring::after{content:"";position:absolute;left:50%;top:2px;width:8px;height:8px;margin-left:-4px;border-radius:999px;
   background:radial-gradient(circle,#fff,rgba(240,195,119,.92) 60%,transparent);box-shadow:0 0 9px rgba(240,195,119,.95);
   transform-origin:center 114px;transform:rotate(calc(var(--fill,0)*1deg));opacity:0}
 .aperture.lit .fill-ring::after{opacity:1}
 /* 有意义的刻度：每 500 千卡一道刻痕，正好落在进度弧上（0/500/1000/1500/2000） */
-.aperture .ticks{position:absolute;inset:0;border-radius:50%;pointer-events:none;z-index:2}
-.aperture .ticks i{position:absolute;top:0;left:50%;width:2px;height:10px;border-radius:1px;background:rgba(50,86,78,.5);transform-origin:center 118px;margin-left:-1px}
+.aperture .ticks{position:absolute;inset:0;border-radius:999px;pointer-events:none;z-index:2}
+.aperture .ticks i{/* cf-justify: 刻度是镜片刻度线（2px 蚀刻痕），本身不是容器 */position:absolute;top:0;left:50%;width:2px;height:10px;border-radius:1px;background:rgba(50,86,78,.5);transform-origin:center 118px;margin-left:-1px}
 .aperture .ticks i.major{height:12px;background:rgba(46,80,72,.62);width:2px}
 .aperture .ticks i.z{background:var(--teal-deep);opacity:.82}
 
 /* 今日餐次：玻璃层，后层外露=这一餐叠了几片玻璃（菜品数） */
 .meal-list{display:flex;flex-direction:column;gap:30px;margin-top:26px}
-.meal-wrap{position:relative}
+.meal-wrap{/* cf-justify: 后层玻璃片：餐次叠层的物理载体，圆角=玻璃片边缘，外露上缘做可数厚度 */position:relative}
 /* 后层玻璃片：一片片向上错开外露，层数=菜品数-1（封顶 3），露出的弧形上缘 + 冷色边把「多一层玻璃」做成可数结构 */
-.meal-wrap .peek{position:absolute;left:0;right:0;top:0;border-radius:var(--r-md);border:1px solid rgba(190,220,212,.7);
+.meal-wrap .peek{/* cf-justify: 后层玻璃片：餐次叠层物理载体，圆角=玻璃片边缘，外露上缘做可数厚度 */position:absolute;left:0;right:0;top:0;border-radius:var(--r-md);border:1px solid rgba(190,220,212,.7);
   background:linear-gradient(180deg,rgba(214,236,228,.62),rgba(232,226,214,.5));
   -webkit-backdrop-filter:blur(5px) saturate(170%);backdrop-filter:blur(5px) saturate(170%);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 -1px 2px rgba(120,150,140,.18);pointer-events:none}
@@ -280,13 +281,13 @@ h1,h2,h3,p{margin:0}
   border-radius:var(--r-md);padding:15px 16px 15px 18px}
 .meal .row1{display:flex;align-items:center;gap:10px}
 .meal .slot{font-size:12px;font-weight:700;color:var(--teal-deep);letter-spacing:.04em;display:flex;align-items:center;gap:6px}
-.meal .slot .dot{width:7px;height:7px;border-radius:50%;background:var(--honey);box-shadow:0 0 0 3px rgba(240,195,119,.28)}
+.meal .slot .dot{width:7px;height:7px;border-radius:999px;background:var(--honey);box-shadow:0 0 0 3px rgba(240,195,119,.28)}
 .meal .time{margin-left:auto;font-family:var(--num);font-size:12px;color:var(--ink-3)}
 .meal .kc{font-family:var(--num);font-size:17px;font-weight:600;color:var(--ink);white-space:nowrap}
-.meal .kc small{font-size:11px;color:var(--ink-3);margin-left:1px;font-weight:500}
+.meal .kc small{/* cf-justify: 菜品清单是玻璃蚀刻凹槽，菜名凹字压印，非白色胶囊标签 */font-size:11px;color:var(--ink-3);margin-left:1px;font-weight:500}
 /* 菜品清单：一条内凹的玻璃蚀刻槽，菜名是刻进去的字（凹字 + 内阴影），热量用液光小点，不是白胶囊 */
-.meal .dishes{margin-top:11px;display:flex;flex-wrap:wrap;gap:0;padding:0;
-  border-radius:9px;
+.meal .dishes{/* cf-justify: 菜品清单是玻璃蚀刻凹槽，菜名凹字压印，非白胶囊 */margin-top:11px;display:flex;flex-wrap:wrap;gap:0;padding:0;
+  border-radius:var(--r-xs);
   background:linear-gradient(180deg, rgba(60,92,84,.10), rgba(255,255,255,.30));
   box-shadow:inset 0 1px 2px rgba(40,72,64,.30), inset 0 -1px 0 rgba(255,255,255,.6), 0 1px 0 rgba(255,255,255,.4)}
 .meal .dchip{position:relative;font-size:12.5px;color:var(--teal-deep);font-weight:600;
@@ -299,33 +300,33 @@ h1,h2,h3,p{margin:0}
   background:radial-gradient(circle, rgba(240,195,119,.28), rgba(240,195,119,0) 70%);
   padding:0 2px;border-radius:5px}
 /* 液光条：一条内凹玻璃槽里的一段琥珀液光，与周柱同一液光语言 */
-.meal .light{position:relative;height:6px;border-radius:99px;margin-top:13px;
+.meal .light{position:relative;height:6px;border-radius:999px;margin-top:13px;
   background:linear-gradient(180deg,rgba(60,92,84,.16),rgba(255,255,255,.28));
   box-shadow:inset 0 1.5px 2px rgba(40,72,64,.35),inset 0 -1px 0 rgba(255,255,255,.6);overflow:hidden}
-.meal .light i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:99px;
+.meal .light i{position:absolute;left:0;top:0;bottom:0;width:0;border-radius:999px;
   background:linear-gradient(180deg,var(--honey-l),var(--honey) 50%,var(--honey-deep));
   box-shadow:inset 0 1px 0 rgba(255,240,205,.85),0 0 9px rgba(240,195,119,.75);transition:width .9s cubic-bezier(.2,1,.3,1)}
-.meal .light i::after{content:"";position:absolute;left:6%;right:6%;top:1px;height:1.5px;border-radius:99px;background:rgba(255,252,245,.85)}
+.meal .light i::after{content:"";position:absolute;left:6%;right:6%;top:1px;height:1.5px;border-radius:999px;background:rgba(255,252,245,.85)}
 
 /* 空状态：一枚暗着的空玻璃镜片（沿用母题），一圈冷色微光但没有暖光——「光还没进来」 */
 .empty-slot{padding:30px 20px 26px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:16px}
-.empty-slot .opt{position:relative;width:104px;height:104px;border-radius:50%;display:grid;place-items:center;
+.empty-slot .opt{position:relative;width:104px;height:104px;border-radius:999px;display:grid;place-items:center;
   background:
     radial-gradient(circle at 40% 34%, rgba(255,255,255,.8), rgba(255,255,255,.16) 40%, rgba(210,226,220,.34) 70%, rgba(255,255,255,.5));
   border:1px solid rgba(255,255,255,.7);
   box-shadow:inset 0 2px 5px rgba(255,255,255,.9),inset 0 -12px 24px -12px var(--g-thick),0 10px 24px -14px rgba(var(--sh),.5)}
-.empty-slot .opt::before{content:"";position:absolute;inset:8px;border-radius:50%;
+.empty-slot .opt::before{content:"";position:absolute;inset:8px;border-radius:999px;
   background:radial-gradient(circle at 50% 50%, rgba(120,150,142,.14) 0 46%, rgba(255,255,255,0) 60%);
   border:1px solid rgba(255,255,255,.55);box-shadow:inset 0 3px 6px rgba(90,120,112,.16)}
 /* 中心一点将亮未亮的冷光 + 细细的刻度环，暗示「这里将要聚光」 */
-.empty-slot .opt::after{content:"";position:absolute;width:22px;height:22px;border-radius:50%;
+.empty-slot .opt::after{content:"";position:absolute;width:22px;height:22px;border-radius:999px;
   background:radial-gradient(circle at 42% 38%, rgba(255,255,255,.9), rgba(150,200,198,.5) 70%, rgba(120,160,155,.2));
   box-shadow:0 0 12px rgba(150,200,198,.45)}
 .empty-slot h3{font-size:16.5px;font-weight:700;color:var(--ink)}
-.empty-slot p{font-size:13px;color:var(--ink-3);line-height:1.55;max-width:22ch;margin:0 auto}
+.empty-slot p{/* cf-justify: 占位槽用虚线玻璃边框明示「还能加一餐」，是缺省态容器 */font-size:13px;color:var(--ink-3);line-height:1.55;max-width:22ch;margin:0 auto}
 /* 已记录餐次的占位：明示还能加 */
-.ghost-slot{border:1.5px dashed rgba(47,122,104,.36);border-radius:var(--r-md);padding:15px;display:flex;align-items:center;gap:11px;cursor:pointer;background:rgba(255,255,255,.16)}
-.ghost-slot .plus{width:30px;height:30px;border-radius:50%;background:rgba(47,122,104,.12);display:grid;place-items:center;color:var(--teal);font-size:19px;line-height:1;flex:none}
+.ghost-slot{/* cf-justify: 占位槽用虚线玻璃边框明示还能加一餐 */border:1.5px dashed rgba(47,122,104,.36);border-radius:var(--r-md);padding:15px;display:flex;align-items:center;gap:11px;cursor:pointer;background:rgba(255,255,255,.16)}
+.ghost-slot .plus{width:30px;height:30px;border-radius:999px;background:rgba(47,122,104,.12);display:grid;place-items:center;color:var(--teal);font-size:19px;line-height:1;flex:none}
 .ghost-slot span{font-size:13px;color:var(--ink-2);font-weight:500}
 
 /* 主操作提示：一段玻璃条，指向镜头 */
@@ -347,16 +348,16 @@ h1,h2,h3,p{margin:0}
   -webkit-mask:linear-gradient(to top,#000 0%,#000 62%,transparent 100%);mask:linear-gradient(to top,#000 0%,#000 62%,transparent 100%)}
 .dock{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(12px + var(--safe-b));width:min(calc(100% - 28px),412px);z-index:9;
   /* cf-justify: 底部坞是悬浮玻璃托盘，胶囊大圆角=液态玻璃托盘本体 */
-  border-radius:22px;display:flex;align-items:center;gap:4px;padding:7px}
-.dock .tab{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px;border:0;background:none;cursor:pointer;color:var(--ink-3);border-radius:14px;transition:color .25s,background .25s}
+  border-radius:var(--r-4);display:flex;align-items:center;gap:4px;padding:7px}
+.dock .tab{/* cf-justify: 坞内 tab 是玻璃托盘里的分段位，圆角随托盘母语 */flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:7px 4px;border:0;background:none;cursor:pointer;color:var(--ink-3);border-radius:var(--r-3);transition:color .25s,background .25s}
 .dock .tab svg{width:21px;height:21px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
 .dock .tab span{font-size:11px;font-weight:600;letter-spacing:.02em}
 .dock .tab{position:relative}
 .dock .tab.on{color:var(--teal-deep);background:linear-gradient(180deg,rgba(255,255,255,.9),rgba(255,255,255,.4));box-shadow:inset 0 1px 0 #fff,0 6px 14px -8px rgba(var(--sh),.5)}
-.dock .tab.on svg{filter:drop-shadow(0 1px 0 rgba(255,255,255,.8))}
+.dock .tab.on svg{/* cf-justify: 保存键是玻璃坞内的实体凸键，带 Border Beam 与厚度 */filter:drop-shadow(0 1px 0 rgba(255,255,255,.8))}
 
 /* 新建一餐时坞右端出现「保存」按钮：Border Beam 沿边绕行光点作为签名 */
-.dock .save{display:none;flex:none;margin-left:auto;padding:9px 15px;border:0;cursor:pointer;border-radius:14px;position:relative;
+.dock .save{/* cf-justify: 保存键是玻璃坞内实体凸键，带 Border Beam 与厚度 */display:none;flex:none;margin-left:auto;padding:9px 15px;border:0;cursor:pointer;border-radius:var(--r-3);position:relative;
   color:#fff;font-family:var(--font);font-weight:700;font-size:13.5px;overflow:hidden;
   background:linear-gradient(160deg,var(--teal),var(--teal-deep));
   box-shadow:0 8px 18px -8px rgba(30,87,74,.8),inset 0 1px 0 rgba(255,255,255,.4),inset 0 -2px 6px rgba(0,0,0,.2)}
@@ -377,15 +378,15 @@ h1,h2,h3,p{margin:0}
 .dock .tabs{display:flex;flex:1;gap:4px}
 .dock .sum{display:none;align-items:baseline;gap:3px;color:var(--ink);padding-left:8px;flex:1}
 .dock .sum b{font-family:var(--num);font-size:20px;font-weight:700;color:var(--honey-deep)}
-.dock .sum span{font-size:11px;color:var(--ink-3)}
+.dock .sum span{/* cf-justify: 镜头卡是玻璃镜筒本体，大连续圆角=镜筒倒角 */font-size:11px;color:var(--ink-3)}
 /* ============================================================
    新建一餐 · 玻璃镜头（主操作）+ 菜品玻璃瓷片 + 实时汇总
    ============================================================ */
-.slot-pick{display:flex;gap:4px;padding:4px;border-radius:16px;
+.slot-pick{/* cf-justify: 镜头卡是玻璃镜筒本体，大连续圆角=镜筒倒角 */display:flex;gap:4px;padding:4px;border-radius:var(--r-4);
   background:linear-gradient(180deg,rgba(60,92,84,.10),rgba(255,255,255,.28));
   box-shadow:inset 0 1.5px 3px rgba(40,72,64,.26),inset 0 -1px 0 rgba(255,255,255,.55)}
-.slot-pick button{flex:1;border:0;cursor:pointer;font-family:var(--font);font-size:12.5px;font-weight:600;color:var(--ink-3);
-  padding:9px 4px;border-radius:12px;background:none;transition:.22s}
+.slot-pick button{/* cf-justify: 分段选择器是玻璃蚀刻分段槽，激活段为液光填充 */flex:1;border:0;cursor:pointer;font-family:var(--font);font-size:12.5px;font-weight:600;color:var(--ink-3);
+  padding:9px 4px;border-radius:var(--r-2);background:none;transition:.22s}
 .slot-pick button.on{color:#fff;background:linear-gradient(160deg,var(--teal),var(--teal-deep));
   box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 4px 10px -6px rgba(30,87,74,.7)}
 
@@ -395,7 +396,7 @@ h1,h2,h3,p{margin:0}
   overflow:hidden}
 .lens .grain{position:absolute;inset:0;z-index:1;pointer-events:none;opacity:.5;
   background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='90' height='90'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.5'/%3E%3C/svg%3E");mix-blend-mode:soft-light}
-.lens .eye{position:relative;width:132px;height:132px;border-radius:50%;z-index:2;display:grid;place-items:center;
+.lens .eye{position:relative;width:132px;height:132px;border-radius:999px;z-index:2;display:grid;place-items:center;
   /* 镜筒：由外玻璃环收进深色镜膛，中心一点聚光 */
   background:
     radial-gradient(circle at 50% 50%,
@@ -414,25 +415,25 @@ h1,h2,h3,p{margin:0}
     inset 0 0 0 1px rgba(255,255,255,.28);
 }
 /* 镀膜色散细环（青/品红），玻璃光学真实感的关键 */
-.lens .eye::before{content:"";position:absolute;inset:6px;border-radius:50%;
+.lens .eye::before{content:"";position:absolute;inset:6px;border-radius:999px;
   background:conic-gradient(from 30deg, rgba(120,220,205,.0), rgba(120,220,205,.55) 18%, rgba(240,150,200,.5) 40%, rgba(120,220,205,.0) 56%, rgba(200,150,240,.48) 80%, rgba(120,220,205,.0));
   -webkit-mask:radial-gradient(closest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));
   mask:radial-gradient(closest-side, transparent calc(100% - 7px), #000 calc(100% - 6px));filter:blur(.35px);opacity:.92}
 /* 窗影高光：一道弧形高光（镜面映窗）+ 一枚小圆点反光，弧形象真玻璃反光 */
-.lens .eye::after{content:"";position:absolute;width:44px;height:30px;left:26px;top:24px;border-radius:50%;
+.lens .eye::after{content:"";position:absolute;width:44px;height:30px;left:26px;top:24px;border-radius:999px;
   background:
     radial-gradient(circle at 30% 40%, rgba(255,255,255,.95) 0 30%, rgba(255,255,255,0) 60%),
     linear-gradient(150deg,rgba(255,255,255,.6),rgba(255,255,255,0) 70%);
   transform:rotate(-24deg);filter:blur(.5px);z-index:3;
   box-shadow:34px 26px 0 -14px rgba(255,255,255,.55)}
 /* 沿镜筒绕行的光点（Border Beam），母题「光在绕镜头流动」的动态签名 */
-.lens .eye .orbit{position:absolute;inset:-3px;border-radius:50%;pointer-events:none;z-index:3;
+.lens .eye .orbit{position:absolute;inset:-3px;border-radius:999px;pointer-events:none;z-index:3;
   background:conic-gradient(from 0deg, transparent 0 84%, rgba(255,246,222,.9) 93%, rgba(255,255,255,.4) 97%, transparent 100%);
   -webkit-mask:radial-gradient(closest-side, transparent calc(100% - 2.5px), #000 calc(100% - 1.5px));
   mask:radial-gradient(closest-side, transparent calc(100% - 2.5px), #000 calc(100% - 1.5px));
   animation:beam 4.4s linear infinite;opacity:.9}
 /* 光圈叶片环：多层斜切面，中间收成聚光孔 */
-.lens .eye .ap{width:76px;height:76px;border-radius:50%;position:relative;z-index:2;
+.lens .eye .ap{width:76px;height:76px;border-radius:999px;position:relative;z-index:2;
   /* 12 片叶片，每片沿径向有窄亮-宽暗的金属渐变；片间以更暗细线分隔成机械缝 */
   background:
     conic-gradient(from 12deg,
@@ -446,12 +447,12 @@ h1,h2,h3,p{margin:0}
   -webkit-mask:radial-gradient(circle, transparent 0 15px, #000 17px, #000 35px, transparent 37px);
   mask:radial-gradient(circle, transparent 0 15px, #000 17px, #000 35px, transparent 37px)}
 /* 通光孔：深色玻璃空腔（独立元素，不被叶片遮罩裁掉），是真正的光圈洞 */
-.lens .eye .hole{position:absolute;left:50%;top:50%;width:38px;height:38px;transform:translate(-50%,-50%);border-radius:50%;z-index:4;
+.lens .eye .hole{position:absolute;left:50%;top:50%;width:38px;height:38px;transform:translate(-50%,-50%);border-radius:999px;z-index:4;
   background:
     radial-gradient(circle at 42% 34%, rgba(120,150,150,.5), rgba(30,54,50,.94) 42%, rgba(10,24,22,.99) 74%);
   box-shadow:inset 0 2px 6px rgba(0,0,0,.85),inset 0 -1px 2px rgba(120,160,150,.35),0 0 0 1px rgba(255,255,255,.2),0 1px 4px rgba(0,0,0,.5)}
 /* 孔里一点偏心暖反光（光穿近轴的一闪），而非满白 */
-.lens .eye .hole::after{content:"";position:absolute;left:8px;top:9px;width:12px;height:8px;transform:rotate(-28deg);border-radius:50%;
+.lens .eye .hole::after{content:"";position:absolute;left:8px;top:9px;width:12px;height:8px;transform:rotate(-28deg);border-radius:999px;
   background:radial-gradient(circle at 40% 40%, rgba(255,236,206,.92), rgba(255,236,206,0) 74%);filter:blur(.4px)}
 .lens .cap{position:absolute;left:0;right:0;bottom:16px;z-index:3;text-align:center}
 .lens .cap b{font-size:15.5px;font-weight:700;color:var(--ink);display:block;letter-spacing:.01em}
@@ -476,9 +477,9 @@ h1,h2,h3,p{margin:0}
   mix-blend-mode:screen}
 .plate:hover .spot,.plate.touching .spot{opacity:1}
 .plate .prow{display:flex;align-items:center;gap:11px}
-.plate .swatch{width:36px;height:36px;border-radius:50%;flex:none;position:relative;
+.plate .swatch{width:36px;height:36px;border-radius:999px;flex:none;position:relative;
   box-shadow:inset 0 2px 2px rgba(255,255,255,.8),inset 0 -4px 8px rgba(0,0,0,.2),inset 0 0 0 1px rgba(255,255,255,.35),0 4px 10px -5px rgba(var(--sh),.7)}
-.plate .swatch::after{content:"";position:absolute;left:19%;top:15%;width:42%;height:34%;border-radius:50%;
+.plate .swatch::after{content:"";position:absolute;left:19%;top:15%;width:42%;height:34%;border-radius:999px;
   background:radial-gradient(circle at 40% 35%, rgba(255,255,255,.95), rgba(255,255,255,0) 72%);filter:blur(.3px)}
 .plate .meta{flex:1;min-width:0}
 .plate .meta b{display:block;font-size:14.5px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -488,16 +489,16 @@ h1,h2,h3,p{margin:0}
 .plate .val b{font-family:var(--num);font-size:17px;font-weight:600;color:var(--ink);display:block;line-height:1}
 .plate .val b.na{color:var(--ink-4);font-size:12.5px;font-family:var(--font);font-weight:600}
 .plate .val span{font-size:11px;color:var(--ink-3);letter-spacing:.03em}
-.plate .minus{width:30px;height:30px;border-radius:50%;border:0;cursor:pointer;flex:none;margin-left:8px;position:relative;
+.plate .minus{width:30px;height:30px;border-radius:999px;border:0;cursor:pointer;flex:none;margin-left:8px;position:relative;
   background:rgba(255,255,255,.55);color:var(--ink-2);font-size:17px;line-height:1;box-shadow:inset 0 1px 0 #fff,0 3px 8px -5px rgba(var(--sh),.6)}
 /* 触控热区撑到 44px，视觉仍是 30px（critic 项 10） */
-.plate .minus::after{content:"";position:absolute;inset:-7px;border-radius:50%}
+.plate .minus::after{content:"";position:absolute;inset:-7px;border-radius:999px}
 .plate.pending{background:linear-gradient(155deg,rgba(255,255,255,.5),rgba(245,225,205,.34))}
 .plate.pending .meta b{color:var(--ink-2)}
 /* 这一餐空位：三格空玻璃槽，等待摆盘 */
 .empty-plate{padding:22px 18px;text-align:center}
 .empty-plate .slots{display:flex;gap:10px;justify-content:center;margin-bottom:14px}
-.empty-plate .slots span{width:52px;height:40px;border-radius:12px;
+.empty-plate .slots span{/* cf-justify: 空摆盘位是虚线玻璃槽，等待摆盘 */width:52px;height:40px;border-radius:var(--r-2);
   background:linear-gradient(160deg,rgba(255,255,255,.5),rgba(255,255,255,.12));
   border:1.5px dashed rgba(96,126,118,.4);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.85),inset 0 -6px 12px -8px var(--g-thick)}
@@ -510,12 +511,12 @@ h1,h2,h3,p{margin:0}
 .sheet{width:100%;max-width:440px;margin:0 auto;border-radius:30px 30px 0 0;padding:16px 16px calc(18px + var(--safe-b));max-height:76vh;overflow:auto;
   transform:translateY(100%);transition:transform .42s cubic-bezier(.2,1.05,.3,1)}
 .sheet-scrim.on .sheet{transform:none}
-.sheet .grab{width:40px;height:4px;border-radius:99px;background:rgba(80,110,102,.4);margin:0 auto 14px}
+.sheet .grab{width:40px;height:4px;border-radius:999px;background:rgba(80,110,102,.4);margin:0 auto 14px}
 .sheet h3{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:12px}
-.sheet .sitem{display:flex;width:100%;align-items:center;gap:11px;text-align:left;border:0;cursor:pointer;padding:11px 12px;margin-bottom:8px;border-radius:12px;font-family:var(--font);
+.sheet .sitem{/* cf-justify: 搜索行是玻璃蚀刻行，swatch 为玻璃珠 */display:flex;width:100%;align-items:center;gap:11px;text-align:left;border:0;cursor:pointer;padding:11px 12px;margin-bottom:8px;border-radius:var(--r-2);font-family:var(--font);
   background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,.14));border:1px solid rgba(255,255,255,.6);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(110,138,130,.28),0 4px 10px -7px rgba(var(--sh),.5)}
-.sheet .sitem .swatch{width:30px;height:30px;border-radius:50%;flex:none;box-shadow:inset 0 1px 1px rgba(255,255,255,.8),inset 0 -3px 6px rgba(0,0,0,.18)}
+.sheet .sitem .swatch{width:30px;height:30px;border-radius:999px;flex:none;box-shadow:inset 0 1px 1px rgba(255,255,255,.8),inset 0 -3px 6px rgba(0,0,0,.18)}
 .sheet .sitem .nm{flex:1;min-width:0}
 .sheet .sitem .nm b{font-size:14px;font-weight:700;color:var(--ink);display:block}
 .sheet .sitem .nm span{font-size:11px;color:var(--ink-3);margin-top:1px;display:block}
@@ -530,12 +531,12 @@ h1,h2,h3,p{margin:0}
 .res-hero .big b{font-family:var(--num);font-size:56px;line-height:.82;font-weight:700;letter-spacing:-.03em;color:var(--ink);text-shadow:0 1px 0 rgba(255,255,255,.7)}
 .res-hero .big small{font-size:13px;color:var(--ink-3);margin-bottom:8px;font-weight:600}
 .res-hero .rng{margin-top:8px;font-size:12.5px;color:var(--honey-deep);font-weight:600;display:flex;align-items:center;gap:6px}
-.res-hero .rng .bar{height:5px;width:80px;border-radius:99px;background:linear-gradient(90deg,var(--honey-l),var(--honey-deep));position:relative;box-shadow:inset 0 1px 1px rgba(120,80,20,.3)}
+.res-hero .rng .bar{/* cf-justify: 营养三格是内凹玻璃蚀刻格，非白卡 */height:5px;width:80px;border-radius:999px;background:linear-gradient(90deg,var(--honey-l),var(--honey-deep));position:relative;box-shadow:inset 0 1px 1px rgba(120,80,20,.3)}
 /* 营养三格：内凹蚀刻格，与玻璃槽同门语，不是三块白卡 */
-.res-hero .macros{display:flex;gap:8px;margin-top:16px;padding:5px;border-radius:14px;
+.res-hero .macros{/* cf-justify: 营养三格是内凹玻璃蚀刻格，非白卡 */display:flex;gap:8px;margin-top:16px;padding:5px;border-radius:var(--r-3);
   background:linear-gradient(180deg,rgba(60,92,84,.10),rgba(255,255,255,.26));
   box-shadow:inset 0 1.5px 3px rgba(40,72,64,.28),inset 0 -1px 0 rgba(255,255,255,.55)}
-.res-hero .mac{flex:1;text-align:center;padding:8px 4px;border-radius:9px;
+.res-hero .mac{/* cf-justify: 营养单格是蚀刻格单元，与凹槽同门语 */flex:1;text-align:center;padding:8px 4px;border-radius:var(--r-xs);
   background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,.12));
   box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 2px rgba(40,72,64,.18)}
 .res-hero .mac+.mac{box-shadow:inset 1px 0 0 rgba(60,92,84,.14),inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 2px rgba(40,72,64,.18)}
@@ -549,7 +550,7 @@ h1,h2,h3,p{margin:0}
 .dish-detail{border-radius:var(--r-md);padding:0;margin-bottom:11px;cursor:pointer;
   /* cf-justify: 明细是一张可展开的承光玻璃卡，连续圆角=玻璃卡本体 */}
 .dish-detail .head{display:flex;align-items:center;gap:11px;padding:14px}
-.dish-detail .head .swatch{width:36px;height:36px;border-radius:50%;flex:none;box-shadow:inset 0 2px 2px rgba(255,255,255,.8),inset 0 -4px 8px rgba(0,0,0,.2),inset 0 0 0 1px rgba(255,255,255,.35),0 4px 10px -5px rgba(var(--sh),.7)}
+.dish-detail .head .swatch{width:36px;height:36px;border-radius:999px;flex:none;box-shadow:inset 0 2px 2px rgba(255,255,255,.8),inset 0 -4px 8px rgba(0,0,0,.2),inset 0 0 0 1px rgba(255,255,255,.35),0 4px 10px -5px rgba(var(--sh),.7)}
 .dish-detail .head .nm{flex:1;min-width:0}
 .dish-detail .head .nm b{display:block;font-size:14.5px;font-weight:700;color:var(--ink)}
 .dish-detail .head .nm span{font-size:11.5px;color:var(--ink-3);margin-top:2px;display:block}
@@ -565,7 +566,7 @@ h1,h2,h3,p{margin:0}
 .dish-detail .kv .k{color:var(--ink-3)}
 .dish-detail .kv .v{color:var(--ink);font-weight:600;font-family:var(--num)}
 .dish-detail .kv .v.txt{font-family:var(--font);font-weight:500;color:var(--ink-2);text-align:right;max-width:62%}
-.dish-detail .math{margin-top:10px;padding:11px 13px;border-radius:12px;background:rgba(255,255,255,.45);border:1px solid rgba(255,255,255,.55);font-size:12px;color:var(--ink-2);line-height:1.6;box-shadow:inset 0 1px 0 rgba(255,255,255,.85)}
+.dish-detail .math{/* cf-justify: 算式框是玻璃蚀刻公式条，与前文数据同一材质 */margin-top:10px;padding:11px 13px;border-radius:var(--r-2);background:rgba(255,255,255,.45);border:1px solid rgba(255,255,255,.55);font-size:12px;color:var(--ink-2);line-height:1.6;box-shadow:inset 0 1px 0 rgba(255,255,255,.85)}
 .dish-detail .math b{color:var(--honey-deep);font-family:var(--num)}
 .dish-detail .prov{margin-top:9px;font-size:11px;color:var(--ink-4);line-height:1.5}
 
@@ -573,9 +574,9 @@ h1,h2,h3,p{margin:0}
    周视图 · 七根液光棱柱
    ============================================================ */
 .week-chart{display:flex;align-items:flex-end;justify-content:space-between;gap:6px;height:210px;margin-top:8px;padding:0 2px}
-.bar{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative;cursor:default}
+.bar{/* cf-justify: 玻璃柱是液光棱柱本体，圆角=玻璃筒口沿 */flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative;cursor:default}
 /* 玻璃柱本体：定高玻璃筒，始终存在（空也看得见玻璃），液光在其内升降 */
-.bar .col{width:100%;max-width:28px;height:150px;position:relative;border-radius:14px 14px 10px 10px;overflow:hidden;
+.bar .col{/* cf-justify: 玻璃柱是液光棱柱本体，圆角=玻璃筒口沿 */width:100%;max-width:28px;height:150px;position:relative;border-radius:var(--r-3) 14px 10px 10px;overflow:hidden;
   background:linear-gradient(180deg,rgba(255,255,255,.30),rgba(255,255,255,.10) 40%,rgba(255,255,255,.22));
   border:1px solid rgba(255,255,255,.62);
   box-shadow:
@@ -587,10 +588,10 @@ h1,h2,h3,p{margin:0}
     0 10px 20px -13px rgba(var(--sh),.6);
 }
 /* 玻璃筒左缘竖向镜面反光条：整条玻璃的厚度感来自它 */
-.bar .col::before{content:"";position:absolute;left:3px;top:6px;bottom:6px;width:4px;border-radius:99px;z-index:3;pointer-events:none;
+.bar .col::before{content:"";position:absolute;left:3px;top:6px;bottom:6px;width:4px;border-radius:999px;z-index:3;pointer-events:none;
   background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,255,255,.25) 30%,rgba(255,255,255,.55) 60%,rgba(255,255,255,.1))}
 /* 玻璃筒右缘一道细回光 */
-.bar .col::after{content:"";position:absolute;right:3px;top:10px;bottom:10px;width:2px;border-radius:99px;z-index:3;pointer-events:none;
+.bar .col::after{content:"";position:absolute;right:3px;top:10px;bottom:10px;width:2px;border-radius:999px;z-index:3;pointer-events:none;
   background:linear-gradient(180deg,rgba(255,255,255,.5),rgba(255,255,255,0) 60%)}
 /* 液光：底部升起的一段琥珀液光，高度=当日热量占比；内部发光 + 液面弯月 + 底部 caustic */
 .bar .liquid{position:absolute;left:0;right:0;bottom:0;z-index:1;border-radius:0 0 9px 9px;
@@ -601,7 +602,7 @@ h1,h2,h3,p{margin:0}
   box-shadow:inset 0 -8px 14px -6px rgba(150,90,30,.6),inset 0 10px 18px -8px rgba(255,228,175,.85),0 0 14px rgba(240,195,119,.5);
   height:0;transition:height .85s cubic-bezier(.2,1,.3,1)}
 /* 液面弯月：顶一道镜面高光弧（受光的液面张力）*/
-.bar .liquid::before{content:"";position:absolute;left:4%;right:4%;top:-3px;height:7px;border-radius:50%;
+.bar .liquid::before{content:"";position:absolute;left:4%;right:4%;top:-3px;height:7px;border-radius:999px;
   background:radial-gradient(closest-side,rgba(255,252,240,1),rgba(255,255,255,0) 82%);z-index:2}
 /* 液面受光边 + 液体内核亮带 */
 .bar .liquid::after{content:"";position:absolute;left:8%;right:8%;top:2px;bottom:14%;border-radius:0 0 8px 8px;
@@ -609,7 +610,7 @@ h1,h2,h3,p{margin:0}
   filter:blur(.4px);z-index:2}
 /* 未记录：玻璃筒留空，内壁一圈虚线暗示「还没注入」 */
 .bar.empty .col{border-style:solid}
-.bar.empty .col .dash{position:absolute;inset:5px;border-radius:9px;border:1.5px dashed rgba(96,126,118,.42);z-index:2}
+.bar.empty .col .dash{/* cf-justify: 空柱内壁虚线标记，属玻璃筒内部而非独立容器 */position:absolute;inset:5px;border-radius:var(--r-xs);border:1.5px dashed rgba(96,126,118,.42);z-index:2}
 /* 不完整：液面画成明显断开的两层液，中间一道真空隙 + 细虚线桥（语义化，不靠颜色） */
 .bar.partial .liquid{overflow:visible}
 .bar.partial .liquid .gap{position:absolute;left:0;right:0;top:46%;height:5px;background:repeating-linear-gradient(90deg,rgba(255,250,238,.9) 0 3px,rgba(200,170,120,.5) 3px 6px);z-index:3;box-shadow:0 -1px 0 rgba(150,90,30,.3),0 1px 0 rgba(255,255,255,.6)}
@@ -619,13 +620,13 @@ h1,h2,h3,p{margin:0}
 .bar.today .day{color:var(--teal-deep);font-weight:700}
 .bar.today .col{border-color:rgba(47,122,104,.62);box-shadow:inset 0 1.5px 0 rgba(255,255,255,.98),0 0 0 2px rgba(47,122,104,.32),0 10px 20px -13px rgba(var(--sh),.55)}
 /* 今天：柱底一枚青绿色光座 + 青色柱环，双重定位 */
-.bar.today::after{content:"";position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);width:34px;height:8px;border-radius:50%;
+.bar.today::after{content:"";position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);width:34px;height:8px;border-radius:999px;
   background:radial-gradient(closest-side,rgba(47,122,104,.42),rgba(47,122,104,0));filter:blur(1px);z-index:0}
 .bar .kc{font-family:var(--num);font-size:11px;color:var(--ink-3);margin-bottom:6px;height:13px}
 .bar.today .kc{color:var(--teal-deep);font-weight:600}
 
 .week-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:20px}
-.week-sum .cell{border-radius:16px;padding:13px 12px;text-align:center;
+.week-sum .cell{border-radius:var(--r-4);padding:13px 12px;text-align:center;
   /* cf-justify: 周汇总三格是同一玻璃母题的小规格瓷片 */
 }
 .week-sum .cell b{font-family:var(--num);font-size:20px;font-weight:700;color:var(--ink);display:block;line-height:1}
@@ -633,11 +634,11 @@ h1,h2,h3,p{margin:0}
 .week-sum .cell span{font-size:11px;color:var(--ink-3);margin-top:6px;display:block}
 .week-legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:16px;padding:0 4px}
 .week-legend i{display:inline-block;width:13px;height:13px;border-radius:5px;margin-right:5px;vertical-align:-2px}
-.week-legend span{font-size:11.5px;color:var(--ink-2);display:inline-flex;align-items:center}
+.week-legend span{/* cf-justify: toast 是悬浮玻璃片，厚度由亮边与投影构成 */font-size:11.5px;color:var(--ink-2);display:inline-flex;align-items:center}
 
 /* toast */
-.toast{position:fixed;left:50%;transform:translate(-50%,20px);bottom:calc(96px + var(--safe-b));z-index:60;
-  padding:11px 17px;border-radius:16px;font-size:13px;font-weight:600;color:var(--ink);opacity:0;pointer-events:none;
+.toast{/* cf-justify: toast 是悬浮玻璃片，厚度由亮边与投影构成 */position:fixed;left:50%;transform:translate(-50%,20px);bottom:calc(96px + var(--safe-b));z-index:60;
+  padding:11px 17px;border-radius:var(--r-4);font-size:13px;font-weight:600;color:var(--ink);opacity:0;pointer-events:none;
   transition:opacity .3s,transform .3s;max-width:86vw;text-align:center;
   background:rgba(255,255,255,.8);-webkit-backdrop-filter:blur(14px) saturate(150%);backdrop-filter:blur(14px) saturate(150%);
   border:1px solid rgba(255,255,255,.7);box-shadow:0 12px 30px -14px rgba(var(--sh),.7),inset 0 1px 0 #fff}
@@ -747,7 +748,7 @@ h1,h2,h3,p{margin:0}
       </div>
       <div class="plate-list" id="plate-list"></div>
 
-      <button class="btn-add" id="btn-add" style="width:100%;margin-top:12px;border:0;cursor:pointer;font-family:var(--font);font-size:13.5px;font-weight:600;color:var(--teal-deep);padding:13px;border-radius:16px;background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.6);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 5px 12px -8px rgba(var(--sh),.5);display:flex;align-items:center;justify-content:center;gap:8px">
+      <button class="btn-add" id="btn-add" style="width:100%;margin-top:12px;border:0;cursor:pointer;font-family:var(--font);font-size:13.5px;font-weight:600;color:var(--teal-deep);padding:13px;border-radius:var(--r-4);background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.6);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 5px 12px -8px rgba(var(--sh),.5);display:flex;align-items:center;justify-content:center;gap:8px">
         <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M8 3v10M3 8h10"/></svg>
         从菜品库选一道
       </button>
@@ -950,7 +951,7 @@ function renderToday(){
       '<div class="empty-slot glass">'+
         '<div class="opt" aria-hidden="true"></div>'+
         '<div><h3>今天还没有一餐</h3><p>对着餐盘拍一张，光就进来一层。</p></div>'+
-        '<button class="btn-go" data-go="new" style="border:0;cursor:pointer;font-family:var(--font);font-size:14px;font-weight:700;color:#fff;padding:12px 24px;border-radius:15px;background:linear-gradient(160deg,var(--teal),var(--teal-deep));box-shadow:0 10px 22px -10px rgba(30,87,74,.8),inset 0 1px 0 rgba(255,255,255,.35)">去记一餐</button>'+
+        '<button class="btn-go" data-go="new" style="border:0;cursor:pointer;font-family:var(--font);font-size:14px;font-weight:700;color:#fff;padding:12px 24px;border-radius:var(--r-3);background:linear-gradient(160deg,var(--teal),var(--teal-deep));box-shadow:0 10px 22px -10px rgba(30,87,74,.8),inset 0 1px 0 rgba(255,255,255,.35)">去记一餐</button>'+
       '</div>';
     return;
   }

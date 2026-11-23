@@ -43,10 +43,13 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   --rule-soft:#d9cfb9;
   --vermilion:#b23a26;
   --vermilion-soft:#c96248;
-  /* —— 字体：拉丁数字走衬线（等宽数字），中文落到宋体 —— */
-  --serif:"Nimbus Roman No9 L","Liberation Serif","Times New Roman",
-          "Songti SC","Songti TC","Noto Serif CJK SC","Source Han Serif SC",
-          "STSong","SimSun",serif;
+  /* —— 四档线制：节级 / 栏级 / 行级 / 点引 —— */
+  --rule-sec:#1c1913;
+  --rule:#b9ad94;
+  --rule-soft:rgba(60,48,28,.28);
+  /* —— 字体：中文落到宋体；拉丁数字走衬线（等宽数字）—— */
+  --serif:"Noto Serif CJK SC","Source Han Serif SC","Songti SC","STSong",
+          "Nimbus Roman No9 L","Liberation Serif","Times New Roman",serif;
   --sans:"PingFang SC","Hiragino Sans GB","Noto Sans CJK SC","Source Han Sans SC",
          "Microsoft YaHei",system-ui,-apple-system,"Segoe UI",sans-serif;
   --mono:"SF Mono",ui-monospace,"JetBrains Mono","DejaVu Sans Mono",
@@ -54,8 +57,8 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
   /* —— 版心 —— */
   --gut:34px;          /* 左侧吊挂序号留白 */
   --pad:22px;          /* 四周版口 */
-  --spine:30px;        /* 右书脊 */
-  --folio:34px;        /* 底部页脚栏 */
+  --spine:14px;        /* 右裁切标留白（原竖排书脊已删，仅留裁切标） */
+  --folio:52px;        /* 底部页脚栏 */
 }
 @media (max-width:374px){
   :root{--gut:28px;--pad:18px;--spine:26px}
@@ -73,21 +76,31 @@ body{
   min-height:100dvh;
   overflow-x:hidden;
 }
-/* 纸张肌理：内联 SVG 湍流噪点，纯本地无请求 */
+/* 纸张肌理：帘纹纸结构——横向帘线 + 纵向纸纹 + 稀疏纤维斑点，三层纯 CSS/SVG 内联，无请求 */
 .paper{
   position:fixed;inset:0;z-index:0;pointer-events:none;
   background-color:var(--paper);
   background-image:
+    /* 纤维斑点（湍流噪点，真实纸屑） */
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='160' height='160' filter='url(%23n)' opacity='0.05'/></svg>"),
+    /* 横向帘线：每 26px 一条 */
+    repeating-linear-gradient(0deg, rgba(120,96,60,.05) 0 1px, transparent 1px 26px),
+    /* 纵向细纸纹：每 3px 一组 */
+    repeating-linear-gradient(90deg, rgba(120,96,60,.022) 0 1px, transparent 1px 3px),
     radial-gradient(120% 90% at 50% -10%,#f7f1e4 0%,var(--paper) 46%,var(--paper-deep) 100%);
 }
-.paper::after{
-  content:"";position:absolute;inset:0;opacity:.5;mix-blend-mode:multiply;
-  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='180' height='180' filter='url(%23n)' opacity='0.16'/></svg>");
-}
-/* 纸张左边缘一道压痕，暗示这是"册页" */
+/* 左侧书口：3 层叠页阴影，暗示一叠册页的厚度 */
 .paper::before{
-  content:"";position:absolute;left:0;top:0;bottom:0;width:8px;
-  background:linear-gradient(90deg,rgba(90,70,40,.10),transparent);
+  content:"";position:absolute;left:0;top:0;bottom:0;width:14px;
+  background:
+    linear-gradient(90deg, rgba(70,52,26,.16), transparent 60%),
+    repeating-linear-gradient(90deg, transparent 0 3px, rgba(70,52,26,.05) 3px 4px);
+}
+.paper::after{
+  content:"";position:absolute;inset:0;mix-blend-mode:multiply;
+  background-image:
+    radial-gradient(80% 60% at 80% 6%, rgba(180,150,100,.06), transparent 60%),
+    radial-gradient(70% 50% at 10% 96%, rgba(120,90,50,.06), transparent 60%);
 }
 #app{
   position:relative;z-index:1;
@@ -116,7 +129,7 @@ body{
 .mast-meta{
   display:flex;justify-content:space-between;align-items:baseline;gap:10px;
   font-size:var(--t-0);line-height:1.3;color:var(--ink-soft);
-  letter-spacing:.06em;
+  letter-spacing:.04em;
   font-variant-numeric:tabular-nums;
 }
 .mast-meta b{font-family:var(--serif);font-weight:600;color:var(--ink);font-size:15px}
@@ -142,37 +155,41 @@ body{
 .dateline{
   display:flex;flex-wrap:wrap;align-items:baseline;gap:0 12px;
   font-size:var(--t-0);color:var(--ink-soft);
-  letter-spacing:.05em;font-variant-numeric:tabular-nums;
+  letter-spacing:.03em;font-variant-numeric:tabular-nums;
   padding-bottom:13px;
 }
 .dateline .dl-strong{color:var(--ink)}
 .dateline .dl-dot{color:var(--vermilion);font-weight:700;transform:translateY(-1px)}
 
-/* ---------- 竖排书脊 ---------- */
+/* ---------- 页边裁切标（原装饰书脊已删；改承载本屏独有信息） ---------- */
 .spine{
-  position:absolute;top:6px;right:var(--pad);width:var(--spine);
-  display:flex;flex-direction:column;align-items:center;
-  pointer-events:none;
+  position:absolute;top:10px;right:calc(var(--pad) - 6px);width:var(--spine);
+  display:flex;flex-direction:column;align-items:center;gap:5px;
+  pointer-events:none;color:var(--ink-faint);
 }
-.spine .spine-rule{
-  writing-mode:vertical-rl;
-  font-family:var(--serif);
-  font-size:var(--t-0);
-  letter-spacing:.42em;
-  color:var(--ink-soft);
-  line-height:1;
-  padding-top:2px;
+/* L 形套准角标：两条 hairline 在右下角相交，指向版心角，不用十字/加号 */
+.spine .crop-mark{width:10px;height:10px;position:relative}
+.spine .crop-mark::before,.spine .crop-mark::after{
+  content:"";position:absolute;background:var(--ink-faint);
 }
-.spine .spine-rule::before{
-  content:"";display:block;width:1px;height:26px;margin:0 auto 10px;
-  background:var(--ink);
+.spine .crop-mark::before{right:0;top:0;width:1px;height:10px}
+.spine .crop-mark::after{right:0;bottom:0;height:1px;width:10px}
+.spine .spine-label{
+  writing-mode:vertical-rl;font-family:var(--sans);font-size:11px;
+  letter-spacing:.04em;color:var(--ink-faint);line-height:1;
 }
-.spine .spine-rule .sp-dot{color:var(--vermilion)}
 
 /* ---------- 分节标题 ---------- */
-.section-head{display:flex;align-items:baseline;gap:10px;margin:4px 0 2px}
+/* 节级分栏线：2.5px 墨线，上方留白形成阅读段落切换；左端对齐吊挂列 */
+.section-head{
+  display:flex;align-items:baseline;gap:10px;
+  margin:22px 0 2px;padding-top:9px;position:relative;
+}
+.section-head::before{
+  content:"";position:absolute;left:calc(-1 * var(--gut));right:0;top:0;height:2.5px;background:var(--ink);
+}
 .kicker{
-  font-size:var(--t-0);letter-spacing:.14em;color:var(--vermilion);
+  font-size:var(--t-0);letter-spacing:.04em;color:var(--vermilion);
   font-weight:600;white-space:nowrap;
 }
 .section-title{
@@ -186,14 +203,18 @@ body{
 .lead-top{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
 .lead-num{
   font-family:var(--serif);
-  font-weight:600;
-  font-size:clamp(84px,29vw,124px);
+  font-weight:800;
+  font-size:clamp(78px,25vw,96px);
   line-height:.8;
-  letter-spacing:-.02em;
+  letter-spacing:-.01em;
   font-variant-numeric:tabular-nums lining-nums;
   color:var(--ink);
   display:inline-block;
   transform-origin:left bottom;
+  /* 活字压印：上沿受光、下沿压暗，模拟油墨压在纸纤维里 */
+  text-shadow:0 1px 0 rgba(255,255,255,.4), 0 -1px 0 rgba(40,26,8,.18);
+  /* 切出左版口，形成裁切感 */
+  margin-left:-.04em;
 }
 .lead-num.is-bump{animation:numBump .42s cubic-bezier(.2,.9,.25,1)}
 @keyframes numBump{0%{transform:scale(1.06);opacity:.55}100%{transform:scale(1);opacity:1}}
@@ -203,10 +224,10 @@ body{
 }
 /* 主数据眉标：横向朱砂小字，让「眉标—巨号—单位」成一条阅读轴；右页边只留书脊一条竖排 */
 .lead-eyebrow{
-  font-family:var(--sans);font-size:var(--t-0);letter-spacing:.14em;
+  font-family:var(--sans);font-size:var(--t-0);letter-spacing:.04em;
   color:var(--vermilion);font-weight:600;margin-bottom:5px;
 }
-.lead-eyebrow .le-sub{color:var(--ink-faint);font-weight:400;letter-spacing:.05em;margin-left:8px}
+.lead-eyebrow .le-sub{color:var(--ink-faint);font-weight:400;letter-spacing:.03em;margin-left:8px}
 /* 空版面主数据：待填横线，像稿纸上的填空栏 */
 .lead-blank{display:inline-flex;align-items:flex-end;gap:0;width:auto;min-height:.8em}
 .lead-blank .lb-tally{
@@ -223,7 +244,7 @@ body{
 .macro-strip{display:grid;grid-template-columns:repeat(3,1fr);margin-top:14px;border-top:1px solid var(--rule)}
 .macro-strip .mc{padding:9px 0 0;padding-right:10px}
 .macro-strip .mc+.mc{border-left:1px solid var(--rule-soft);padding-left:12px;padding-right:0}
-.mc-k{font-size:var(--t--1);color:var(--ink-soft);letter-spacing:.05em}
+.mc-k{font-size:var(--t--1);color:var(--ink-soft);letter-spacing:.03em}
 .mc-v{font-family:var(--serif);font-weight:600;font-size:var(--t-2);font-variant-numeric:tabular-nums;line-height:1.1;margin-top:3px;color:var(--ink)}
 .mc-v .mc-u{font-size:11px;color:var(--ink-faint);font-weight:400;margin-left:2px}
 .mc-v.is-na{color:var(--ink-faint);font-size:var(--t-0);font-weight:400;font-family:var(--sans)}
@@ -253,7 +274,7 @@ body{
 .meal-dishes{grid-column:1/2;font-size:var(--t-0);color:var(--ink-soft);line-height:1.6;letter-spacing:.02em}
 .meal-kcal{grid-column:2/3;grid-row:1/3;align-self:center;text-align:right}
 .meal-kcal .mk-num{font-family:var(--serif);font-weight:600;font-size:var(--t-3);font-variant-numeric:tabular-nums;line-height:1}
-.meal-kcal .mk-unit{display:block;font-size:11px;color:var(--ink-faint);letter-spacing:.08em;margin-top:2px}
+.meal-kcal .mk-unit{display:block;font-size:11px;color:var(--ink-faint);letter-spacing:.04em;margin-top:2px}
 .meal-row .pending-flag{
   display:inline-block;font-size:11px;color:var(--vermilion);letter-spacing:.04em;
   border-bottom:1px solid var(--vermilion);line-height:1.2;
@@ -292,36 +313,55 @@ body{
 .empty-body{font-size:var(--t-0);line-height:var(--lh-small);color:var(--ink-soft);max-width:26em}
 .empty-sig{
   margin-top:16px;font-family:var(--serif);font-size:var(--t-0);color:var(--ink-faint);
-  letter-spacing:.2em;
+  letter-spacing:.04em;
 }
 
-/* ---------- 主操作按钮（拍照） ---------- */
+/* ---------- 主操作：订报回执（借 React Bits Tear Ticket 的齿孔撕口机制，纯 CSS 还原） ---------- */
 .shutter{
-  display:flex;align-items:center;gap:14px;width:100%;
-  padding:16px 18px;margin-top:6px;
+  display:flex;align-items:center;gap:13px;width:100%;
+  padding:20px 18px 15px 16px;margin-top:6px;
   background:var(--ink);color:var(--paper);
   border:none;cursor:pointer;text-align:left;
   font-family:var(--sans);
-  transition:transform .1s ease,background-color .18s ease;
+  transition:transform .1s ease;
   -webkit-tap-highlight-color:transparent;
-  position:relative;overflow:hidden;
+  position:relative;
+  /* 顶部齿孔撕线：纸色半圆沿顶边排开，像从报尾撕下的回执 */
+  background-image:radial-gradient(circle 4px at 8px 0, var(--paper) 96%, transparent 100%);
+  background-size:16px 8px;background-repeat:repeat-x;background-position:0 0;
+}
+/* 报刊回执：只保留两装置——顶部齿孔 + 一枚朱色橡皮印章；网点仅压顶带，不做满版 */
+.shutter::after{
+  content:"";position:absolute;left:6px;right:6px;top:7px;height:12px;pointer-events:none;
+  background-image:radial-gradient(rgba(255,255,255,.10) 1px, transparent 1.4px);
+  background-size:3px 3px;
 }
 .shutter:active{transform:scale(.985)}
+/* 「本期主稿」：朱色橡皮章，斜盖在回执右上角 */
+.shutter .sh-eyebrow{
+  position:absolute;top:6px;right:10px;font-size:11px;letter-spacing:.04em;
+  color:var(--vermilion);font-weight:700;z-index:2;
+  border:1.5px solid var(--vermilion);padding:1px 6px;
+  transform:rotate(-5deg);background:rgba(242,235,220,.06);
+  -webkit-mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='20'><filter id='r'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='1'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.15 1.05'/></filter><rect width='60' height='20' filter='url(%23r)'/></svg>");
+  mask-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='60' height='20'><filter id='r'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='1'/><feColorMatrix type='matrix' values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 -1.15 1.05'/></filter><rect width='60' height='20' filter='url(%23r)'/></svg>");
+  -webkit-mask-size:60px 20px;mask-size:60px 20px;
+}
 .shutter .sh-aperture{
-  flex:0 0 auto;width:42px;height:42px;border-radius:50%;
-  border:2px solid var(--paper);position:relative;display:grid;place-items:center;
-  transition:transform .18s cubic-bezier(.2,.8,.2,1);
+  flex:0 0 auto;width:38px;height:38px;border-radius:50%;
+  border:1.5px solid var(--paper);position:relative;display:grid;place-items:center;
+  transition:transform .18s cubic-bezier(.2,.8,.2,1);z-index:1;
 }
 .shutter .sh-aperture::before{
-  content:"";width:22px;height:22px;border-radius:50%;
-  border:2px solid var(--paper);background:var(--vermilion);
+  content:"";width:18px;height:18px;border-radius:50%;
+  border:1.5px solid var(--paper);background:var(--vermilion);
   transition:transform .2s ease;
 }
 .shutter:active .sh-aperture::before{transform:scale(.82)}
-.shutter .sh-text{display:flex;flex-direction:column;gap:1px}
-.shutter .sh-main{font-size:var(--t-2);font-weight:700;letter-spacing:.04em}
-.shutter .sh-sub{font-size:11px;opacity:.72;letter-spacing:.05em}
-.shutter .sh-arrow{margin-left:auto;font-family:var(--serif);font-size:var(--t-3);opacity:.8}
+.shutter .sh-text{display:flex;flex-direction:column;gap:1px;z-index:1}
+.shutter .sh-main{font-size:var(--t-2);font-weight:700;letter-spacing:.02em}
+.shutter .sh-sub{font-size:11px;opacity:.75;letter-spacing:.02em}
+.shutter .sh-arrow{margin-left:auto;font-family:var(--serif);font-size:var(--t-3);opacity:.8;z-index:1}
 
 .ghost-row{display:flex;gap:0;margin-top:14px;border-top:1px solid var(--rule);border-bottom:1px solid var(--rule)}
 .ghost-btn{
@@ -405,7 +445,7 @@ body{
 .draft-sum::after{content:"";position:absolute;left:0;right:0;top:4px;height:1px;background:var(--vermilion);opacity:.6}
 .draft-sum.show{display:block;animation:sumIn .3s cubic-bezier(.2,.8,.2,1) both}
 @keyframes sumIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
-.draft-sum .ds-eyebrow{font-size:var(--t--1);letter-spacing:.14em;color:var(--vermilion);font-weight:600;margin-bottom:4px}
+.draft-sum .ds-eyebrow{font-size:var(--t--1);letter-spacing:.04em;color:var(--vermilion);font-weight:600;margin-bottom:4px}
 .draft-sum .ds-row{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
 .draft-sum .ds-num{font-family:var(--serif);font-weight:700;font-size:var(--t-5);line-height:.85;font-variant-numeric:tabular-nums;transition:color .3s}
 .draft-sum .ds-unit{font-family:var(--serif);font-size:var(--t-0);color:var(--ink-soft);margin-left:5px}
@@ -421,19 +461,19 @@ body{
 .draft-sum .ds-save:disabled{opacity:.4;cursor:default}
 
 /* ---------- 单餐结果：明细表 ---------- */
-.result-hero{margin-top:12px;padding-bottom:16px;border-bottom:3px double var(--ink)}
+.result-hero{margin-top:12px;padding-bottom:12px;border-bottom:1px solid var(--rule)}
 .rh-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
 .rh-slot{font-family:var(--serif);font-weight:700;font-size:var(--t-3);line-height:1.1}
-.rh-when{font-size:var(--t-0);color:var(--ink-faint);font-variant-numeric:tabular-nums;letter-spacing:.05em;margin-top:3px}
+.rh-when{font-size:var(--t-0);color:var(--ink-faint);font-variant-numeric:tabular-nums;letter-spacing:.02em;margin-top:3px}
 .rh-kcal{text-align:right}
 .rh-kcal .rk-num{font-family:var(--serif);font-weight:600;font-size:var(--t-6);line-height:.82;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.rh-kcal .rk-unit{display:block;font-size:var(--t-0);color:var(--ink-soft);letter-spacing:.14em;margin-top:3px}
+.rh-kcal .rk-unit{display:block;font-size:var(--t-0);color:var(--ink-soft);letter-spacing:.04em;margin-top:3px}
 .rh-macros{display:flex;gap:0;margin-top:16px;border-top:1px solid var(--rule)}
 .rh-macros .rm-cell{flex:1;padding:9px 0 0;text-align:left}
 .rh-macros .rm-cell+.rm-cell{border-left:1px solid var(--rule-soft);padding-left:12px}
 .rh-macros .rm-v{font-family:var(--serif);font-weight:600;font-size:var(--t-2);font-variant-numeric:tabular-nums;line-height:1}
 .rh-macros .rm-v .rm-u{font-size:11px;color:var(--ink-faint);font-weight:400;margin-left:2px}
-.rh-macros .rm-k{font-size:11px;color:var(--ink-soft);letter-spacing:.06em;margin-top:3px}
+.rh-macros .rm-k{font-size:11px;color:var(--ink-soft);letter-spacing:.03em;margin-top:3px}
 .rh-macros .rm-v.is-na{color:var(--ink-faint)}
 .macro-na{margin-top:14px;padding-top:10px;border-top:1px solid var(--rule);font-size:var(--t-0);line-height:1.6;color:var(--ink-soft)}
 .macro-na b{color:var(--ink);font-weight:600}
@@ -449,15 +489,17 @@ body{
 .dd-head .dd-portion{display:block;font-family:var(--sans);font-size:11px;color:var(--ink-faint);font-weight:400;letter-spacing:.04em;margin-top:2px;font-variant-numeric:tabular-nums}
 .dd-head .dd-kcal{font-family:var(--serif);font-weight:600;font-size:var(--t-2);font-variant-numeric:tabular-nums;text-align:right}
 .dd-head .dd-kcal .dd-kcal-na{color:var(--vermilion);font-size:11px;display:block;font-weight:400;letter-spacing:.02em}
+/* 展开记号：折角下折箭头（暗示翻折），与「＋加菜」区隔；展开时转向上 */
 .dd-head .dd-toggle{
   width:22px;height:22px;position:relative;justify-self:end;
 }
-.dd-head .dd-toggle::before,.dd-head .dd-toggle::after{
-  content:"";position:absolute;left:50%;top:50%;background:var(--ink-soft);transition:transform .25s cubic-bezier(.2,.8,.2,1);
+.dd-head .dd-toggle::before{
+  content:"";position:absolute;left:50%;top:46%;width:8px;height:8px;
+  border-right:1.5px solid var(--ink-soft);border-bottom:1.5px solid var(--ink-soft);
+  transform:translate(-50%,-50%) rotate(45deg);
+  transition:transform .3s cubic-bezier(.2,.8,.2,1),border-color .2s;
 }
-.dd-head .dd-toggle::before{width:12px;height:1.5px;transform:translate(-50%,-50%)}
-.dd-head .dd-toggle::after{width:1.5px;height:12px;transform:translate(-50%,-50%)}
-.detail-dish.open .dd-toggle::after{transform:translate(-50%,-50%) scaleY(0)}
+.detail-dish.open .dd-toggle::before{transform:translate(-50%,-30%) rotate(-135deg);border-color:var(--vermilion)}
 .dd-body{
   display:grid;grid-template-rows:0fr;transition:grid-template-rows .34s cubic-bezier(.3,.7,.2,1);
 }
@@ -496,7 +538,7 @@ body{
 .footnotes{margin-top:22px}
 .fn-title{
   display:flex;align-items:center;gap:10px;font-size:var(--t-0);color:var(--ink-soft);
-  letter-spacing:.16em;margin-bottom:8px;
+  letter-spacing:.04em;margin-bottom:8px;
 }
 .fn-title::after{content:"";flex:1;border-top:1px solid var(--rule)}
 .fn-item{display:grid;grid-template-columns:auto 1fr;gap:8px;font-size:11px;line-height:1.6;color:var(--ink-soft);padding:4px 0}
@@ -520,10 +562,12 @@ body{
   padding:13px 0;border-bottom:1px solid var(--rule-soft);
   position:relative;cursor:default;
 }
-.ledger-day.is-today{background:rgba(178,58,38,.045)}
+/* 今日：不铺底色，改版口栏外朱色短竖线 + 日期转朱砂，保持纸面完整 */
 .ledger-day.is-today::before{
-  content:"";position:absolute;left:calc(-1 * var(--pad));top:0;bottom:0;width:2px;background:var(--vermilion);
+  content:"";position:absolute;left:calc(-1 * var(--pad) - 2px);top:6px;bottom:6px;width:2px;background:var(--vermilion);
 }
+.ledger-day.is-today .ld-weekday{color:var(--vermilion)}
+.ledger-day.is-today .ld-daynum{color:var(--vermilion);opacity:.8}
 .ld-date{display:flex;flex-direction:column;align-items:flex-start;line-height:1.1}
 .ld-weekday{font-family:var(--serif);font-weight:700;font-size:var(--t-2);font-variant-numeric:tabular-nums}
 .ld-daynum{font-size:11px;color:var(--ink-faint);letter-spacing:.03em;font-variant-numeric:tabular-nums;margin-top:2px}
@@ -544,9 +588,19 @@ body{
 .ld-state{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
 .ld-state .ld-kcal{font-family:var(--serif);font-weight:600;font-size:var(--t-2);line-height:1}
 .ld-state .ld-tag{display:block;font-size:11px;letter-spacing:.04em;margin-top:2px;color:var(--ink-faint)}
-.ld-state .ld-tag.is-miss{font-family:var(--serif);font-style:italic;letter-spacing:.1em}
+.ld-state .ld-tag.is-miss{font-family:var(--serif);letter-spacing:.04em;color:var(--ink-faint)}
+/* 空版：轨道上一条带断口的细线，像页面缺版留下的空白，不是 loading 虚线 */
+.ld-bar-strike{
+  position:relative;display:block;height:9px;width:100%;
+}
+.ld-bar-strike::before{
+  content:"";position:absolute;left:0;right:0;top:50%;height:1px;
+  background:linear-gradient(90deg,
+    var(--rule-soft) 0 38%, transparent 38% 52%,
+    var(--rule-soft) 52% 100%);
+}
 .ld-state .ld-tag.is-inc{color:var(--ink-soft);font-weight:600}
-.ld-state.is-empty .ld-tag{font-size:var(--t-0);letter-spacing:.18em;color:var(--ink-faint);font-family:var(--serif)}
+.ld-state.is-empty .ld-tag{font-size:var(--t-0);letter-spacing:.04em;color:var(--ink-faint);font-family:var(--serif)}
 
 /* ---------- 页脚 + 导航（书目页码语言） ---------- */
 .folio{
@@ -571,7 +625,7 @@ body{
 }
 /* 页码是真数据（期号/七天跨度），不是装饰编号 */
 .folio-btn .fb-mark{font-family:var(--serif);font-size:var(--t--1);line-height:1;font-variant-numeric:tabular-nums;letter-spacing:.02em;color:var(--ink-faint)}
-.folio-btn .fb-name{font-size:var(--t--1);letter-spacing:.08em;color:var(--ink-soft);transition:color .16s ease,font-weight .16s ease}
+.folio-btn .fb-name{font-size:var(--t--1);letter-spacing:.04em;color:var(--ink-soft);transition:color .16s ease,font-weight .16s ease}
 /* 激活态：页码与栏名转朱砂、栏名加粗；不挂外置红条，靠字重与色相分级 */
 .folio-btn.is-active{color:var(--vermilion)}
 .folio-btn.is-active .fb-mark{color:var(--vermilion);font-weight:700}
@@ -809,11 +863,11 @@ function seal(date){
     <span class="st-sep"></span>
   </div></div>`;
 }
-function spine(date){
-  const c = cnDate(date);
+function spine(date,label){
   return `
   <aside class="spine" aria-hidden="true">
-    <div class="spine-rule">NO.${issueNo(date)}<span class="sp-dot">·</span>${c.m}月${c.d}日</div>
+    <span class="crop-mark"></span>
+    <span class="spine-label">${label||''}</span>
   </aside>`;
 }
 function folio(active){
@@ -863,7 +917,7 @@ function viewToday(forceEmpty){
     const pendTxt = st.pendingCount>0 ? `已估算热量；其中 <b>${st.pendingCount}</b> 道待估算。` : '已估算热量，营养数据齐全。';
     leadHTML = `
       <div class="lead">
-        <div class="lead-eyebrow">本日摄入<span class="le-sub">${st.mealCount} 餐 · ${st.itemCount} 道菜</span></div>
+        <div class="lead-eyebrow">本日摄入<span class="le-sub">${st.mealCount} 餐　${st.itemCount} 道菜</span></div>
         <div class="lead-top">
           <span><span class="lead-num" id="todayKcal">${st.kcal}</span><span class="lead-unit">千卡</span></span>
         </div>
@@ -873,7 +927,7 @@ function viewToday(forceEmpty){
           ${macroCell('脂肪', st.fat, 70)}
           ${macroCell('碳水', st.carbs, 250)}
         </div>
-        <p class="macro-ref"><span class="mr-k">占日需估算</span>：蛋白质 60 克 · 脂肪 70 克 · 碳水 250 克（成人一般参考量）</p>
+        <p class="macro-ref"><span class="mr-k">占日需估算</span>　蛋白质 60 克　脂肪 70 克　碳水 250 克（成人一般参考量）</p>
       </div>`;
   }
 
@@ -903,13 +957,13 @@ function viewToday(forceEmpty){
     </div>`;
 
   return `
-    ${spine(today)}
+    ${spine(today,'今日'+(forceEmpty?'·空版':''))}
     <section class="page">
       ${masthead(today)}
       ${leadHTML}
-      ${listHTML}
-      <div style="margin-top:22px">
+      <div style="margin-top:20px">
         <button class="shutter" data-nav="new">
+          <span class="sh-eyebrow">本期主稿</span>
           <span class="sh-aperture" aria-hidden="true"></span>
           <span class="sh-text"><span class="sh-main">拍一餐</span>
             <span class="sh-sub">拍下这道菜，识别后逐项确认</span></span>
@@ -920,6 +974,7 @@ function viewToday(forceEmpty){
           <button class="ghost-btn" data-nav="week"><span class="gb-ico">§</span>翻看七天</button>
         </div>
       </div>
+      ${listHTML}
     </section>
     ${folio('today')}`;
 }
@@ -953,7 +1008,7 @@ function viewNew(){
   const c = cnDate(today);
   const itemsHTML = draft.items.map((it,idx)=>{
     const d = it.dishId?DISHES_lookup(it.dishId):null;
-    const rangeTxt = d ? `每百克 ${d.per[0]} 千卡` : '菜品库外 · 待估算';
+    const rangeTxt = d ? `每百克 ${d.per[0]} 千卡` : '菜品库外 待估算';
     const pend = it.pending ? `<span class="di-pend">待估算</span>` : '';
     const kcalTxt = it.pending ? '—' : it.nutri[0];
     return `
@@ -961,7 +1016,7 @@ function viewNew(){
         <span class="gutter-num">${String(idx+1).padStart(2,'0')}</span>
         <div class="di-name">${esc(it.name)}${pend}</div>
         <div class="di-kcal">${kcalTxt}${it.pending?'':'<span style="font-size:11px;color:var(--ink-faint);font-weight:400"> 千卡</span>'}</div>
-        <div class="di-meta">${it.portionLabel} · ${fmtG(it.grams)} 克 · ${rangeTxt}</div>
+        <div class="di-meta">${it.portionLabel}　${fmtG(it.grams)} 克　${rangeTxt}</div>
         <button class="di-remove" data-remove="${it.uid}" aria-label="移除${esc(it.name)}">✕</button>
       </div>`;
   }).join('');
@@ -969,21 +1024,21 @@ function viewNew(){
   const has = draft.items.length>0;
   const sumHTML = `
     <div class="draft-sum ${has?'show':''}" id="draftSum">
-      <div class="ds-eyebrow">付印 · 本餐合计</div>
+      <div class="ds-eyebrow">付印　本餐合计</div>
       <div class="ds-row">
         <div>
           <span class="ds-num" id="sumKcal">${s.kcal}</span><span class="ds-unit">千卡</span>
         </div>
         <div class="ds-side">
-          共 ${s.itemCount} 道${s.pendingCount>0?` · <span class="ds-pend">${s.pendingCount} 道待估算</span>`:''}
-          <br>${SLOT_LABEL[draft.slot]} · 收录第 ${issueNo(today)} 期
+          共 ${s.itemCount} 道${s.pendingCount>0?`　<span class="ds-pend">${s.pendingCount} 道待估算</span>`:''}
+          <br>${SLOT_LABEL[draft.slot]}　收录第 ${issueNo(today)} 期
         </div>
       </div>
       <button class="ds-save" id="saveMeal" ${has?'':'disabled'}>收录这一餐</button>
     </div>`;
 
   return `
-    ${spine(today)}
+    ${spine(today,'新建一餐')}
     <section class="page">
       <button class="backline" data-nav="today"><span class="bl-arrow">←</span>返回今日</button>
       ${masthead(today,'新建一餐')}
@@ -1005,7 +1060,7 @@ function viewNew(){
 
       <div class="draft-toolbar">
         <span class="dt-count">已入库 <b>${draft.items.length}</b> 道</span>
-        <span class="dt-count">${SLOT_LABEL[draft.slot]} · ${today.slice(5).replace('-','/')}</span>
+        <span class="dt-count">${SLOT_LABEL[draft.slot]}　${today.slice(5).replace('-','/')}</span>
       </div>
       <div class="detail-list">${itemsHTML || `<p style="padding:18px 0;font-size:13px;color:var(--ink-faint)">还没有菜品。拍一张，或从下面添加。</p>`}</div>
 
@@ -1068,7 +1123,7 @@ function viewResult(mealId){
       <div class="detail-dish ${isOpen?'open':''}" data-dish="${it.uid}">
         <button class="dd-head" data-toggle="${it.uid}" aria-expanded="${isOpen?'true':'false'}">
           <span><span class="dd-name">${esc(it.name)}</span>
-            <span class="dd-portion">${it.portionLabel} · ${fmtG(it.grams)} 克</span></span>
+            <span class="dd-portion">${it.portionLabel}　${fmtG(it.grams)} 克</span></span>
           <span class="dd-kcal">${kcalCell}</span>
           <span class="dd-toggle" aria-hidden="true"></span>
         </button>
@@ -1079,7 +1134,7 @@ function viewResult(mealId){
   }).join('');
 
   return `
-    ${spine(meal.date)}
+    ${spine(meal.date,'餐次明细')}
     <section class="page">
       <button class="backline" data-nav="today"><span class="bl-arrow">←</span>返回今日</button>
       ${masthead(meal.date,'餐次明细')}
@@ -1087,11 +1142,11 @@ function viewResult(mealId){
         <div class="rh-top">
           <div>
             <div class="rh-slot">${SLOT_LABEL[meal.slot]}</div>
-            <div class="rh-when">${meal.date.replace(/-/g,'.')} · ${meal.time}</div>
+            <div class="rh-when">${meal.date.replace(/-/g,'.')}　${meal.time}</div>
           </div>
           <div class="rh-kcal">
             <span class="rk-num">${s.kcal}</span>
-            <span class="rk-unit">${s.pendingCount>0?'已估算·千卡':'千卡'}</span>
+            <span class="rk-unit">${s.pendingCount>0?'已估算 千卡':'千卡'}</span>
           </div>
         </div>
         ${rangeHTML}
@@ -1149,8 +1204,8 @@ function viewWeek(){
     const isToday = cell.date===today;
     let rightHTML, barHTML, dishesTxt='';
     if(!cell.logged){
-      rightHTML = `<span class="ld-tag is-miss">未记录</span>`;
-      barHTML = `<span class="ld-bar-fill" style="width:0"></span>`;
+      rightHTML = `<span class="ld-tag is-miss">空版</span>`;
+      barHTML = `<span class="ld-bar-strike"></span>`;
     } else {
       const w = Math.max(6, Math.round(cell.kcal/maxKcal*100));
       const inc = cell.incomplete;
@@ -1167,7 +1222,7 @@ function viewWeek(){
         </div>
         <div class="ld-mid">
           <div class="ld-bar"><span class="ld-bar-rule"></span>${barHTML}</div>
-          <div class="ld-dishes">${cell.logged?dishesTxt:'版面空缺'}</div>
+          <div class="ld-dishes">${cell.logged?dishesTxt:''}</div>
         </div>
         <div class="ld-state ${cell.logged?'':'is-empty'}">${rightHTML}</div>
       </div>`;
@@ -1177,14 +1232,14 @@ function viewWeek(){
   const missedCount = cells.filter(c=>!c.logged).length;
 
   return `
-    ${spine(today)}
+    ${spine(today,'七日回顾')}
     <section class="page">
       ${masthead(today,'七日回顾')}
       <div class="section-head" style="margin-top:14px"><span class="kicker">账簿</span><span class="section-title">最近七天</span></div>
       <div class="week-totals">
         <div class="wt-main">
           <span class="wt-num">${weekTotal}</span>
-          <span class="wt-lab">千卡 · 七日合计</span>
+          <span class="wt-lab">千卡　七日合计</span>
         </div>
         <span class="wt-avg">有记录 ${logged.length} 天<br>日均 ${avg} 千卡</span>
       </div>
@@ -1192,7 +1247,7 @@ function viewWeek(){
 
       <div class="footnotes">
         <div class="fn-title">本统计说明</div>
-        <div class="fn-item"><span class="fn-mark">§</span><span class="fn-body">${missedCount} 天未记录、${incompleteCount} 天数据不完整（含待估算菜品）。<span class="fn-note">条长按当日已估算千卡相对于本周单日最大值绘制。</span></span></div>
+        <div class="fn-item"><span class="fn-mark">·</span><span class="fn-body">${missedCount} 天未记录、${incompleteCount} 天数据不完整（含待估算菜品）。<span class="fn-note">条长按当日已估算千卡相对于本周单日最大值绘制。</span></span></div>
       </div>
 
       <div style="margin-top:24px">

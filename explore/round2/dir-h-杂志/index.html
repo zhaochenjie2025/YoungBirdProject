@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta name="color-scheme" content="light" />
+<title>卡路里拍立得 · 编辑版式</title>
+<style>
+/* =========================================================================
+   方向 H · 编辑 / 杂志版式
+   母题：这张页面就是一份校园饮食周报的版面。所有容器由「栏线 + 字号阶梯 +
+   留白」构成，不靠圆角、阴影、渐变材质。版面语言来自印刷：裁切为直角，
+   分隔靠 1px 栏线与 3px 重线，强调色只有一管钴蓝油墨。
+   ========================================================================= */
+:root{
+  --paper:#f6f3eb;
+  --paper-hi:#fbf9f3;
+  --ink:#15130f;
+  --ink-2:#423c33;
+  --ink-3:#6b6458;
+  --rule:rgba(21,19,15,.16);
+  --rule-2:rgba(21,19,15,.42);
+  --cobalt:#1c37b8;
+  --cobalt-soft:rgba(28,55,184,.16);
+  --night:#14120f;
+  --night-ink:#f2ecdf;
+  --night-dim:#a49c8b;
+  --night-rule:rgba(242,236,223,.22);
+  --m:22px;
+  --folio:62px;
+  --sans:system-ui,-apple-system,"PingFang SC","Noto Sans CJK SC","Source Han Sans SC","Microsoft YaHei",sans-serif;
+}
+
+*,*::before,*::after{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;background:var(--paper);color:var(--ink);
+  font-family:var(--sans);
+  font-size:15px;line-height:1.7;
+  -webkit-font-smoothing:antialiased;
+  text-rendering:optimizeLegibility;
+  overflow:hidden;
+}
+body::before{ /* 纸面纤维：极淡静态噪点，只提供印刷基底的触感，不参与任何动效 */
+  content:"";position:fixed;inset:0;z-index:90;pointer-events:none;
+  opacity:.05;mix-blend-mode:multiply;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.86' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)' opacity='.55'/%3E%3C/svg%3E");
+}
+button{font:inherit;color:inherit}
+::selection{background:var(--cobalt);color:#fff}
+:focus-visible{outline:2px solid var(--cobalt);outline-offset:3px}
+
+/* ---------- 屏幕（每屏是一个可滚动的对开页） ---------- */
+#stage{position:fixed;inset:0}
+.spread{
+  position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;
+  padding:0 var(--m) calc(var(--folio) + 26px + env(safe-area-inset-bottom,0px));
+  opacity:0;visibility:hidden;transform:translateY(10px);
+  transition:opacity .34s ease,transform .34s cubic-bezier(.2,.8,.25,1),visibility 0s linear .34s;
+  overscroll-behavior:contain;
+  scrollbar-width:none;
+}
+.spread::-webkit-scrollbar{width:0}
+.spread.active{opacity:1;visibility:visible;transform:none;transition-delay:0s,0s,0s}
+.spread:focus{outline:none}
+.spread.dark{background:var(--night);color:var(--night-ink)}
+
+/* ---------- 通用排版元件 ---------- */
+.tnum{font-variant-numeric:tabular-nums lining-nums}
+.hair{height:1px;background:var(--rule);border:0;margin:0}
+.heavy{height:3px;background:var(--ink);border:0;margin:0}
+.dark .heavy{background:var(--night-ink)}
+
+.kicker{
+  font-size:11.5px;letter-spacing:.16em;line-height:1.5;color:var(--ink-3);
+  display:flex;align-items:baseline;gap:.7em;
+}
+.dark .kicker{color:var(--night-dim)}
+.kicker .cobalt{color:var(--cobalt)}
+
+.deck{
+  font-size:15px;line-height:1.78;color:var(--ink-2);margin:14px 0 0;
+  max-width:32ch;text-wrap:pretty;
+}
+.dark .deck{color:var(--night-dim)}
+
+/* 分节标头：中文序号 + 标题 + 右侧真实说明，压一条重线 */
+.sect{
+  display:flex;align-items:baseline;gap:10px;
+  margin:30px 0 0;padding-top:9px;border-top:3px solid var(--ink);
+}
+.sect .no{font-size:11.5px;letter-spacing:.1em;color:var(--cobalt);font-variant-numeric:tabular-nums;min-width:1.2em}
+.sect h2{margin:0;font-size:17px;font-weight:700;letter-spacing:-.01em;line-height:1.3}
+.sect .fill{flex:1;height:1px;background:var(--rule);align-self:center;margin:0 4px 0 2px}
+.sect .note{font-size:11.5px;color:var(--ink-3);letter-spacing:.06em}
+
+/* 马克笔高亮：借 Magic UI Text Highlighter 的笔刷显形，改用钴蓝油墨的实心色带 */
+.hl{position:relative;display:inline-block;isolation:isolate;color:var(--ink);font-weight:600}
+.hl::before{
+  content:"";position:absolute;left:-.18em;right:-.18em;top:.18em;bottom:.08em;z-index:-1;
+  background:var(--cobalt-soft);
+  transform:scaleX(0);transform-origin:left center;
+  transition:transform .7s cubic-bezier(.2,.75,.2,1) .35s;
+}
+.spread.active .hl::before{transform:scaleX(1)}
+.dark .hl{color:var(--night-ink)}
+.dark .hl::before{background:rgba(28,55,184,.6)}
+
+/* 文字逐字升起（借 React Bits Split Text 的字符遮罩位移） */
+[data-split]{display:block}
+[data-split] .ch{display:inline-block;overflow:hidden;vertical-align:bottom;padding-bottom:.08em;margin-bottom:-.08em}
+[data-split] .ch>i{display:inline-block;font-style:normal;transform:translateY(112%);transition:transform .9s cubic-bezier(.16,.84,.24,1);transition-delay:var(--d,0ms)}
+.spread.active [data-split] .ch>i{transform:none}
+
+/* 数字滚筒（借 Magic UI Number Ticker：每位一列，逐列落位） */
+.tk{display:inline-block;height:1em;overflow:hidden;vertical-align:baseline;text-align:center;width:.6em;font-variant-numeric:tabular-nums}
+.tk-col{display:block;will-change:transform}
+.tk-col>span{display:block;height:1em;line-height:1}
+</style>

@@ -73,6 +73,9 @@ body::after{
 .screen.is-on>.wrap{flex:1 0 auto}
 .screen.is-on>.dock{margin-top:auto}
 .wrap{width:100%;max-width:440px;margin:0 auto;padding:0 18px}
+/* 底坞是桌沿不是遮罩：给可滚动内容留出坞高+余量，首屏/叠卡/小票不被压住（must-fix 1） */
+#scr-new>.wrap{padding-bottom:calc(96px + var(--safe-b))}
+#scr-today>.wrap{padding-bottom:calc(100px + var(--safe-b))}
 </style>
 <style>
 /* ============ 顶栏 ============ */
@@ -92,11 +95,11 @@ body::after{
    于是整叠的抬升高度随整餐热量增长——「整餐热量是这叠卡的合力」在几何上成立。
    JS 逐卡写入 --ty（累积抬升量）与 --band。 */
 .stage{position:relative;perspective:1100px;perspective-origin:50% 2%;margin:0 -2px;padding-top:calc(var(--rise,0px) + 44px)}
-.deck{position:relative;height:var(--card-h,236px)}
+.deck{position:relative;height:var(--card-h,206px)}
 .deck-empty{position:absolute;inset:0;display:flex;align-items:center;justify-content:center}
 /* cf-justify: 这是一张实体菜卡，矩形是母题本身（可推开/翻起/叠合的卡片），圆角模拟切好的硬纸卡四角；材质靠多层 background 渐变+纸纤维颗粒+胶带+类别色条+三层推导阴影堆出，非默认容器 */
 .dish-card{
-  position:absolute;left:0;right:0;top:0;height:var(--card-h,236px);
+  position:absolute;left:0;right:0;top:0;height:var(--card-h,206px);
   border-radius:11px; /* cf-justify: 实体菜卡切角，母题本体 */
   transform-origin:50% 0%;
   transform:
@@ -108,13 +111,17 @@ body::after{
     scale(calc(1 - var(--i) * .022));
   z-index:calc(60 - var(--i));
   --dz:calc(var(--i) * 1.3 + .45);
-  box-shadow:var(--sh-a),var(--sh-b),var(--sh-c);
+  /* 侧壁厚度：两层硬偏移暗影 + 底缘亮线，让卡像"切出来的纸"而非画上的矩形（借 React Bits Tilted Card 的挤出做法） */
+  box-shadow:
+    var(--sh-a),
+    0 calc(2px + var(--i) * 0px) 0 rgba(120,96,64,.55),
+    0 calc(3px + var(--i) * 0px) 0 rgba(150,130,100,.9),
+    var(--sh-b),var(--sh-c);
   transition:transform .5s cubic-bezier(.2,1.12,.3,1), opacity .3s ease, box-shadow .5s ease;
   will-change:transform;
   cursor:grab;
   touch-action:pan-y;
   background:
-    radial-gradient(circle at calc(100% - 20px) 18px, var(--table) 0 5.5px, rgba(0,0,0,.45) 5.8px 6.8px, rgba(255,255,255,.35) 7px 7.8px, transparent 8px),
     repeating-linear-gradient(93deg, rgba(150,120,80,.045) 0 2px, transparent 2px 5px),
     repeating-linear-gradient(3deg, rgba(110,84,48,.04) 0 1px, transparent 1px 4px),
     radial-gradient(130% 120% at 18% -10%, var(--paper-hi) 0%, var(--paper) 52%, var(--paper-lo) 100%);
@@ -122,6 +129,11 @@ body::after{
   overflow:hidden;
   user-select:none;
 }
+/* 打孔鸡眼扣：真实孔位（透出桌面）+ 双圈黄铜环，与快门同源；落在顶边不被上卡切断 */
+.dish-card .grommet{position:absolute;top:9px;right:12px;width:15px;height:15px;border-radius:50%;z-index:3;
+  background:radial-gradient(circle at 50% 40%, #1d1813 0 40%, #3a2f22 52%, #6b5228 68%, #c9a25f 82%, #8a6a34 100%);
+  box-shadow:0 1px 0 rgba(255,246,222,.5) inset, 0 0 0 1px rgba(90,60,20,.5), 0 2px 3px rgba(0,0,0,.4)}
+.dish-card.is-deep .grommet{display:none}
 /* 纸纤维颗粒 + 顶部叠压阴影（前一张卡投在它上面的暗带） */
 .dish-card::after{
   content:"";position:absolute;inset:0;pointer-events:none;border-radius:inherit;
@@ -143,7 +155,7 @@ body::after{
 .dish-card.is-ghost{opacity:0!important;pointer-events:none}
 
 .card-in{position:absolute;inset:0;padding:16px 16px 14px 20px;display:flex;flex-direction:column;gap:8px;color:var(--ink)}
-.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding-right:26px}
+.card-head{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;padding-right:30px}
 .card-name{font-family:"Songti SC","STSong","Noto Serif SC",serif;font-size:21px;line-height:1.15;font-weight:700;letter-spacing:.01em;color:var(--ink)}
 .card-sub{font-size:11.5px;color:var(--ink-3);letter-spacing:.03em;margin-top:3px}
 .card-kcal{text-align:right;flex:none}
@@ -152,14 +164,20 @@ body::after{
 .card-kcal.pending b{font-family:var(--font);font-size:15px;color:var(--seal);letter-spacing:.04em}
 
 .card-mid{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-/* 宏量配比条：一张卡里用三条油墨刻度表达这份菜的构成，填补中段留白且承载真实数据 */
+/* 宏量：打孔刻度条（die-cut 冲孔网格，借 Tear Ticket 齿孔语言）——已摄入部分冲成透桌暗孔，余下保持纸面；
+   读数另附油墨数字。避免标准 web 进度条模板味 */
 .card-mac{margin-top:auto;display:flex;flex-direction:column;gap:7px;padding:2px 0 4px}
 .mac-row{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--ink-3)}
 .mac-row .ml{width:30px;flex:none;letter-spacing:.02em}
-.mac-row .track{flex:1;height:5px;border-radius:3px;background:rgba(120,96,64,.16);overflow:hidden;position:relative}
-.mac-row .fill{position:absolute;left:0;top:0;bottom:0;border-radius:3px}
+.mac-row .ruler{flex:1;height:9px;position:relative;
+  background:
+    radial-gradient(circle, rgba(30,22,14,.9) 0 1.7px, transparent 2.1px) 0 center/7px 9px repeat-x;
+  -webkit-mask:linear-gradient(90deg,#000 0 var(--fill,0%),rgba(0,0,0,.14) var(--fill,0%) 100%);
+  mask:linear-gradient(90deg,#000 0 var(--fill,0%),rgba(0,0,0,.14) var(--fill,0%) 100%)}
+.mac-row .ruler::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:1px;
+  background:repeating-linear-gradient(90deg, rgba(120,96,64,.5) 0 1px, transparent 1px 7px)}
 .mac-row .mv{width:46px;flex:none;text-align:right;font-family:var(--mono);font-size:11px;color:var(--ink-2);font-weight:500}
-.mac-row.na .track{background:repeating-linear-gradient(90deg,rgba(120,96,64,.22) 0 3px,transparent 3px 6px)}
+.mac-row.na .ruler{background:repeating-linear-gradient(90deg,rgba(120,96,64,.25) 0 2px,transparent 2px 6px);-webkit-mask:none;mask:none;height:7px}
 .mac-row.na .mv{color:var(--seal)}
 .card-foot{display:flex;align-items:flex-end;justify-content:space-between;gap:10px;padding-top:9px;border-top:1px dashed rgba(120,96,64,.4)}
 .card-foot .src{font-size:11px;color:var(--ink-3);line-height:1.4;max-width:58%}
@@ -211,26 +229,32 @@ body::after{
 .grams-edit b{font-family:var(--mono);color:var(--ink);font-size:12.5px}
 
 /* ============ 小票纸带 ============ */
-.tape-wrap{position:relative;margin:18px auto 0;width:calc(100% - 34px);max-width:330px;transition:transform .45s cubic-bezier(.2,1.1,.3,1),opacity .4s ease}
+/* filter: drop-shadow 跟随「本体+撕齿」的锯齿轮廓落影（借 React Bits Tear Ticket 的齿孔撕线 + trevornoah 卷纸明暗），
+   box-shadow 只会投矩形，故阴影改挂在 wrapper 上 */
+.tape-wrap{position:relative;margin:22px auto 0;width:calc(100% - 34px);max-width:330px;
+  filter:drop-shadow(0 10px 12px rgba(0,0,0,.34)) drop-shadow(0 2px 3px rgba(0,0,0,.22));
+  transition:transform .45s cubic-bezier(.2,1.1,.3,1),opacity .4s ease}
 .tape-wrap.tearing{transform:translateY(70%) rotate(2.5deg);opacity:0}
 /* cf-justify: 热敏小票纸带，形状由撕齿上缘与穿孔撕线定义，是本方向「一餐账单」的物理载体 */
 .receipt{
   position:relative;background:linear-gradient(180deg,#fbf7ec,#f4ecda 60%,#eee3cd);
-  color:var(--ink);border-radius:0 0 4px 4px;padding:16px 16px 12px;
-  box-shadow:0 1px 0 rgba(255,255,255,.6) inset, 0 8px 18px rgba(0,0,0,.32), 0 2px 4px rgba(0,0,0,.22);
+  color:var(--ink);border-radius:0;padding:16px 16px 14px;
+  box-shadow:0 1px 0 rgba(255,255,255,.6) inset;
   text-shadow:none;
 }
-/* 上缘撕齿（与小票穿孔） */
-.receipt::before{
-  content:"";position:absolute;left:0;right:0;top:-7px;height:7px;background:inherit;
-  -webkit-mask:repeating-linear-gradient(90deg,#000 0 7px,transparent 7px 11px);
-  mask:repeating-linear-gradient(90deg,#000 0 7px,transparent 7px 11px);
+/* 上缘与下缘撕齿：实心同色纸，叠上下缘后由 wrapper 的 drop-shadow 统一勾出锯齿落影 */
+.receipt::before,.receipt::after{
+  content:"";position:absolute;left:0;right:0;height:8px;background:#f8f2e4;
+  -webkit-mask:repeating-linear-gradient(90deg,#000 0 6px,transparent 6px 10px);
+  mask:repeating-linear-gradient(90deg,#000 0 6px,transparent 6px 10px);
 }
-/* 穿孔撕线 */
-.perf{height:1px;border-top:1.5px dashed rgba(90,70,44,.5);position:relative;margin:10px -16px}
-.perf::before,.perf::after{content:"";position:absolute;top:-7px;width:12px;height:12px;border-radius:50%;background:var(--table);box-shadow:inset -1px 1px 2px rgba(0,0,0,.5)}
-.perf::before{left:-6px}.perf::after{right:-6px}
-.rc-head{display:flex;justify-content:space-between;align-items:baseline;font-size:11.5px;color:var(--ink-3);letter-spacing:.08em}
+.receipt::before{top:-8px}
+.receipt::after{bottom:-8px}
+/* 穿孔撕线：两排打穿的孔+一条撕线，孔钉在线上（不是浮贴黑点） */
+.perf{height:0;border-top:1.5px dashed rgba(90,70,44,.55);position:relative;margin:12px -16px}
+.perf::before{content:"";position:absolute;left:0;right:0;top:-9px;height:18px;
+  background:radial-gradient(circle, var(--table) 0 2.2px, transparent 2.6px) 0 9px/13px 18px repeat-x}
+.rc-head{display:flex;justify-content:space-between;align-items:baseline;font-size:11.5px;color:var(--ink-3);letter-spacing:.06em}
 .rc-total{display:flex;align-items:flex-end;justify-content:space-between;margin:6px 0 2px}
 .rc-total .k{font-size:12px;color:var(--ink-3);letter-spacing:.2em;align-self:center}
 .rc-total .v{font-family:var(--mono);font-size:46px;line-height:.86;font-weight:600;color:var(--ink);letter-spacing:-.03em}
@@ -241,8 +265,8 @@ body::after{
 .rc-macros b{display:block;font-family:var(--mono);font-size:15px;font-weight:600;color:var(--ink)}
 .rc-macros span{font-size:11px;color:var(--ink-3);letter-spacing:.12em}
 .rc-macros .na b{font-family:var(--font);font-size:12px;color:var(--ink-3);font-weight:400}
-.rc-foot{display:flex;align-items:center;justify-content:space-between;margin-top:10px}
-.rc-src{font-size:11px;color:var(--ink-3);line-height:1.5;max-width:64%}
+.rc-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:10px}
+.rc-src{font-size:11px;color:var(--ink-3);line-height:1.5;max-width:56%;flex:none}
 /* 橡皮章：不规则墨迹边 + 轻微重印偏移，不再是一个均匀圆角标签 */
 .stamp{
   position:relative;font-family:"Songti SC",serif;font-weight:700;color:var(--seal);
@@ -318,20 +342,30 @@ body::after{
 .meal-block .mb-head span{font-family:var(--mono);font-size:11px;color:var(--cream-72)}
 .meal-block .mb-head .mb-sum{margin-left:auto;font-size:12px;color:var(--cream-72);letter-spacing:.04em}
 .meal-block .mb-head .mb-sum b{font-family:var(--mono);font-size:15px;color:var(--brass);margin-left:3px}
-/* 一摞：每道菜一张被压住的纸卡，露出高度 ∝ 该菜千卡；卡面带宏量刻条+打孔+出处，与新建页同档工艺 */
-.tstack{position:relative;perspective:900px}
+/* 一摞：每道菜一张卡，卡高 ∝ 该菜千卡（越重越厚的实体纸卡），相邻叠压 10px 出层次；
+   侧壁两层硬影+底缘受光读作纸厚（借 Scroll Stack 阶梯 + Tilted Card 挤出） */
+.tstack{position:relative;perspective:900px;padding-bottom:6px}
 /* cf-justify: 今日餐次小叠卡，同一实体菜卡母题，左上直角+右下纸卡切角 */
-.tstack .tcard{position:relative;display:flex;flex-direction:column;justify-content:center;gap:4px;
-  height:var(--bh,64px);margin-top:-14px;
+.tstack .tcard{position:relative;display:flex;flex-direction:column;justify-content:center;gap:5px;
+  height:var(--bh,80px);margin-top:-10px;
   background:
-    radial-gradient(circle at calc(100% - 16px) 13px, var(--table) 0 3.6px, rgba(0,0,0,.4) 3.9px 4.6px, rgba(255,255,255,.3) 4.8px 5.4px, transparent 5.6px),
     repeating-linear-gradient(93deg,rgba(150,120,80,.045) 0 2px,transparent 2px 5px),
     linear-gradient(180deg,var(--paper-hi),var(--paper) 62%,var(--paper-lo));
-  border:1px solid rgba(255,255,255,.55);border-left:6px solid var(--cat);border-radius:8px 8px 3px 3px; /* cf-justify: 今日小叠卡，菜卡切角 */
-  padding:8px 12px 8px 14px;color:var(--ink);transform-origin:50% 0;
-  box-shadow:0 -1px 0 rgba(120,96,64,.28) inset,0 1px 0 rgba(120,96,64,.3),0 4px 10px rgba(6,4,2,.3);
+  border:1px solid rgba(255,255,255,.55);border-left:6px solid var(--cat);border-radius:7px 7px 3px 3px; /* cf-justify: 今日小叠卡，菜卡切角 */
+  padding:10px 40px 10px 14px;color:var(--ink);transform-origin:50% 0;
+  transform:rotate(var(--rot,0deg));
+  /* 侧壁：硬偏移暗影 + 底缘受光亮线 */
+  box-shadow:0 1px 0 rgba(150,130,100,.9),0 2px 0 rgba(120,96,64,.45),0 6px 12px rgba(6,4,2,.34);
   transition:transform .3s cubic-bezier(.2,1.1,.3,1)}
 .tstack .tcard:first-child{margin-top:0}
+.tstack .tcard:nth-child(2){--rot:-.4deg}
+.tstack .tcard:nth-child(3){--rot:.35deg}
+.tstack .tcard:nth-child(4){--rot:-.3deg}
+.tstack .tcard:nth-child(5){--rot:.4deg}
+/* 打孔鸡眼扣：右上角，带面内不被切 */
+.tstack .tcard .tgrommet{position:absolute;top:11px;right:12px;width:13px;height:13px;border-radius:50%;
+  background:radial-gradient(circle at 50% 40%,#1d1813 0 40%,#3a2f22 52%,#6b5228 70%,#c9a25f 84%,#8a6a34 100%);
+  box-shadow:0 0 0 1px rgba(90,60,20,.5),0 1px 2px rgba(0,0,0,.4)}
 .tstack .tcard .trow{display:flex;align-items:center;justify-content:space-between;gap:10px}
 .tstack .tcard .tname{font-size:14.5px;font-weight:700;font-family:"Songti SC",serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .tstack .tcard .tname i{font-style:normal;font-size:11px;color:var(--ink-3);font-weight:400;margin-left:6px;font-family:var(--font)}
@@ -345,10 +379,16 @@ body::after{
 .meal-block .mb-foot .ft b{font-family:var(--mono);font-size:13px;color:var(--cream);font-weight:500;margin-left:2px}
 .meal-block .mb-foot svg{opacity:.5}
 .meal-block:active .tcard{transform:translateY(-2px)}
-/* 未记录餐次：一张空白的虚线菜卡留位，明示「这里还能叠」 */
-.slot-invite{display:flex;align-items:center;gap:9px;height:56px;padding:0 14px;border-radius:8px 8px 3px 3px;
-  border:1.5px dashed rgba(201,162,95,.42);background:linear-gradient(180deg,rgba(243,236,221,.05),rgba(243,236,221,.02));
+/* 未记录餐次：一个空卡槽/文件夹标签剪口，明示「这里还能叠」（借 Magic UI Folder 的标签形态） */
+.slot-invite{position:relative; /* cf-justify: 空卡槽=文件夹标签剪口，圆角是纸签切角 */ display:flex;align-items:center;gap:9px;height:54px;padding:0 14px 0 16px;
+  border-radius:2px 8px 3px 3px;
+  border:1.5px dashed rgba(201,162,95,.42);border-top:0;
+  background:linear-gradient(180deg,rgba(243,236,221,.05),rgba(243,236,221,.02));
   color:var(--cream-72);font-size:12.5px;letter-spacing:.02em}
+/* 文件夹标签：左上角一块凸起的纸签剪口 */
+.slot-invite::before{content:"";position:absolute;left:-1.5px;top:-9px;width:64px;height:11px;
+  border:1.5px dashed rgba(201,162,95,.42);border-bottom:0;border-radius:6px 8px 0 0; /* cf-justify: 文件夹标签纸签剪口，母题 */
+  background:linear-gradient(180deg,rgba(243,236,221,.07),rgba(243,236,221,.04))}
 .slot-invite .si-plus{width:22px;height:22px;border-radius:50%;border:1px solid rgba(201,162,95,.5);display:grid;place-items:center;
   color:var(--brass);font-size:15px;line-height:1;flex:none}
 
@@ -580,7 +620,7 @@ body::after{
   <section class="screen" id="scr-week" aria-label="周视图">
     <div class="wrap">
       <div class="topbar">
-        <div class="brand"><b>最近七天</b><span>每根柱是一餐叠起来的</span></div>
+        <div class="brand"><b>最近七天</b><span>一天几道菜，就是几层卡</span></div>
         <div class="today">合计 <strong id="week-total">0</strong>千卡</div>
       </div>
       <div class="rule"></div>
@@ -700,9 +740,9 @@ function go(name){
 
 /* ---------- 卡片 HTML ---------- */
 function macRow(label, val, max, unit, cat){
-  if(val==null) return '<div class="mac-row na"><span class="ml">'+label+'</span><span class="track"></span><span class="mv">暂无</span></div>';
+  if(val==null) return '<div class="mac-row na"><span class="ml">'+label+'</span><span class="ruler"></span><span class="mv">暂无</span></div>';
   var pct = max>0 ? Math.min(100, Math.round(val/max*100)) : 0;
-  return '<div class="mac-row"><span class="ml">'+label+'</span><span class="track"><span class="fill" style="width:'+pct+'%;background:'+cat+'"></span></span><span class="mv">'+val+unit+'</span></div>';
+  return '<div class="mac-row"><span class="ml">'+label+'</span><span class="ruler" style="--fill:'+pct+'%"></span><span class="mv">'+val+unit+'</span></div>';
 }
 function macroBars(it){
   if(it.pending) return '';
@@ -723,7 +763,7 @@ function cardHTML(it, v, realIdx, ty, band){
     : '<div class="card-kcal"><b>'+it.n[0]+'</b><span>千卡</span></div>';
   return '<article class="dish-card'+(v>0?' is-deep':' is-front')+'" data-i="'+v+'" data-real="'+realIdx+'" '
     + 'style="--i:'+v+';--cat:'+cat+';--ty:'+ty+'px;--band:'+band+'px">'
-    + '<div class="tape"></div><div class="peel"></div>'
+    + '<div class="tape"></div><div class="peel"></div><div class="grommet"></div>'
     + '<div class="card-in">'
     +   '<div class="card-head"><div>'
     +     '<div class="card-name">'+esc(it.name)+'</div>'
@@ -849,8 +889,9 @@ function renderToday(){
   }
   el('today-empty').style.display='none';
   var html='';
-  // band 高度：基础 60px + 千卡系数，钳在 64–120px；卡面容纳「名+千卡+宏量」三行，整摞总高随整餐热量增长
-  function bandOf(it){ if(it.pending||it.n[0]==null) return 70; return Math.max(64, Math.min(120, 58 + it.n[0]*0.10)); }
+  // 卡全高 ∝ 千卡（钳 74–130px）；相邻卡靠 margin-top:calc(--bh * -0.56) 压叠，露出的带面约 44% ≥ 40px，整摞总高随整餐热量增长。
+  // 与新建页共用同一「厚度∝热量」几何，只是横置成餐次摞（must-fix 2）。
+  function bandOf(it){ if(it.pending||it.n[0]==null) return 72; return Math.max(66, Math.min(110, 60 + it.n[0]*0.075)); }
   meals.forEach(function(m){
     var s = summarize(m.items);
     html += '<div class="meal-block" data-meal="'+m.id+'">'
@@ -864,7 +905,7 @@ function renderToday(){
       html += '<div class="tcard" style="--cat:'+catColor(it.cat)+';--bh:'+bandOf(it)+'px;z-index:'+(20-j)+'">'
         + '<div class="trow"><span class="tname">'+esc(it.name)+'<i>'+fmtG(it.grams)+'g · '+esc(it.label)+'</i></span>'
         + '<span class="tkc'+(pend?' na':'')+'">'+(pend?'待估算':it.n[0]+' 千卡')+'</span></div>'
-        + mac + '</div>';
+        + mac + '<span class="tgrommet"></span></div>';
     });
     html += '</div>'
       + '<div class="mb-foot"><span class="ft">这一餐合计<b>'+s.kcal+' 千卡</b></span>'
