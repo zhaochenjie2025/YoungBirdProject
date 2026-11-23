@@ -3,56 +3,57 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CalorieSnap 视觉方向对比</title>
+<title>CalorieSnap 视觉方向对比 · 10 个方向</title>
 <style>
 :root{--bg:#f5f2ec;--ink:#1f1c18;--ink2:#6b645b;--line:#ddd5c9;--card:#fffdf9}
 *{box-sizing:border-box}
 body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,"PingFang SC","Noto Sans CJK SC",system-ui,sans-serif;line-height:1.7}
-header{padding:28px 20px 4px;max-width:1400px;margin:0 auto}
+header{padding:28px 20px 4px;max-width:1500px;margin:0 auto}
 h1{margin:0 0 6px;font-size:23px}
-.sub{color:var(--ink2);font-size:14px}
-.round{max-width:1400px;margin:26px auto 0;padding:0 20px}
-.round h2{font-size:15px;margin:0;padding-bottom:8px;border-bottom:1px solid var(--line);letter-spacing:.02em}
+.sub{color:#6b645b;font-size:14px}
+.round{max-width:1500px;margin:26px auto 0;padding:0 20px}
+.round h2{font-size:15px;margin:0;padding-bottom:8px;border-bottom:1px solid var(--line)}
 .round p{font-size:13px;color:var(--ink2);margin:8px 0 14px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:18px;max-width:1400px;margin:0 auto;padding:0 20px 8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:18px;max-width:1500px;margin:0 auto;padding:0 20px 8px}
 .item{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
 .item h3{margin:0;padding:12px 14px 2px;font-size:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.item .meta{padding:0 14px 8px;font-size:12px;color:var(--ink2);min-height:32px}
+.item .meta{padding:0 14px 8px;font-size:12px;color:var(--ink2);min-height:30px}
 .frame{aspect-ratio:390/844;background:#111;border-top:1px solid var(--line);overflow:hidden;position:relative}
 .frame iframe{width:390px;height:844px;border:0;transform-origin:top left;position:absolute;top:0;left:0}
 .actions{padding:10px 14px;display:flex;gap:8px;flex-wrap:wrap}
 .actions a{font-size:12px;padding:6px 10px;border:1px solid var(--line);border-radius:7px;color:var(--ink);text-decoration:none}
 .badge{font-size:11px;padding:2px 7px;border-radius:999px;background:#e8f0e8;color:#2f6b4f;font-weight:500}
 .badge--warn{background:#fdf3d7;color:#9a6700}
-.notes{padding:0 14px 14px;font-size:12px;color:var(--ink2)}
-.notes ul{margin:4px 0 0;padding-left:1.1em}
 </style>
 </head>
 <body>
 <header>
   <h1>CalorieSnap 视觉方向对比</h1>
-  <div class="sub">每个画面以 390×844 手机基准渲染。点「单独打开」可全屏查看。</div>
+  <div class="sub">10 个方向，均以 390×844 手机基准渲染，零外部依赖，经两轮以上审美质询。</div>
 </header>
 <div id="root"></div>
 <script>
 const ROUNDS = [
   {
-    title: '第二轮 · 参考驱动（点名借具体机制）',
-    desc: '要求每个方向点名借用参考库里的具体组件机制，再换成本项目材质；质询代理均先加载 creative-frontend 技能。',
+    title: '第二轮 · 参考驱动（点名借具体组件机制）— 6 个方向全部 P1=0',
+    desc: '要求点名借用参考库机制再换成本项目材质；质询代理均先加载 creative-frontend 技能。',
     dirs: [
-      { path:'round2/dir-e-简约', name:'E · 现代简约', desc:'iOS 26 Liquid Glass / Linear / Material 3', ok:true },
-      { path:'round2/dir-f-玻璃', name:'F · 玻璃拟态', desc:'visionOS 空间材质 / Fluid Glass', ok:false },
-      { path:'round2/dir-g-数据面板', name:'G · 数据面板', desc:'Linear Analytics / Stripe / Tremor', ok:true },
+      { path:'round2/dir-e-简约', name:'E · 现代简约', desc:'iOS 26 Liquid Glass / Linear / M3' },
+      { path:'round2/dir-f-玻璃', name:'F · 玻璃拟态', desc:'visionOS 材质 / Fluid Glass' },
+      { path:'round2/dir-g-数据面板', name:'G · 数据面板', desc:'Linear Analytics / Stripe / Tremor' },
+      { path:'round2/dir-h-杂志', name:'H · 编辑杂志', desc:'Kinfolk / NYT 特稿 / Pentagram' },
+      { path:'round2/dir-i-粗野', name:'I · 新粗野', desc:'Gumroad / Neobrutalism.dev' },
+      { path:'round2/dir-j-日系', name:'J · 日系极简', desc:'MUJI / 原研哉 / &Premium' },
     ],
   },
   {
     title: '第一轮 · 自创母题（已补带技能质询）',
-    desc: '四个方向补了一轮带技能的质询与返工后归档。',
+    desc: '补一轮带技能的质询与返工后归档。',
     dirs: [
-      { path:'round1/dir-a-拍立得', name:'A · 拍立得', desc:'即时成像相纸 / 暗房', ok:true },
-      { path:'round1/dir-b-仪表盘', name:'B · 仪表盘', desc:'精密仪器面板 / 打孔纸带', ok:true },
-      { path:'round1/dir-c-层叠', name:'C · 层叠', desc:'实体菜卡在 Z 轴叠合', ok:false },
-      { path:'round1/dir-d-手账', name:'D · 手账', desc:'私人饮食刊物 / 强排版', ok:false },
+      { path:'round1/dir-a-拍立得', name:'A · 拍立得', desc:'即时成像相纸 / 暗房' },
+      { path:'round1/dir-b-仪表盘', name:'B · 仪表盘', desc:'精密仪器 / 打孔纸带' },
+      { path:'round1/dir-c-层叠', name:'C · 层叠', desc:'实体菜卡在 Z 轴叠合' },
+      { path:'round1/dir-d-手账', name:'D · 手账', desc:'中式饮食刊物 / 强排版' },
     ],
   },
 ];
@@ -63,27 +64,19 @@ for (const r of ROUNDS) {
   sec.className = 'round';
   sec.innerHTML = `<h2>${r.title}</h2><p>${r.desc}</p>`;
   root.appendChild(sec);
-
   const grid = document.createElement('div');
   grid.className = 'grid';
   root.appendChild(grid);
-
   for (const d of r.dirs) {
     const el = document.createElement('div');
     el.className = 'item';
     const demo = d.path.includes('层叠') ? '?demo=1' : '';
     el.innerHTML = `
-      <h3>${d.name} <span class="badge ${d.ok ? '' : 'badge--warn'}">${d.ok ? '已验收' : '待处理'}</span></h3>
+      <h3>${d.name}</h3>
       <div class="meta">${d.desc}</div>
       <div class="frame"><iframe src="./${d.path}/index.html${demo}" loading="lazy" title="${d.name}"></iframe></div>
-      <div class="actions"><a href="./${d.path}/index.html${demo}" target="_blank" rel="noopener">单独打开 →</a><a href="./${d.path}/NOTES.md" target="_blank" rel="noopener">设计方案</a></div>
-      <div class="notes"></div>`;
+      <div class="actions"><a href="./${d.path}/index.html${demo}" target="_blank" rel="noopener">单独打开 →</a><a href="./${d.path}/NOTES.md" target="_blank" rel="noopener">设计方案</a></div>`;
     grid.appendChild(el);
-    fetch('./' + d.path + '/NOTES.md').then(x => x.ok ? x.text() : '').then(t => {
-      if (!t) return;
-      el.querySelector('.notes').innerHTML = '<ul>' + t.split('\n').filter(l => /^##\s/.test(l)).slice(0, 4)
-        .map(l => '<li>' + l.replace(/^[#\s]+/, '') + '</li>').join('') + '</ul>';
-    }).catch(() => {});
   }
 }
 </script>
