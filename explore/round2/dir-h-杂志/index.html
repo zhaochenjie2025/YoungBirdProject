@@ -150,7 +150,7 @@ button{font:inherit;color:inherit}
 /* 数字滚筒（借 Magic UI Number Ticker：每位一列，逐列落位） */
 .tk{display:inline-block;height:1em;overflow:hidden;vertical-align:baseline;text-align:center;width:.6em;font-variant-numeric:tabular-nums}
 .tk-col{display:block;will-change:transform}
-.tk-col>span{display:block;height:1em;line-height:1}
+.tk-col>span{display:block;height:1em;line-height:1;color:inherit}
 
 /* ---------- 报头 ---------- */
 .masthead{padding-top:calc(12px + env(safe-area-inset-top,0px))}
@@ -170,12 +170,11 @@ button{font:inherit;color:inherit}
 .figure{margin:22px 0 0;display:flex;align-items:flex-end;gap:10px}
 .figure .big,.res-figure .big{
   font-size:96px;line-height:.82;font-weight:800;letter-spacing:-.045em;
-  /* cf-justify: 凸版活字的物理特征——上沿受白高光、下沿被纤维吃墨成暗晕、外扩一圈油墨压边 */
-  text-shadow:
-    0 1px 0 rgba(255,255,255,.85),
-    0 3px 0 rgba(21,19,15,.055),
-    0 5px 14px rgba(21,19,15,.10),
-    0 0 1px rgba(21,19,15,.28);
+  /* cf-justify: 凸版活字——上沿白高光、下沿吃墨暗晕、贴纸油墨压边三层；
+     字面本身用近黑加微光，肉眼能看出它是压进纸里的而不是印上去的。 */
+  color:#0d0b08;
+  /* 只做「压进纸里」的暗边与接触影，不做白色描边（大字会变成一圈灰框） */
+  text-shadow:0 1px 0 rgba(255,255,255,.35),0 2px 1px rgba(21,19,15,.08);
 }
 .figure .unit{font-size:15px;line-height:1.2;color:var(--ink-2);padding-bottom:6px;font-weight:600}
 .figure .unit small{display:block;font-size:11.5px;letter-spacing:.12em;color:var(--ink-3);font-weight:400;margin-top:2px}
@@ -394,12 +393,10 @@ button{font:inherit;color:inherit}
 .res-figure{display:flex;align-items:flex-end;gap:14px;margin:26px 0 0;padding-bottom:16px;border-bottom:1px solid var(--night-rule)}
 /* cf-justify: 反白版的大数字下方压一道重线（3px），是版面分隔而非卡片边 */
 .res-figure .big{border:0}
-.res-figure .big{font-size:104px;line-height:.78;font-weight:800;letter-spacing:-.05em;color:#fff;
-  text-shadow:
-    0 1px 0 rgba(0,0,0,.55),
-    0 3px 0 rgba(0,0,0,.35),
-    0 6px 18px rgba(0,0,0,.45),
-    0 0 1px rgba(255,255,255,.16)}
+.res-figure .big{font-size:104px;line-height:.78;font-weight:800;letter-spacing:-.05em;
+  /* cf-justify: 反白版同样的活字——纸白、压进去的暗边与一圈柔影 */
+  color:#fbf7ec;
+  text-shadow:0 2px 1px rgba(0,0,0,.55);}
 .res-figure .unit{font-size:12.5px;line-height:1.4;color:var(--night-dim);padding-bottom:9px;display:flex;flex-direction:column;gap:2px}
 .res-figure .unit b{display:block;color:var(--night-ink);font-size:15px;font-weight:600;letter-spacing:.02em}
 .res-figure .unit small{font-size:11.5px;letter-spacing:.04em;color:var(--night-dim)}
@@ -666,10 +663,10 @@ button{font:inherit;color:inherit}
     </button>
     <div class="cam-alt">
       <button type="button" class="cam-alt-btn" id="pick-album">
-        <span class="lbl">从相册选一张</span><span class="sub">按菜名搜索，或等识别接入后直接选</span>
+        <span class="lbl">从相册选一张</span><span class="sub">已拍好的照片交给识别</span>
       </button>
       <button type="button" class="cam-alt-btn" id="manual-add">
-        <span class="lbl">手动搜索添加</span><span class="sub">直接按菜名查菜品库</span>
+        <span class="lbl">手动搜索添加</span><span class="sub">按菜名查菜品库</span>
       </button>
     </div>
   </div>
