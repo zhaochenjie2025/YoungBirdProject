@@ -85,6 +85,7 @@ h1.title{font-size:var(--fs-xl);line-height:1.12;font-weight:700;letter-spacing:
   padding:var(--s5) var(--s4) 6px;
 }
 .sec:first-of-type{padding-top:var(--s5)}
+.sec--lg{font-size:var(--fs-md);font-weight:600;color:rgba(60,60,67,.6);padding-top:var(--s5);padding-bottom:6px}
 
 /* ---------- 卡片与分组列表 ---------- */
 .card{background:var(--card);border-radius:var(--r-card);margin:0 var(--s4) 10px;padding:14px}
@@ -99,15 +100,15 @@ button.row:active{background:rgba(0,0,0,.045)}
 .r-main{flex:1;min-width:0}
 .r-name{font-size:var(--fs-md);line-height:1.3}
 .r-sub{font-size:var(--fs-foot);color:var(--lbl2);margin-top:3px;line-height:1.3}
-.r-val{font-size:var(--fs-md);color:var(--lbl2);font-variant-numeric:tabular-nums;white-space:nowrap}
-.r-val b{color:var(--lbl);font-weight:400}
+.r-val{font-size:var(--fs-md);color:#8C8C8E;font-variant-numeric:tabular-nums;white-space:nowrap}
+.r-val b{color:#8C8C8E;font-weight:400}
 .r-val .unit{font-size:var(--fs-foot);margin-left:2px}
 .chev{width:8px;height:13px;color:var(--gray);flex:none;transition:transform .2s var(--ease)}
 .row .chev{margin-left:var(--s1)}
 
 /* ---------- 数字 ---------- */
-.metric{font-size:34px;line-height:1.15;font-weight:700;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-left:-2px}
-.metric em{font-style:normal;font-size:var(--fs-lg);font-weight:600;margin-left:var(--s1);letter-spacing:0}
+.metric{font-size:34px;line-height:1.15;font-weight:400;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-left:-2px}
+.metric em{font-style:normal;font-size:26px;font-weight:400;margin-left:3px;letter-spacing:0}
 .metric-sm{font-size:28px;line-height:1.2;font-weight:600;font-variant-numeric:tabular-nums}
 .metric-sm em{font-style:normal;font-size:var(--fs-sm);font-weight:400;margin-left:2px;color:var(--lbl2)}
 .t-sub{font-size:var(--fs-sm);color:var(--lbl2);line-height:1.4}
@@ -118,28 +119,34 @@ button.row:active{background:rgba(0,0,0,.045)}
 /* ---------- 图表 ---------- */
 .chart{display:block;width:100%;height:auto;margin-top:var(--s2)}
 .chart text{font-family:var(--font)}
-.chart .grid{stroke:#E9E9EE;stroke-width:.7}
-.chart .vgrid{stroke:#DCDCE2;stroke-width:.7;stroke-dasharray:2 3}
-.chart .axis{stroke:#D1D1D6;stroke-width:.7}
-.chart .avg{stroke:#8E8E93;stroke-width:1;stroke-dasharray:4 3}
-.chart .ylab{fill:#8E8E93;font-size:11px}
-.chart .xlab{fill:#8E8E93;font-size:11px}
-.chart .xlab.off{fill:var(--lbl4)}
-.chart .ghost{fill:#D1D1D6;opacity:.5}
-.chart .b-p{fill:var(--blue)}
-.chart .b-f{fill:var(--orange)}
-.chart .b-c{fill:var(--teal)}
+.chart .grid{stroke:#DEDEE0;stroke-width:.8}
+.chart .vgrid{stroke:#D2D2D5;stroke-width:.8;stroke-dasharray:1.5 3}
+.chart .base{stroke:#CBCBCE;stroke-width:.8}
+.chart .avg{stroke:#8E8E93;stroke-width:1.2;stroke-dasharray:5 4;stroke-linecap:round}
+.chart .ylab{fill:#BEBEC2;font-size:11px}
+.chart .avg-lab{fill:#8E8E93;font-size:11px}
+.chart .xlab{fill:#BEBEC2;font-size:11px}
+.chart .xlab.off{fill:#CFCFD2}
+.chart .ghost{fill:#D3D3D7}
+.chart .b-p{fill:#0A7CFF}
+.chart .b-f{fill:#FF8A1E}
+.chart .b-c{fill:#43B0BF}
 .bar{transform-box:fill-box;transform-origin:center bottom;animation:grow .55s var(--ease) both}
 @keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
 
-.legend{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s3);padding:var(--s3) 0 0}
-.legend .k{font-size:var(--fs-sm);font-weight:400}
-.legend .v{font-size:var(--fs-md);font-weight:400;margin-top:3px;font-variant-numeric:tabular-nums}
-.legend .k.p{color:#0062CC} .legend .k.f{color:#C93400} .legend .k.c{color:#0E7C90}
+/* 图例：照苹果——一行三项，类别名用类别色，数值黑色 */
+.legend{display:grid;grid-template-columns:repeat(3,1fr);gap:var(--s2);padding:var(--s3) 0 0}
+.legend .k{font-size:var(--fs-md);font-weight:400;line-height:1.2}
+.legend .v{font-size:var(--fs-sm);font-weight:400;margin-top:2px;color:var(--lbl);font-variant-numeric:tabular-nums}
+.legend .k.p{color:#0A6FD8} .legend .k.f{color:#C25E00} .legend .k.c{color:#0E7C90}
+.week-date{font-size:var(--fs-md);color:var(--lbl2);line-height:1.3;margin-bottom:2px}
 .chart-note{font-size:var(--fs-cap);color:var(--lbl2);line-height:1.5;margin-top:var(--s2)}
-/* cf-justify: 图注内的状态记号（图例点），非容器，无圆角矩形语义 */
-.dot{display:inline-block;width:7px;height:7px;border-radius:var(--r-pill);background:#D1D1D6;vertical-align:middle;margin:0 3px}
-.dot.dot-off{background:none;border:1.2px solid var(--orange)}
+
+/* cf-justify: iOS UISegmentedControl 固有形态——灰色胶囊轨道（9px）+ 白色滑块（7px），圆角为该控件规范值 */
+.seg{display:flex;gap:2px;background:rgba(118,118,128,.12);border-radius:9px;padding:2px;margin:var(--s2) var(--s4) 0}
+.seg button{flex:1;min-height:32px;border-radius:7px;font-size:var(--fs-sm);font-weight:600;color:var(--lbl);text-align:center;transition:background .18s var(--ease)}
+.seg button[aria-selected="true"]{background:#fff;box-shadow:0 .5px 2px rgba(0,0,0,.12)}
+.seg button[aria-selected="false"]{font-weight:400}
 
 /* ---------- 营养构成条 ---------- */
 .comp{display:grid;gap:var(--s4);padding:var(--s2) 0 var(--s1)}
@@ -302,27 +309,28 @@ button.row:active{background:rgba(0,0,0,.045)}
 
 <!-- ============ 周视图 ============ -->
 <section class="screen" id="s-week" aria-label="周视图">
-  <nav class="nav"><span class="slot-l"></span><h2 class="nav-mini">本周</h2><span class="slot-r"></span></nav>
-  <div class="head">
-    <div class="row1"><h1 class="title">最近七天</h1><span class="date-note" id="week-range"></span></div>
+  <nav class="nav">
+    <button class="glass slot-l" data-go="today" aria-label="返回"><svg width="18" height="18" viewBox="0 0 18 18" fill="none"><path d="M11.5 2.5L5 9l6.5 6.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <h2>卡路里</h2><span class="slot-r"></span>
+  </nav>
+
+  <div class="seg" id="week-seg" role="tablist" aria-label="周或日">
+    <button role="tab" data-seg="week" aria-selected="true">每周</button>
+    <button role="tab" data-seg="day" aria-selected="false">每天</button>
   </div>
 
-  <div class="card" style="margin-top:var(--s3);padding-bottom:var(--s3)">
-    <div class="t-foot" id="week-cap"></div>
+  <div class="sec sec--lg">汇总</div>
+
+  <div class="card" id="week-card" style="margin-top:0;padding-bottom:var(--s2)">
+    <div class="week-date" id="week-cap"></div>
     <div class="metric" id="week-total">—</div>
-    <svg class="chart" id="week-chart" viewBox="0 0 358 222" role="img" aria-label="最近七天热量柱状图，按蛋白质、脂肪、碳水堆叠"></svg>
+    <svg class="chart" id="week-chart" viewBox="0 0 358 176" role="img" aria-label="本周热量柱状图，按蛋白质、脂肪、碳水堆叠"></svg>
+    <svg class="chart" id="day-chart" viewBox="0 0 358 150" role="img" aria-label="今天三餐热量按时间分布" style="margin-top:6px"></svg>
     <div class="legend" id="week-legend"></div>
-    <div class="chart-note" id="week-note"></div>
   </div>
+  <div class="chart-note" id="week-note" style="margin:6px var(--s4) 0"></div>
 
-  <div class="sec">全天分布</div>
-  <div class="card">
-    <div class="t-foot">今天三餐 · 按用餐时间</div>
-    <svg class="chart" id="day-chart" viewBox="0 0 358 168" role="img" aria-label="今天三餐热量按时间分布"></svg>
-    <div class="chart-note" id="day-note"></div>
-  </div>
-
-  <div class="sec">每日</div>
+  <div class="sec sec--lg">限额</div>
   <div class="grp" id="week-days"></div>
 </section>
 
@@ -524,123 +532,137 @@ function adviceHTML(){
 }
 
 /* ---------- 周视图 ---------- */
-function renderWeek(){
+/* 照苹果实拍：绘图区无外框；y 轴刻度在右侧区外；每日列一条竖向虚线；柱平顶；
+   未记录=整列高浅灰；平均虚线横贯、右侧区外标「平均」 */
+function renderWeek(mode){
+  mode=mode||"week";
   const days=WEEK.map(d=>({d,day:dayOf(d)}));
-  $("#week-range").textContent="11月16日 – 22日";
+  const isDay=mode==="day";
+  $("#week-card").dataset.mode=mode;
+  $("#week-chart").style.display=isDay?"none":"";
+  $("#day-chart").style.marginTop=isDay?"0":"6px";
+  $("#day-chart").setAttribute("viewBox", isDay?"0 0 358 176":"0 0 358 150");
+  $("#week-days").closest(".grp").style.display="";
+  $("#week-days").previousElementSibling.style.display=""; /* 限额小标题 */
+
+  if(isDay){
+    const d=WEEK[6], day=dayOf(d);
+    $("#week-cap").textContent="11月22日 今天";
+    $("#week-total").innerHTML=`${fmt(day.total.k)}<em>千卡</em>`;
+    const tot={p:day.total.p,f:day.total.f,c:day.total.c};
+    $("#week-legend").innerHTML=[["p","蛋白",tot.p],["f","脂肪",tot.f],["c","碳水",tot.c]]
+      .map(([k,n,v])=>`<div><div class="k ${k}">${n}</div><div class="v">${fmt(v)} 千卡</div></div>`).join("");
+    $("#week-note").innerHTML=`更新于：今天 11:52`;
+    renderDayChart(isDay);
+    return;
+  }
+
+  $("#week-cap").textContent="11月16日 – 22日 本周";
   const recorded=days.filter(x=>x.day.status!=="none");
   const totalK=recorded.reduce((s,x)=>s+x.day.total.k,0);
-  $("#week-cap").textContent=recorded.length<7?`最近七天 · 已记录 ${recorded.length} 天`:"最近七天";
   $("#week-total").innerHTML=`${fmt(totalK)}<em>千卡</em>`;
 
   const complete=days.filter(x=>x.day.status==="full");
   const avg=complete.reduce((s,x)=>s+x.day.total.k,0)/Math.max(complete.length,1);
 
-  const W=358,H=222,padL=6,padR=52,padT=16,padB=34;
-  const plotW=W-padL-padR, plotH=H-padT-padB, y0=padT+plotH;
-  const yMax=1800, ticks=[0,600,1200,1800];
+  /* viewBox 358x176；右侧留 46 给刻度/平均标签 */
+  const W=358,H=176,padL=8,padR=46,padT=14,padB=22;
+  const plotW=W-padL-padR, plotH=H-padT-padB, y0=padT+plotH, yTop=padT;
+  const yMax=2000, ticks=[0,1000,2000];
   const yv=v=>y0-v/yMax*plotH;
-  const slot=plotW/7, barW=24;
+  const slot=plotW/7, barW=Math.round(slot*0.52);
 
-  let grid="", bars="", labels="", marks="";
+  let grid="", bars="", labels="";
+  /* 竖向虚线：每列一条（含两边界），淡 */
   for(let i=0;i<=7;i++){
     const x=padL+slot*i;
-    grid+=`<line class="vgrid" x1="${x}" y1="${padT}" x2="${x}" y2="${y0}"/>`;
+    grid+=`<line class="vgrid" x1="${x}" y1="${yTop}" x2="${x}" y2="${y0}"/>`;
   }
+  /* 横向极淡实线 + 右侧刻度（含 0） */
   for(const t of ticks){
-    if(t>0) grid+=`<line class="grid" x1="${padL}" y1="${yv(t)}" x2="${padL+plotW}" y2="${yv(t)}"/>`;
-    labels+=`<text class="ylab" x="${padL+plotW+8}" y="${yv(t)+4}">${t===0?"0":fmt(t)}</text>`;
+    const y=yv(t);
+    grid+=`<line class="grid" x1="${padL}" y1="${y}" x2="${padL+plotW}" y2="${y}"/>`;
+    labels+=`<text class="ylab" x="${padL+plotW+9}" y="${y+4}">${t===0?"0":fmt(t)}</text>`;
   }
-  grid+=`<line class="axis" x1="${padL}" y1="${y0}" x2="${padL+plotW}" y2="${y0}"/>`;
+  grid+=`<line class="base" x1="${padL}" y1="${y0}" x2="${padL+plotW}" y2="${y0}"/>`;
 
   days.forEach((x,i)=>{
     const cx=padL+slot*(i+0.5), bx=cx-barW/2, st=x.day.status;
-    const lab=`<text class="xlab${st==="none"?" off":""}" x="${cx}" y="${y0+17}" text-anchor="middle">${x.d.w}</text>`;
-    labels+=lab;
+    labels+=`<text class="xlab${st==="none"?" off":""}" x="${cx}" y="${y0+16}" text-anchor="middle">${x.d.w}</text>`;
     if(st==="none"){
-      bars+=`<rect class="ghost" x="${bx}" y="${y0-11}" width="${barW}" height="11" rx="4"/>`;
-      marks+=`<circle cx="${cx}" cy="${y0+25}" r="2" fill="none" stroke="#C7C7CC" stroke-width="1.2"/>`;
+      /* 未记录：整列高浅灰柱，语义=未知，不是 0 */
+      bars+=`<rect class="ghost" x="${bx}" y="${yTop}" width="${barW}" height="${plotH}" rx="0"/>`;
       return;
     }
-    const t=x.day.total, h=t.k/yMax*plotH;
-    const clipId=`bar${i}`;
-    bars+=barClip(clipId,bx,barW,yv(t.k),h);
+    const t=x.day.total;
     let acc=0;
     for(const k of ["p","f","c"]){
       const v=t[k]; if(v<=0) continue;
-      const exact=v/yMax*plotH;
-      bars+=`<rect class="b-${k} bar" x="${bx}" y="${(y0-acc-exact).toFixed(2)}" width="${barW}" height="${(exact+0.6).toFixed(2)}" clip-path="url(#${clipId})" style="animation-delay:${i*55}ms"/>`;
-      acc+=exact;
+      const segH=v/yMax*plotH;
+      bars+=`<rect class="b-${k} bar" x="${bx}" y="${(y0-acc-segH).toFixed(2)}" width="${barW}" height="${(segH+0.6).toFixed(2)}" style="animation-delay:${i*50}ms"/>`;
+      acc+=segH;
     }
-    if(st==="partial") marks+=`<circle cx="${cx}" cy="${y0+25}" r="2" fill="none" stroke="#FF9500" stroke-width="1.2"/>`;
   });
 
-  /* 周平均虚线 + 右侧「平均」标注，照参考图 */
+  /* 平均虚线 + 右侧区外「平均」，同高 */
   const ay=yv(avg);
   const avgMark=`<line class="avg" x1="${padL}" y1="${ay}" x2="${padL+plotW}" y2="${ay}"/>`+
-    `<text class="ylab" x="${padL+plotW+8}" y="${ay+4}" style="fill:#8E8E93">平均</text>`;
+    `<text class="ylab" x="${padL+plotW+9}" y="${ay+4}" >平均</text>`;
 
-  $("#week-chart").innerHTML=grid+bars+avgMark+labels+marks;
+  $("#week-chart").innerHTML=grid+bars+avgMark+labels;
 
-  /* 图例：一周按营养分色的供能合计 */
+  /* 图例：一行，名彩色值黑字（本周按供能合计） */
   const tot={p:0,f:0,c:0};
   recorded.forEach(x=>{for(const k in tot) tot[k]+=x.day.total[k];});
-  $("#week-legend").innerHTML=[["p","蛋白",tot.p],["f","脂肪",tot.f],["c","碳水",tot.c]]
-    .map(([k,n,v])=>`<div><div class="k ${k}">${n}</div><div class="v">${fmt(v)} 千卡</div></div>`).join("");
-  $("#week-note").innerHTML=`柱高为每日热量，按蛋白/脂肪/碳水供能分色堆叠。虚线为 ${complete.length} 个记满三餐日的平均 ${fmt(avg)} 千卡，未记满与未记录的日子不计入。<br><span class="dot dot-off"></span>空心橙点＝已记未满　<span class="dot"></span>灰柱＝未记录`;
+  $("#week-legend").innerHTML=[["p","蛋白质","蛋白",tot.p],["f","脂肪","脂肪",tot.f],["c","碳水","碳水",tot.c]]
+    .map(([k,_n,n,v])=>`<div><div class="k ${k}">${n}</div><div class="v">${fmt(v)} 千卡</div></div>`).join("");
+  $("#week-note").innerHTML=`更新于：今天 11:52`;
 
   renderDayChart();
 
-  /* 每日列表 */
+  /* 逐日列表：形式照「限额」卡——左名右值 + chevron */
   let rows="";
   for(const {d,day} of days){
-    const tag=day.status==="full"?"":(day.status==="partial"?'<span class="pill-tag" style="margin-left:8px">未记满三餐</span>':"");
     const val=day.status==="none"?'<span class="r-val" style="color:var(--lbl3)">未记录</span>'
       :`<span class="r-val"><b>${fmt(day.total.k)}</b><span class="unit">千卡</span></span>`;
-    const sub=day.status==="full"?`${d.date} · 三餐齐全`
-      :day.status==="partial"?`${d.date} · 已记 ${day.rec} 餐`
-      :`${d.date} · 暂无数据`;
-    rows+=`<div class="row"><div class="r-main"><div class="r-name">${d.w}${d.today?'　今天':''}</div><div class="r-sub">${sub}${tag}</div></div>${val}</div>`;
+    rows+=`<div class="row"><div class="r-main"><div class="r-name">${d.w}${d.today?"（今天）":""}</div><div class="r-sub">${d.date}</div></div>${val}${CHEV}</div>`;
   }
   $("#week-days").innerHTML=rows;
 }
 
-/* 今天三餐按用餐时间的分布，照参考图的第二张图 */
-function renderDayChart(){
-  const W=358,H=168,padL=6,padR=52,padT=14,padB=24;
-  const plotW=W-padL-padR, plotH=H-padT-padB, y0=padT+plotH;
-  const yMax=900, ticks=[0,300,600,900], yv=v=>y0-v/yMax*plotH;
-  const t0=5, t1=22, tx=h=>padL+plotW*(h-t0)/(t1-t0);
+/* 今天按用餐时间的分布，照参考图第二张：无外框、右侧刻度、竖向虚线、柱平顶 */
+function renderDayChart(tall){
+  const H=tall?176:150; const W=358,padL=8,padR=46,padT=12,padB=22;
+  const plotW=W-padL-padR, plotH=H-padT-padB, y0=padT+plotH, yTop=padT;
+  const yMax=900, ticks=[0,450,900], yv=v=>y0-v/yMax*plotH;
+  const t0=3, t1=21, tx=h=>padL+plotW*(h-t0)/(t1-t0);
   let grid="", bars="", labels="";
   for(const t of ticks){
-    if(t>0) grid+=`<line class="grid" x1="${padL}" y1="${yv(t)}" x2="${padL+plotW}" y2="${yv(t)}"/>`;
-    labels+=`<text class="ylab" x="${padL+plotW+8}" y="${yv(t)+4}">${t===0?"0":fmt(t)}</text>`;
+    const y=yv(t);
+    grid+=`<line class="grid" x1="${padL}" y1="${y}" x2="${padL+plotW}" y2="${y}"/>`;
+    labels+=`<text class="ylab" x="${padL+plotW+9}" y="${y+4}">${t===0?"0":fmt(t)}</text>`;
   }
-  grid+=`<line class="axis" x1="${padL}" y1="${y0}" x2="${padL+plotW}" y2="${y0}"/>`;
+  grid+=`<line class="base" x1="${padL}" y1="${y0}" x2="${padL+plotW}" y2="${y0}"/>`;
   for(const h of [6,12,18]){
     const x=tx(h);
-    grid+=`<line class="vgrid" x1="${x}" y1="${padT}" x2="${x}" y2="${y0}"/>`;
-    labels+=`<text class="xlab" x="${x}" y="${y0+16}" text-anchor="middle">${h}时</text>`;
+    grid+=`<line class="vgrid" x1="${x}" y1="${yTop}" x2="${x}" y2="${y0}"/>`;
+    labels+=`<text class="xlab" x="${x}" y="${y0+16}" text-anchor="middle">${h} 时</text>`;
   }
-  const d=WEEK[6], barW=22;
-  const pts=[["b","07:40",7.67],["l","11:52",11.87],["d","18:30",18.5]];
-  pts.forEach(([key,time,hr],i)=>{
+  const d=WEEK[6], barW=Math.round(plotW/14*0.55);
+  const pts=[["b",7.7],["l",11.9],["d",18.4]];
+  pts.forEach(([key,hr],i)=>{
     const cx=tx(hr), bx=cx-barW/2;
-    if(!d[key]){
-      bars+=`<rect class="ghost" x="${bx}" y="${y0-11}" width="${barW}" height="11" rx="4"/>`;
-      return;
-    }
-    const sg=dayOf(d).segs[key], h=sg.k/yMax*plotH, cid=`d${i}`;
-    bars+=barClip(cid,bx,barW,yv(sg.k),h);
+    if(!d[key]) return; /* 缺餐：不画柱（苹果图里无记录的时段就是空白） */
+    const sg=dayOf(d).segs[key];
     let acc=0;
     for(const k of ["p","f","c"]){
       const v=sg[k]; if(v<=0) continue;
-      const exact=v/yMax*plotH;
-      bars+=`<rect class="b-${k} bar" x="${bx}" y="${(y0-acc-exact).toFixed(2)}" width="${barW}" height="${(exact+0.6).toFixed(2)}" clip-path="url(#${cid})" style="animation-delay:${(i+1)*55}ms"/>`;
-      acc+=exact;
+      const sh=v/yMax*plotH;
+      bars+=`<rect class="b-${k} bar" x="${bx}" y="${(y0-acc-sh).toFixed(2)}" width="${barW}" height="${(sh+0.6).toFixed(2)}" style="animation-delay:${(i+1)*50}ms"/>`;
+      acc+=sh;
     }
   });
   $("#day-chart").innerHTML=grid+bars+labels;
-  $("#day-note").textContent=`早餐 361 千卡，午餐 858 千卡；晚餐未记录，以浅灰占位，不按 0 计入。`;
 }
 
 /* ---------- 交互 ---------- */
@@ -652,6 +674,12 @@ function go(name){
 document.addEventListener("click",e=>{
   const t=e.target.closest("[data-go]");
   if(t){go(t.dataset.go);return;}
+  const seg=e.target.closest("[data-seg]");
+  if(seg){
+    $$("#week-seg button").forEach(b=>b.setAttribute("aria-selected",String(b===seg)));
+    renderWeek(seg.dataset.seg);
+    return;
+  }
   const hd=e.target.closest(".dish-hd");
   if(hd){
     const wrap=hd.closest(".dish");
