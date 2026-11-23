@@ -117,4 +117,191 @@ button{font:inherit;color:inherit}
 .tk{display:inline-block;height:1em;overflow:hidden;vertical-align:baseline;text-align:center;width:.6em;font-variant-numeric:tabular-nums}
 .tk-col{display:block;will-change:transform}
 .tk-col>span{display:block;height:1em;line-height:1}
+
+/* ---------- 报头 ---------- */
+.masthead{padding-top:calc(12px + env(safe-area-inset-top,0px))}
+.masthead .topline{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.masthead .pub{font-size:12px;letter-spacing:.3em;color:var(--ink-2);font-weight:600}
+.masthead .date{font-size:11.5px;letter-spacing:.08em;color:var(--ink-3);white-space:nowrap}
+.masthead .rule{height:1px;background:var(--rule-2);margin:8px 0 0}
+.masthead .rule2{height:3px;background:var(--ink);margin:3px 0 0}
+
+/* ---------- 首屏大标题区 ---------- */
+.lede{padding:26px 0 0}
+.lede .eyebrow{font-size:11.5px;letter-spacing:.22em;color:var(--cobalt);font-weight:600}
+.lede h1{
+  margin:10px 0 0;font-size:44px;line-height:1.04;font-weight:800;letter-spacing:-.02em;
+}
+.lede h1 em{font-style:normal;display:block}
+.figure{margin:22px 0 0;display:flex;align-items:flex-end;gap:10px}
+.figure .big{font-size:96px;line-height:.82;font-weight:800;letter-spacing:-.045em}
+.figure .unit{font-size:15px;line-height:1.2;color:var(--ink-2);padding-bottom:6px;font-weight:600}
+.figure .unit small{display:block;font-size:11.5px;letter-spacing:.12em;color:var(--ink-3);font-weight:400;margin-top:2px}
+.lede .fact{
+  margin:18px 0 0;padding-top:10px;border-top:1px solid var(--rule-2);
+  display:flex;gap:14px;font-size:12.5px;color:var(--ink-3);letter-spacing:.02em;
+}
+.lede .fact b{color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums}
+.lede .deck{margin-top:12px}
+
+/* 三餐条目：栏线分隔的编辑列表，不是卡片 */
+.meals{margin:6px 0 0}
+.meal{
+  display:grid;grid-template-columns:44px 1fr auto;column-gap:12px;align-items:baseline;
+  width:100%;background:none;border:0;border-top:1px solid var(--rule);
+  padding:15px 0 14px;text-align:left;position:relative;cursor:pointer;
+  transition:background-color .18s ease;
+}
+.meal:first-child{border-top:0}
+.meal:active{background:rgba(21,19,15,.045)}
+.meal .slot{font-size:11.5px;letter-spacing:.1em;color:var(--ink-3);line-height:1.5}
+.meal .slot b{display:block;font-size:12.5px;color:var(--ink-2);font-weight:600;letter-spacing:.04em}
+.meal .what{min-width:0}
+.meal .what .nm{font-size:17px;font-weight:700;letter-spacing:-.01em;line-height:1.35;display:flex;align-items:center;gap:8px}
+.meal .what .nm .tag{
+  font-size:11px;font-weight:400;letter-spacing:.06em;color:var(--cobalt);
+  border:1px solid var(--cobalt);padding:0 4px;line-height:1.55;flex:none;
+}
+.meal .what .items{
+  font-size:12.5px;color:var(--ink-3);margin-top:3px;line-height:1.6;
+  overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+}
+.meal .val{font-size:21px;font-weight:700;letter-spacing:-.01em;text-align:right;line-height:1.2}
+.meal .val small{display:block;font-size:11px;font-weight:400;color:var(--ink-3);letter-spacing:.06em;margin-top:1px}
+.meal.empty .what .nm{color:var(--ink-3);font-weight:500}
+.meal.empty{border-top-style:dashed}
+.meal.empty .val{color:var(--ink-3);font-size:15px;font-weight:500;letter-spacing:.06em}
+.meal .go{
+  grid-column:2 / 4;justify-self:start;margin-top:8px;
+  font-size:12.5px;color:var(--cobalt);letter-spacing:.02em;
+  border-bottom:1px solid var(--cobalt);padding-bottom:1px;
+}
+
+/* 营养三栏：编辑式数字条，从基线长出的墨柱 */
+.macros{display:grid;grid-template-columns:repeat(3,1fr);gap:0;margin:14px 0 0;border-bottom:1px solid var(--rule-2)}
+.mac{padding:0 10px 12px 0;position:relative}
+.mac + .mac{padding-left:12px;border-left:1px solid var(--rule)}
+.mac .k{font-size:11.5px;letter-spacing:.14em;color:var(--ink-3)}
+.mac .v{font-size:26px;font-weight:700;line-height:1.15;letter-spacing:-.02em;margin-top:2px}
+.mac .v small{font-size:12px;font-weight:400;color:var(--ink-3);margin-left:2px;letter-spacing:0}
+.mac .bar{margin-top:9px;height:34px;display:flex;align-items:flex-end;background:
+  repeating-linear-gradient(to top,var(--rule) 0 1px,transparent 1px 12px)}
+.mac .bar i{display:block;width:7px;background:var(--ink);transition:height .8s cubic-bezier(.2,.75,.2,1) .2s;height:0}
+.spread.active .mac .bar i{height:var(--h)}
+.mac .bar{background:linear-gradient(to top,var(--rule) 0 1px,transparent 1px) bottom/100% 1px no-repeat,
+  repeating-linear-gradient(to top,var(--rule) 0 1px,transparent 1px 12px)}
+.mac .share{font-size:11.5px;color:var(--ink-3);margin-top:5px;letter-spacing:.02em}
+
+.footnote{
+  margin:20px 0 0;padding-top:9px;border-top:1px solid var(--rule);
+  font-size:11.5px;line-height:1.65;color:var(--ink-3);
+}
+.footnote a{color:var(--ink-2);text-decoration:none;border-bottom:1px solid var(--rule-2)}
+.footnote .rowlink{display:inline-block;margin-top:6px}
+
+/* ---------- 新建一餐：主图版位 + 编辑表单 ---------- */
+.plate-head{margin-top:12px}
+.plate-head .lede2{margin:10px 0 0;font-size:26px;line-height:1.18;font-weight:800;letter-spacing:-.02em}
+
+/* 拍照位：版面上的「图片位」——四角裁切标记 + 网点底，而不是圆角上传卡 */
+.slot-cam{
+  position:relative;display:block;width:100%;margin:16px 0 0;padding:0;border:0;background:none;
+  cursor:pointer;text-align:left;
+}
+.slot-cam .frame{
+  position:relative;aspect-ratio:4/3;overflow:hidden;background:
+    radial-gradient(circle at 1px 1px,rgba(21,19,15,.28) 1px,transparent 1.3px) 0 0/7px 7px,
+    var(--paper-hi);
+  display:grid;place-items:center;
+}
+.slot-cam .frame::after{ /* 裁切标记：四角各一条 L 形重线，印前规矩线语言 */
+  content:"";position:absolute;inset:9px;pointer-events:none;
+  background:
+    linear-gradient(var(--ink),var(--ink)) left top/14px 2px no-repeat,
+    linear-gradient(var(--ink),var(--ink)) left top/2px 14px no-repeat,
+    linear-gradient(var(--ink),var(--ink)) right top/14px 2px no-repeat,
+    linear-gradient(var(--ink),var(--ink)) right top/2px 14px no-repeat,
+    linear-gradient(var(--ink),var(--ink)) left bottom/14px 2px no-repeat,
+    linear-gradient(var(--ink),var(--ink)) left bottom/2px 14px no-repeat,
+    linear-gradient(var(--ink),var(--ink)) right bottom/14px 2px no-repeat,
+    linear-gradient(var(--ink),var(--ink)) right bottom/2px 14px no-repeat;
+}
+.slot-cam .inner{position:relative;text-align:center;padding:0 20px}
+.slot-cam .inner .lens{width:44px;height:44px;margin:0 auto 10px}
+.slot-cam .inner .t{font-size:17px;font-weight:700;letter-spacing:-.01em}
+.slot-cam .inner .s{font-size:12px;color:var(--ink-3);margin-top:4px;line-height:1.55}
+.slot-cam .cap{
+  display:flex;justify-content:space-between;gap:10px;align-items:baseline;
+  font-size:11.5px;color:var(--ink-3);letter-spacing:.06em;margin-top:7px;
+}
+.slot-cam .cap b{color:var(--ink);font-weight:600}
+.slot-cam:active .frame{background-color:rgba(21,19,15,.03)}
+
+/* 菜品行：编辑表格 */
+.dtable{margin:10px 0 0}
+.drow{
+  display:grid;grid-template-columns:1fr auto;column-gap:10px;
+  padding:12px 0 11px;border-top:1px solid var(--rule);align-items:baseline;
+  position:relative;
+}
+.drow:first-child{border-top:1px solid var(--rule-2)}
+.drow .name{font-size:15px;font-weight:650;letter-spacing:-.005em;line-height:1.35}
+.drow .meta{font-size:11.5px;color:var(--ink-3);letter-spacing:.02em;margin-top:2px;line-height:1.5}
+.drow .meta .warn{color:var(--cobalt)}
+.drow .amt{text-align:right;font-size:16px;font-weight:700;letter-spacing:-.01em;line-height:1.3}
+.drow .amt small{font-size:11px;font-weight:400;color:var(--ink-3);display:block;letter-spacing:.06em}
+.drow .del{
+  grid-column:2;justify-self:end;margin-top:7px;border:0;background:none;padding:3px 0;
+  font-size:11.5px;color:var(--ink-3);letter-spacing:.04em;cursor:pointer;
+  border-bottom:1px solid var(--rule-2);
+}
+.drow .steps{
+  grid-column:1 / 3;display:flex;gap:6px;margin-top:9px;
+}
+.drow .steps button{
+  flex:1;background:none;border:1px solid var(--rule-2);padding:7px 0;cursor:pointer;
+  font-size:12px;letter-spacing:.02em;color:var(--ink-2);position:relative;
+  transition:background-color .16s ease,color .16s ease,border-color .16s ease;
+}
+.drow .steps button[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--paper)}
+.drow .steps button em{font-style:normal;display:block;font-size:11px;color:inherit;opacity:.72}
+.drow .steps button[aria-pressed="true"] em{opacity:.8}
+
+/* 合计条：报尾式的加总，左标签右数字，中间点线引导 */
+.total{margin:14px 0 0;padding-top:10px;border-top:1px solid var(--rule-2)}
+.total .line{display:flex;align-items:baseline;gap:8px;font-size:12.5px;color:var(--ink-3);padding:2px 0}
+.total .line .ld{flex:1;border-bottom:1px dotted var(--rule-2);transform:translateY(-3px)}
+.total .line b{font-size:13px;color:var(--ink-2);font-weight:600;font-variant-numeric:tabular-nums}
+.total .sum{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;padding-top:8px;border-top:3px solid var(--ink);margin-top:6px}
+.total .sum .lab{font-size:12px;letter-spacing:.14em;color:var(--ink-3);padding-bottom:8px}
+.total .sum .num{font-size:52px;font-weight:800;line-height:.9;letter-spacing:-.035em}
+.total .sum .num small{font-size:13px;font-weight:500;letter-spacing:0;margin-left:4px}
+.total .sum .rng{font-size:12px;color:var(--cobalt);letter-spacing:.02em;padding-bottom:6px;text-align:right}
+
+.actions{display:grid;grid-template-columns:1fr;gap:10px;margin:18px 0 0}
+.btn-primary{
+  display:flex;align-items:center;justify-content:space-between;gap:12px;
+  background:var(--ink);color:var(--paper);border:0;padding:16px 18px;cursor:pointer;
+  font-size:16px;font-weight:700;letter-spacing:.01em;text-align:left;
+  transition:transform .12s ease,background-color .18s ease;
+}
+.btn-primary:active{transform:scale(.985);background:#000}
+.btn-primary .ar{font-size:20px;line-height:1}
+.btn-primary[disabled]{background:var(--ink-3);cursor:default}
+.btn-quiet{
+  border:1px solid var(--rule-2);background:none;padding:13px 16px;cursor:pointer;
+  font-size:13.5px;color:var(--ink-2);text-align:center;letter-spacing:.02em;
+}
+.btn-quiet:active{background:rgba(21,19,15,.05)}
+.addrow{display:flex;gap:8px;margin:12px 0 0}
+.addrow input{
+  flex:1;min-width:0;border:0;border-bottom:1px solid var(--rule-2);background:none;
+  padding:9px 2px;font-size:15px;color:var(--ink);border-radius:0;
+}
+.addrow input::placeholder{color:var(--ink-3)}
+.addrow button{
+  border:1px solid var(--ink);background:none;padding:0 16px;cursor:pointer;
+  font-size:13px;color:var(--ink);letter-spacing:.04em;flex:none;
+}
+.addrow button:active{background:var(--ink);color:var(--paper)}
 </style>
