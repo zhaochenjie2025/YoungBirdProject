@@ -188,7 +188,6 @@ input{font:inherit;color:inherit}
 .log{border:0;box-shadow:none;background:
     var(--noise),
     linear-gradient(180deg,#f0eadb 0%,#e6dfce 60%,#dcd5c4 100%);background-blend-mode:multiply,normal}
-.demo-link{margin-left:8px;font-size:11px;color:#8d8879;text-decoration:underline;text-underline-offset:2px;background:none;padding:0}
 
 
 /* ---------- status lamp ---------- */
@@ -1050,10 +1049,10 @@ dial.appendChild(bezelRing); dial.appendChild(bezelSpec);
 /* caution zone: red hatched band spanning the full groove (1800–2000) + tiny engraved label */
 var CA1 = dialAngle(1800), CA2 = dialAngle(2000);
 var cautionClip = el("clipPath", { id: "cautionClip" });
-cautionClip.appendChild(el("path", { d: ringPath(143, 107) }));
+cautionClip.appendChild(el("path", { d: ringPath(140, 108) }));
 defs.appendChild(cautionClip);
 var cautionBand = el("path", {
-  d: ringPathAt(143, 107, CA1, CA2),
+  d: ringPathAt(140, 108, CA1, CA2),
   fill: "url(#cautionHatch)", stroke: "none", "clip-path": "url(#cautionClip)"
 });
 var cHatch = el("pattern", { id: "cautionHatch", width: "7", height: "7", patternUnits: "userSpaceOnUse", patternTransform: "rotate(45)" });

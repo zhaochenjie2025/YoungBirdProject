@@ -450,7 +450,7 @@ h1,h2,h3,p{margin:0}
 .plate .val{text-align:right;flex:none}
 .plate .val b{font-family:var(--num);font-size:17px;font-weight:600;color:var(--ink);display:block;line-height:1}
 .plate .val b.na{color:var(--ink-4);font-size:12.5px;font-family:var(--font);font-weight:600}
-.plate .val span{font-size:10.5px;color:var(--ink-3);letter-spacing:.03em}
+.plate .val span{font-size:11px;color:var(--ink-3);letter-spacing:.03em}
 .plate .minus{width:30px;height:30px;border-radius:50%;border:0;cursor:pointer;flex:none;margin-left:8px;position:relative;
   background:rgba(255,255,255,.55);color:var(--ink-2);font-size:17px;line-height:1;box-shadow:inset 0 1px 0 #fff,0 3px 8px -5px rgba(var(--sh),.6)}
 /* 触控热区撑到 44px，视觉仍是 30px（critic 项 10） */
@@ -497,7 +497,7 @@ h1,h2,h3,p{margin:0}
 .res-hero .mac{flex:1;text-align:center;padding:9px 4px;border-radius:14px;background:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.55);box-shadow:inset 0 1px 0 rgba(255,255,255,.85)}
 .res-hero .mac b{font-family:var(--num);font-size:15px;font-weight:600;color:var(--ink);display:block}
 .res-hero .mac b.na{color:var(--ink-4);font-size:12px}
-.res-hero .mac span{font-size:10.5px;color:var(--ink-3);letter-spacing:.04em}
+.res-hero .mac span{font-size:11px;color:var(--ink-3);letter-spacing:.04em}
 
 .detail-head{display:flex;align-items:center;justify-content:space-between;margin:22px 2px 11px}
 .detail-head h2{font-size:15px;font-weight:700;color:var(--ink)}
@@ -577,7 +577,7 @@ h1,h2,h3,p{margin:0}
 /* 今天：柱底一枚青绿色光座 + 青色柱环，双重定位 */
 .bar.today::after{content:"";position:absolute;bottom:-2px;left:50%;transform:translateX(-50%);width:34px;height:8px;border-radius:50%;
   background:radial-gradient(closest-side,rgba(47,122,104,.42),rgba(47,122,104,0));filter:blur(1px);z-index:0}
-.bar .kc{font-family:var(--num);font-size:10.5px;color:var(--ink-3);margin-bottom:6px;height:13px}
+.bar .kc{font-family:var(--num);font-size:11px;color:var(--ink-3);margin-bottom:6px;height:13px}
 .bar.today .kc{color:var(--teal-deep);font-weight:600}
 
 .week-sum{display:grid;grid-template-columns:repeat(3,1fr);gap:9px;margin-top:20px}
@@ -614,7 +614,7 @@ h1,h2,h3,p{margin:0}
   .res-hero .big b{font-size:48px}
   .week-chart{height:190px}
   .bar .col{height:132px}
-  .dock .tab span{font-size:10.5px}
+  .dock .tab span{font-size:11px}
 }
 @media (prefers-reduced-motion:reduce){
   *{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}
@@ -1065,7 +1065,7 @@ function renderResult(){
   var html='';
   meal.items.forEach(function(it,idx){
     var col=catColor(it.cat);
-    var kc = it.pending? '<span class="kc na">待估算</span>' : ('<span class="kc num">'+it.n[0]+'<small style="font-size:10px;color:var(--ink-3)"> kcal</small></span>');
+    var kc = it.pending? '<span class="kc na">待估算</span>' : ('<span class="kc num">'+it.n[0]+'<small style="font-size:11px;color:var(--ink-3)"> kcal</small></span>');
     var per100 = it.per100[0]==null? '暂无数据' : (it.per100[0]+' 千卡 / 100g');
     var math;
     if(it.pending){

@@ -165,11 +165,13 @@ main{
   background:radial-gradient(120% 90% at 50% 30%, rgba(255,214,150,.28), transparent 60%);
   mix-blend-mode:screen;
 }
-/* 显影区四角的染料扩散压印 + 暗角 */
+/* 显影区四角的染料扩散压印 + 暗角 + 感光颗粒（颗粒只栅格化一次，非逐帧） */
 .print__photo::after{
   content:"";position:absolute;inset:0;pointer-events:none;z-index:3;
-  box-shadow:inset 0 0 22px -2px rgba(70,44,16,.4), inset 0 0 1px 1px rgba(0,0,0,.3);
+  background-image:var(--grain);background-size:96px;
+  box-shadow:inset 0 0 22px -2px rgba(70,44,16,.42), inset 0 0 1px 1px rgba(0,0,0,.3);
   border-radius:1px;
+  opacity:.35;mix-blend-mode:overlay;
 }
 /* 未显影 / 空样张 */
 .print__photo--blank{
@@ -357,22 +359,25 @@ main{
   transition:transform .12s cubic-bezier(.3,.7,.3,1), box-shadow .12s ease;
   touch-action:manipulation;
 }
-/* 滚花齿边：conic 锯齿压在圆周 */
+/* 滚花齿边：更细的齿 + 柔化对比，抑制摩尔纹；金属受光做成上亮下暗的双向渐变 */
 .shutter::before{
   content:"";position:absolute;inset:0;border-radius:50%;
-  background:repeating-conic-gradient(from 0deg, rgba(255,220,175,.16) 0deg 2deg, rgba(0,0,0,.32) 2deg 4deg);
+  background:
+    linear-gradient(180deg, rgba(255,225,185,.22), rgba(0,0,0,.12) 55%, rgba(0,0,0,.4)),
+    repeating-conic-gradient(from 0deg, rgba(255,222,180,.13) 0deg 1.6deg, rgba(0,0,0,.22) 1.6deg 3.2deg);
   -webkit-mask:radial-gradient(circle, transparent 0 58px, #000 59px 65px, transparent 66px);
           mask:radial-gradient(circle, transparent 0 58px, #000 59px 65px, transparent 66px);
-  opacity:.9;
+  opacity:.85;
 }
-/* 黄铜光圈刻度环：一圈刻线 + 顶部三枚刻度点 */
+/* 黄铜光圈刻度环：更亮更宽的刻线环 + 一圈车削高光，读得出是机械旋钮 */
 .shutter::after{
-  content:"";position:absolute;inset:9px;border-radius:50%;
+  content:"";position:absolute;inset:8px;border-radius:50%;
   background:
-    repeating-conic-gradient(from -90deg, #d9b06a 0deg 0.6deg, transparent 0.6deg 9deg);
-  -webkit-mask:radial-gradient(circle, transparent 0 44px, #000 45px 48px, transparent 49px);
-          mask:radial-gradient(circle, transparent 0 44px, #000 45px 48px, transparent 49px);
-  opacity:.75;
+    repeating-conic-gradient(from -90deg, #e6c079 0deg 0.7deg, rgba(120,90,40,.15) 0.7deg 7.5deg),
+    radial-gradient(circle, transparent 0 43px, rgba(255,225,160,.5) 44px, rgba(150,110,50,.35) 46px, transparent 48px);
+  -webkit-mask:radial-gradient(circle, transparent 0 42px, #000 43px 48px, transparent 49px);
+          mask:radial-gradient(circle, transparent 0 42px, #000 43px 48px, transparent 49px);
+  opacity:.95;
 }
 .shutter__glass{
   position:absolute;inset:20px;border-radius:50%;overflow:hidden;
@@ -392,15 +397,15 @@ main{
   background:radial-gradient(circle at 50% 0,rgba(255,250,235,.9),transparent 70%);
   filter:blur(.4px);
 }
-/* 镜面扫光（借 Magic UI Glare 机制）：一块比镜面宽的高光条，用 transform 横过，只走合成器 */
+/* 镜面扫光（借 Magic UI Glare 机制）：一道窄而柔的高光带缓缓掠过，只动 transform */
 .shutter__glass::before{
-  content:"";position:absolute;top:-10%;bottom:-10%;left:0;width:55%;z-index:1;
-  background:linear-gradient(105deg,transparent,rgba(255,250,235,.55),transparent);
+  content:"";position:absolute;top:-10%;bottom:-10%;left:0;width:26%;z-index:1;
+  background:linear-gradient(100deg,transparent 0%,rgba(255,250,235,.42) 46%,rgba(255,250,235,.5) 50%,rgba(255,250,235,.42) 54%,transparent 100%);
   mix-blend-mode:screen;pointer-events:none;
-  animation:glare 5.5s ease-in-out infinite;
+  animation:glare 6s ease-in-out infinite;
   will-change:transform;
 }
-@keyframes glare{0%,100%{transform:translateX(-60%) rotate(0deg)}50%{transform:translateX(260%)}}
+@keyframes glare{0%,100%{transform:translateX(-160%)}55%{transform:translateX(460%)}}
 .shutter__label{position:relative;z-index:2;font:700 17px/1 var(--f-hand);color:#2a1405;letter-spacing:.08em;text-shadow:0 1px 0 rgba(255,235,205,.55),0 0 1px rgba(0,0,0,.2)}
 /* 按压：内圈真的陷下去（深 inset 阴影 + 缩放），松手回弹 */
 .shutter:active .shutter__glass{
