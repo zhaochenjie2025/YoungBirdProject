@@ -381,11 +381,13 @@ h1,h2,h3,p{margin:0}
 /* ============================================================
    新建一餐 · 玻璃镜头（主操作）+ 菜品玻璃瓷片 + 实时汇总
    ============================================================ */
-.slot-pick{display:flex;gap:7px;padding:4px 2px 2px}
-.slot-pick button{flex:1;border:0;cursor:pointer;font-family:var(--font);font-size:12.5px;font-weight:600;color:var(--ink-2);
-  padding:9px 4px;border-radius:14px;background:rgba(255,255,255,.42);border:1px solid rgba(255,255,255,.6);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 4px 10px -8px rgba(var(--sh),.5);transition:.22s}
-.slot-pick button.on{color:#fff;background:linear-gradient(160deg,var(--teal),var(--teal-deep));box-shadow:0 8px 16px -9px rgba(30,87,74,.8),inset 0 1px 0 rgba(255,255,255,.35)}
+.slot-pick{display:flex;gap:4px;padding:4px;border-radius:16px;
+  background:linear-gradient(180deg,rgba(60,92,84,.10),rgba(255,255,255,.28));
+  box-shadow:inset 0 1.5px 3px rgba(40,72,64,.26),inset 0 -1px 0 rgba(255,255,255,.55)}
+.slot-pick button{flex:1;border:0;cursor:pointer;font-family:var(--font);font-size:12.5px;font-weight:600;color:var(--ink-3);
+  padding:9px 4px;border-radius:12px;background:none;transition:.22s}
+.slot-pick button.on{color:#fff;background:linear-gradient(160deg,var(--teal),var(--teal-deep));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.4),0 4px 10px -6px rgba(30,87,74,.7)}
 
 /* 镜头：主操作，占比大，独立光圈 */
 .lens{position:relative;width:100%;aspect-ratio:1.44/1;border-radius:var(--r-xl);display:grid;place-items:center;padding-bottom:34px;cursor:pointer;
