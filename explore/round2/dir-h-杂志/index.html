@@ -304,4 +304,185 @@ button{font:inherit;color:inherit}
   font-size:13px;color:var(--ink);letter-spacing:.04em;flex:none;
 }
 .addrow button:active{background:var(--ink);color:var(--paper)}
+
+/* ---------- 单餐结果：黑页特稿 ---------- */
+.res-head{padding-top:calc(12px + env(safe-area-inset-top,0px))}
+.res-head .kicker{color:var(--night-dim)}
+.res-head .kicker .cobalt{color:#7d94ff}
+.res-title{margin:12px 0 0;font-size:40px;line-height:1.06;font-weight:800;letter-spacing:-.025em;color:var(--night-ink)}
+.res-sub{margin:10px 0 0;font-size:13px;color:var(--night-dim);line-height:1.7}
+.res-figure{display:flex;align-items:flex-end;gap:12px;margin:24px 0 0;padding-bottom:14px;border-bottom:1px solid var(--night-rule)}
+.res-figure .big{font-size:104px;line-height:.78;font-weight:800;letter-spacing:-.05em;color:#fff}
+.res-figure .unit{font-size:13px;line-height:1.35;color:var(--night-dim);padding-bottom:8px}
+.res-figure .unit b{display:block;color:var(--night-ink);font-size:15px;font-weight:600;letter-spacing:.02em}
+.res-figure .unit small{font-size:11.5px;letter-spacing:.06em}
+
+/* 单菜明细：黑页上的编辑条目，展开用 grid-template-rows */
+.dish-acc{border-bottom:1px solid var(--night-rule)}
+.dish-acc>.hd{
+  display:grid;grid-template-columns:1fr auto;column-gap:12px;align-items:baseline;
+  width:100%;background:none;border:0;padding:16px 0 14px;text-align:left;cursor:pointer;color:inherit;
+}
+.dish-acc .hd .nm{font-size:18px;font-weight:700;letter-spacing:-.01em;display:flex;align-items:baseline;gap:8px;flex-wrap:wrap}
+.dish-acc .hd .nm .no{font-size:11.5px;color:#7d94ff;font-variant-numeric:tabular-nums;font-weight:500;letter-spacing:.06em}
+.dish-acc .hd .sub{font-size:12px;color:var(--night-dim);margin-top:3px;letter-spacing:.02em;line-height:1.5}
+.dish-acc .hd .sub .warn{color:#7d94ff}
+.dish-acc .hd .vv{text-align:right;font-size:19px;font-weight:700;letter-spacing:-.01em;color:#fff}
+.dish-acc .hd .vv small{display:block;font-size:11px;color:var(--night-dim);font-weight:400;margin-top:1px;letter-spacing:.06em}
+.dish-acc .hd .chev{display:block;width:9px;height:9px;border-right:1.5px solid var(--night-dim);border-bottom:1.5px solid var(--night-dim);transform:rotate(45deg);margin:5px auto 0;transition:transform .25s ease}
+.dish-acc[data-open="1"] .hd .chev{transform:rotate(-135deg)}
+.dish-acc .body{display:grid;grid-template-rows:0fr;transition:grid-template-rows .34s cubic-bezier(.2,.75,.2,1)}
+.dish-acc[data-open="1"] .body{grid-template-rows:1fr}
+.dish-acc .body>div{overflow:hidden}
+
+/* 明细表：项目/每100克/本份，三列对齐的真表格，双线合计 */
+.detail{padding:2px 0 18px}
+.detail table{width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.detail caption{
+  caption-side:top;text-align:left;font-size:11.5px;letter-spacing:.12em;color:var(--night-dim);
+  padding-bottom:6px;font-variant-numeric:normal;
+}
+.detail th,.detail td{
+  padding:6px 0;font-size:13px;text-align:right;color:var(--night-ink);border-top:1px solid var(--night-rule);
+}
+.detail th{font-size:11.5px;color:var(--night-dim);font-weight:400;letter-spacing:.06em;padding-top:5px;padding-bottom:5px}
+.detail th:first-child,.detail td:first-child{text-align:left}
+.detail tr.sum td{border-top:3px double rgba(242,236,223,.55);font-weight:700;padding-top:8px}
+.detail tr.sum td:first-child{font-weight:500;color:var(--night-dim);letter-spacing:.06em}
+.detail .miss{color:var(--night-dim);font-style:normal}
+
+/* 区间条：刻度 + 区间带 + 当前值端点，落在黑页上 */
+.rng{margin:4px 0 0;padding:12px 0 4px;border-top:1px solid var(--night-rule)}
+.rng .top{display:flex;justify-content:space-between;align-items:baseline;font-size:11.5px;color:var(--night-dim);letter-spacing:.04em}
+.rng .top b{color:var(--night-ink);font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:.02em}
+.rng .track{position:relative;height:22px;margin-top:8px}
+.rng .track .axis{position:absolute;left:0;right:0;top:12px;height:1px;background:var(--night-rule)}
+.rng .track .band{position:absolute;top:7px;height:11px;background:rgba(125,148,255,.26);border-left:1px solid #7d94ff;border-right:1px solid #7d94ff}
+.rng .track .pin{position:absolute;top:4px;width:1px;height:17px;background:#fff}
+.rng .track .pin::before{content:"";position:absolute;left:-3px;top:-3px;width:7px;height:7px;background:#fff;transform:rotate(45deg)}
+.rng .track .pin em{position:absolute;left:50%;transform:translateX(-50%);bottom:100%;margin-bottom:5px;font-size:11.5px;color:#fff;font-weight:600;font-style:normal;white-space:nowrap;font-variant-numeric:tabular-nums}
+.rng .ticks{display:flex;justify-content:space-between;font-size:11px;color:var(--night-dim);font-variant-numeric:tabular-nums;letter-spacing:.02em;border-top:1px solid var(--night-rule);padding-top:4px;margin-top:2px;position:relative}
+.rng .ticks span{position:relative;flex:1;text-align:center}
+.rng .ticks span:first-child{text-align:left}
+.rng .ticks span:last-child{text-align:right}
+
+.src{margin:12px 0 0;font-size:11.5px;line-height:1.7;color:var(--night-dim)}
+.src b{color:var(--night-ink);font-weight:600}
+.src .tagline{display:inline-block;margin-top:4px;color:#7d94ff}
+
+/* 结果页跨页大标题：占满整行，字与字之间靠栏线对齐 */
+.res-cross{
+  margin:26px 0 0;padding-top:12px;border-top:3px solid var(--night-ink);
+}
+.res-cross .row{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:12px;color:var(--night-dim);letter-spacing:.06em}
+.res-cross h2{margin:10px 0 0;font-size:30px;line-height:1.22;font-weight:800;letter-spacing:-.02em;color:#fff}
+.res-cross h2 .hl::before{background:rgba(28,55,184,.72)}
+.res-cross p{margin:10px 0 0;font-size:13.5px;line-height:1.75;color:var(--night-dim);max-width:34ch}
+.res-cross .chips{display:flex;flex-wrap:wrap;gap:0;margin-top:14px;border-top:1px solid var(--night-rule)}
+.res-cross .chips span{
+  flex:1 1 auto;font-size:12px;color:var(--night-dim);padding:8px 10px 8px 0;letter-spacing:.02em;
+  display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid var(--night-rule);
+}
+.res-cross .chips b{color:var(--night-ink);font-weight:600;font-variant-numeric:tabular-nums}
+
+/* ---------- 周视图：数据图版 ---------- */
+.wk-head{padding-top:calc(12px + env(safe-area-inset-top,0px))}
+.wk-title{margin:10px 0 0;font-size:38px;line-height:1.05;font-weight:800;letter-spacing:-.025em}
+
+/* 图版：Y 轴刻度在最左，7 根柱立在同一条基线上，柱顶标签是热量 */
+.chart-wrap{position:relative;margin:18px 0 0;display:grid;grid-template-columns:26px 1fr;column-gap:6px}
+.chart-y{position:relative;height:186px}
+.chart-y span{
+  position:absolute;right:0;transform:translateY(50%);font-size:11px;color:var(--ink-3);
+  font-variant-numeric:tabular-nums;letter-spacing:.02em;line-height:1;
+}
+.chart-y span::after{content:"";position:absolute;right:-6px;top:50%;width:4px;height:1px;background:var(--rule-2)}
+.chart-plot{position:relative;height:186px;border-bottom:1.5px solid var(--ink);border-top:1px solid var(--rule)}
+.chart-grid{position:absolute;inset:0;pointer-events:none}
+.chart-grid i{position:absolute;left:0;right:0;height:1px;background:var(--rule)}
+.chart-cols{position:absolute;inset:0;display:grid;grid-template-columns:repeat(7,1fr)}
+.col{position:relative;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;padding:0 5px}
+.col .stack{width:100%;max-width:30px;display:flex;flex-direction:column;gap:1px;justify-content:flex-end}
+.col .seg{width:100%;background:var(--ink);transform:scaleY(0);transform-origin:bottom;transition:transform .8s cubic-bezier(.2,.8,.2,1);transition-delay:var(--d,0ms)}
+.spread.active .col .seg{transform:scaleY(1)}
+.col .seg.est{background:repeating-linear-gradient(-45deg,var(--ink) 0 2px,transparent 2px 5px)}
+.col .seg.miss{background:none;border:1px dashed var(--ink-3);border-bottom:0;height:10px!important}
+.col .vlab{position:absolute;bottom:calc(var(--stack-h) + 6px);font-size:11px;font-weight:600;font-variant-numeric:tabular-nums;color:var(--ink-2);letter-spacing:.01em;white-space:nowrap}
+.col .vlab.muted{color:var(--ink-3);font-weight:400}
+.col.today .stack{outline:1px solid var(--cobalt);outline-offset:3px}
+.col .base{position:absolute;bottom:-1px;left:5px;right:5px;height:1.5px;background:var(--ink)}
+.col.today .base{background:var(--cobalt)}
+
+.chart-x{display:grid;grid-template-columns:repeat(7,1fr);margin-top:7px}
+.chart-x .d{text-align:center;font-size:11.5px;color:var(--ink-3);letter-spacing:.04em;line-height:1.4}
+.chart-x .d b{display:block;font-size:13px;font-weight:600;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.chart-x .d.today b{color:var(--cobalt)}
+
+/* 图例：编辑脚注语言 */
+.legend{display:flex;flex-wrap:wrap;gap:4px 16px;margin:12px 0 0;font-size:11.5px;color:var(--ink-3);letter-spacing:.02em}
+.legend .it{display:flex;align-items:center;gap:6px}
+.legend .sw{width:11px;height:11px;flex:none;background:var(--ink)}
+.legend .sw.est{background:repeating-linear-gradient(-45deg,var(--ink) 0 2px,transparent 2px 5px)}
+.legend .sw.miss{background:none;border:1px dashed var(--ink-3)}
+.legend .sw.today{background:var(--cobalt)}
+
+/* 周数据表：真表格，点线引导，合计双线 */
+.wktable{margin:16px 0 0;width:100%;border-collapse:collapse;font-variant-numeric:tabular-nums}
+.wktable caption{caption-side:top;text-align:left;font-size:11.5px;letter-spacing:.12em;color:var(--ink-3);padding-bottom:6px;font-variant-numeric:normal}
+.wktable th,.wktable td{padding:8px 0;font-size:12.5px;text-align:right;border-top:1px solid var(--rule)}
+.wktable th{font-size:11px;color:var(--ink-3);font-weight:400;letter-spacing:.06em;padding:5px 0}
+.wktable th:first-child,.wktable td:first-child{text-align:left;width:64px}
+.wktable td:first-child b{font-weight:600;color:var(--ink-2)}
+.wktable td:first-child small{display:block;font-size:11px;color:var(--ink-3);font-weight:400}
+.wktable td.est{color:var(--cobalt)}
+.wktable td.miss{color:var(--ink-3)}
+.wktable tr.today td{color:var(--ink);font-weight:600}
+.wktable tr.today td:first-child b{color:var(--cobalt)}
+.wktable tr.sum td{border-top:3px double var(--ink);font-weight:700;padding-top:9px}
+.wktable tr.sum td:first-child{font-weight:500;color:var(--ink-3);letter-spacing:.06em;font-size:11.5px}
+
+.wk-note{margin:18px 0 0;padding:12px 0 0;border-top:1px solid var(--rule);font-size:12px;line-height:1.7;color:var(--ink-3)}
+.wk-note b{color:var(--ink-2);font-weight:600}
+
+/* 状态说明：未记录/数据不完整 两种状态在版面里有明确的印刷语言，不是彩色徽标 */
+.state-key{margin:10px 0 0;display:grid;gap:0;border-top:1px solid var(--rule)}
+.state-key .r{display:grid;grid-template-columns:auto 1fr;column-gap:10px;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--rule);font-size:12px;color:var(--ink-3)}
+.state-key .r b{font-weight:600;color:var(--ink-2);font-size:12.5px;letter-spacing:.02em;white-space:nowrap}
+
+/* ---------- 底部刊脚导航（folio bar） ---------- */
+.folio{
+  position:fixed;left:0;right:0;bottom:0;z-index:60;
+  background:var(--paper);border-top:1.5px solid var(--ink);
+  padding:0 var(--m) env(safe-area-inset-bottom,0px);
+  height:calc(var(--folio) + env(safe-area-inset-bottom,0px));
+}
+.folio .inner{display:grid;grid-template-columns:repeat(4,1fr);height:var(--folio);align-items:stretch}
+.folio button{
+  position:relative;background:none;border:0;cursor:pointer;padding:9px 2px 0;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;gap:1px;
+  color:var(--ink-3);
+}
+.folio button + button::before{content:"";position:absolute;left:0;top:13px;bottom:13px;width:1px;background:var(--rule)}
+.folio button .pg{font-size:11px;letter-spacing:.1em;font-variant-numeric:tabular-nums;line-height:1.3}
+.folio button .lb{font-size:12px;letter-spacing:.02em;font-weight:500;line-height:1.3}
+.folio button .mk{width:100%;height:2px;background:transparent;margin-bottom:0;order:3;margin-top:auto;margin-bottom:-1px}
+.folio button[aria-current="page"]{color:var(--ink)}
+.folio button[aria-current="page"] .mk{background:var(--cobalt)}
+.folio button[aria-current="page"] .lb{font-weight:700}
+
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{transition-duration:.001ms!important;animation-duration:.001ms!important;transition-delay:0s!important}
+  [data-split] .ch>i{transform:none}
+  .hl::before{transform:scaleX(1)}
+  .col .seg{transform:none}
+  .mac .bar i{height:var(--h)}
+}
+@media (max-width:374px){
+  :root{--m:18px}
+  .figure .big{font-size:86px}
+  .res-figure .big{font-size:92px}
+  .lede h1{font-size:39px}
+  .col{padding:0 3px}
+  .chart-y span{font-size:10.5px}
+}
 </style>
