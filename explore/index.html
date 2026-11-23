@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>CalorieSnap 视觉方向对比 · 10 个方向</title>
+<title>CalorieSnap 视觉方向对比 · 11 个方向</title>
 <style>
 :root{--bg:#f5f2ec;--ink:#1f1c18;--ink2:#6b645b;--line:#ddd5c9;--card:#fffdf9}
 *{box-sizing:border-box}
@@ -14,43 +14,49 @@ h1{margin:0 0 6px;font-size:23px}
 .round{max-width:1500px;margin:26px auto 0;padding:0 20px}
 .round h2{font-size:15px;margin:0;padding-bottom:8px;border-bottom:1px solid var(--line)}
 .round p{font-size:13px;color:var(--ink2);margin:8px 0 14px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:18px;max-width:1500px;margin:0 auto;padding:0 20px 8px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;max-width:1500px;margin:0 auto;padding:0 20px 8px}
 .item{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden;display:flex;flex-direction:column}
-.item h3{margin:0;padding:12px 14px 2px;font-size:14px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.item h3{margin:0;padding:12px 14px 2px;font-size:14px}
 .item .meta{padding:0 14px 8px;font-size:12px;color:var(--ink2);min-height:30px}
 .frame{aspect-ratio:390/844;background:#111;border-top:1px solid var(--line);overflow:hidden;position:relative}
 .frame iframe{width:390px;height:844px;border:0;transform-origin:top left;position:absolute;top:0;left:0}
 .actions{padding:10px 14px;display:flex;gap:8px;flex-wrap:wrap}
 .actions a{font-size:12px;padding:6px 10px;border:1px solid var(--line);border-radius:7px;color:var(--ink);text-decoration:none}
-.badge{font-size:11px;padding:2px 7px;border-radius:999px;background:#e8f0e8;color:#2f6b4f;font-weight:500}
-.badge--warn{background:#fdf3d7;color:#9a6700}
+.note{font-size:11px;color:var(--ink2);padding:0 14px 12px}
 </style>
 </head>
 <body>
 <header>
   <h1>CalorieSnap 视觉方向对比</h1>
-  <div class="sub">10 个方向，均以 390×844 手机基准渲染，零外部依赖，经两轮以上审美质询。</div>
+  <div class="sub">11 个方向，均以 390×844 手机基准渲染，零外部依赖，经两轮以上审美质询（质询代理均加载 creative-frontend 技能）。</div>
 </header>
 <div id="root"></div>
 <script>
 const ROUNDS = [
   {
-    title: '第二轮 · 参考驱动（点名借具体组件机制）— 6 个方向全部 P1=0',
-    desc: '要求点名借用参考库机制再换成本项目材质；质询代理均先加载 creative-frontend 技能。',
+    title: '第三轮 · 照抄苹果',
+    desc: '完全照抄 iOS 设计语言：分色堆叠周柱 + 周平均虚线（参照屏幕使用时间）+ 自动膳食小贴士。',
     dirs: [
-      { path:'round2/dir-e-简约', name:'E · 现代简约', desc:'iOS 26 Liquid Glass / Linear / M3' },
-      { path:'round2/dir-f-玻璃', name:'F · 玻璃拟态', desc:'visionOS 材质 / Fluid Glass' },
+      { path:'round3/dir-k-苹果', name:'K · 苹果原生', desc:'iOS 26 HIG / HeroUI / 屏幕使用时间周柱' },
+    ],
+  },
+  {
+    title: '第二轮 · 参考驱动（点名借具体组件机制）',
+    desc: '要求点名借用参考库机制再换成本项目材质。E 与 J 的周视图已按 Sou39O 反馈重做。',
+    dirs: [
+      { path:'round2/dir-e-简约', name:'E · 现代简约', desc:'周视图重做：柱默认 + y 轴刻度 + 柱顶值', note:'?wk=ring / ?wk=heat 可切其他变体' },
+      { path:'round2/dir-f-玻璃', name:'F · 玻璃拟态', desc:'visionOS 材质 / Fluid Glass（四轮）' },
       { path:'round2/dir-g-数据面板', name:'G · 数据面板', desc:'Linear Analytics / Stripe / Tremor' },
       { path:'round2/dir-h-杂志', name:'H · 编辑杂志', desc:'Kinfolk / NYT 特稿 / Pentagram' },
-      { path:'round2/dir-i-粗野', name:'I · 新粗野', desc:'Gumroad / Neobrutalism.dev' },
-      { path:'round2/dir-j-日系', name:'J · 日系极简', desc:'MUJI / 原研哉 / &Premium' },
+      { path:'round2/dir-i-粗野', name:'I · 新粗野', desc:'Gumroad / Neobrutalism / 丝网套印' },
+      { path:'round2/dir-j-日系', name:'J · 日系极简', desc:'黑白直角 / 灰阶堆叠柱 / 周视图重做', note:'?wk=2 / ?wk=3 可切其他变体' },
     ],
   },
   {
     title: '第一轮 · 自创母题（已补带技能质询）',
     desc: '补一轮带技能的质询与返工后归档。',
     dirs: [
-      { path:'round1/dir-a-拍立得', name:'A · 拍立得', desc:'即时成像相纸 / 暗房' },
+      { path:'round1/dir-a-拍立得', name:'A · 拍立得', desc:'即时成像相纸 / 暗房 / 自动小贴士' },
       { path:'round1/dir-b-仪表盘', name:'B · 仪表盘', desc:'精密仪器 / 打孔纸带' },
       { path:'round1/dir-c-层叠', name:'C · 层叠', desc:'实体菜卡在 Z 轴叠合' },
       { path:'round1/dir-d-手账', name:'D · 手账', desc:'中式饮食刊物 / 强排版' },
@@ -75,6 +81,7 @@ for (const r of ROUNDS) {
       <h3>${d.name}</h3>
       <div class="meta">${d.desc}</div>
       <div class="frame"><iframe src="./${d.path}/index.html${demo}" loading="lazy" title="${d.name}"></iframe></div>
+      ${d.note ? `<div class="note">${d.note}</div>` : ''}
       <div class="actions"><a href="./${d.path}/index.html${demo}" target="_blank" rel="noopener">单独打开 →</a><a href="./${d.path}/NOTES.md" target="_blank" rel="noopener">设计方案</a></div>`;
     grid.appendChild(el);
   }
