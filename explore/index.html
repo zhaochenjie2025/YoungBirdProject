@@ -33,7 +33,7 @@ h1{margin:0 0 6px;font-size:24px}
 const dirs = [
   { path: 'dir-a-拍立得', name: 'A · 拍立得', desc: '即时成像相纸、白边、显影感' },
   { path: 'dir-b-仪表盘', name: 'B · 仪表盘', desc: '精密仪器面板、刻度与等宽数字' },
-  { path: 'dir-c-层叠', name: 'C · 层叠', desc: '多道菜在 Z 轴叠合、推挤动画' },
+  { path: 'dir-c-层叠', name: 'C · 层叠', desc: '多道菜在 Z 轴叠合、推挤动画', demo: true },
   { path: 'dir-d-手账', name: 'D · 手账', desc: '食谱手账、强排版与中文编辑' },
 ];
 const grid = document.getElementById('grid');
@@ -43,8 +43,8 @@ for (const d of dirs) {
   el.innerHTML = `
     <h2>${d.name}</h2>
     <div class="meta">${d.desc}</div>
-    <div class="frame"><iframe src="./${d.path}/index.html" loading="lazy" title="${d.name}"></iframe></div>
-    <div class="actions"><a href="./${d.path}/index.html" target="_blank" rel="noopener">单独打开 →</a></div>
+    <div class="frame"><iframe src="./${d.path}/index.html${d.demo ? '?demo=1' : ''}" loading="lazy" title="${d.name}"></iframe></div>
+    <div class="actions"><a href="./${d.path}/index.html${d.demo ? '?demo=1' : ''}" target="_blank" rel="noopener">单独打开 →</a></div>
     <div class="notes" id="note-${d.path}"></div>`;
   grid.appendChild(el);
   fetch('./' + d.path + '/NOTES.md').then(r => r.ok ? r.text() : '').then(t => {
