@@ -327,6 +327,17 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
 .legend i.on{background:var(--ink);border-color:var(--ink)}
 .legend i.est{background:var(--ink);border-color:var(--ink);opacity:.34}
 
+/* 周收口：一把 0–7200 的长尺，实段是五日合计，浅灰带是五日的参考区间 */
+.week-close{padding-top:calc(var(--u)*.9);display:grid;grid-template-columns:1fr auto;align-items:baseline;gap:.2em var(--u)}
+.week-close .wc-k{font-size:11px;letter-spacing:.08em;color:var(--ink-3)}
+.week-close .wc-n{display:flex;align-items:baseline;justify-self:end}
+.wc-scale{grid-column:1/-1;position:relative;height:34px;margin-top:calc(var(--u)*.7)}
+.wc-track{position:absolute;left:0;right:0;top:15px;height:1px;background:var(--hair)}
+.wc-band{position:absolute;top:9px;height:13px;background:var(--ink-2);opacity:.13}
+.wc-mark{position:absolute;top:5px;width:2px;height:21px;background:var(--shu);border-radius:1px}
+.wc-tick{position:absolute;top:20px;font-size:11px;color:var(--ink-3);font-variant-numeric:tabular-nums;letter-spacing:.02em;transform:translateX(-50%)}
+.wc-l{grid-column:1/-1;font-size:11px;letter-spacing:.04em;color:var(--ink-3);margin-top:.2em;font-variant-numeric:tabular-nums;line-height:1.75}
+
 .stat3{display:grid;grid-template-columns:repeat(3,1fr);margin-top:calc(var(--ma)*1.1);border-top:1px solid var(--hair);border-bottom:1px solid var(--hair)}
 .stat3>div{padding:calc(var(--u)*1) 0 calc(var(--u)*.95);text-align:center}
 .stat3>div+div{border-left:1px solid var(--hair-2)}
@@ -470,6 +481,23 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
 
   <div class="wrap" style="margin-top:calc(var(--ma)*.9)">
     <div class="hd-note" style="line-height:1.9">日均只计已完成的五天，今天只记了早午，不计入。<br>「含估算」指当天有菜品缺营养数据，总数偏低。</div>
+  </div>
+
+  <!-- 收口：本周总额落在同一把量尺上，与参考带对比；这是真实数据，不是装饰 -->
+  <div class="rule rule-m"></div>
+  <div class="wrap week-close">
+    <div class="wc-k">五日合计</div>
+    <div class="wc-n"><span class="num num-l" id="wSum"></span><span class="unit">千卡</span></div>
+    <div class="wc-scale" aria-hidden="true">
+      <div class="wc-track" id="wTrack"></div>
+      <div class="wc-band" id="wBand"></div>
+      <div class="wc-mark" id="wMark"></div>
+      <div class="wc-tick" style="left:0">0</div>
+      <div class="wc-tick" style="left:33.33%">2,400</div>
+      <div class="wc-tick" style="left:66.66%">4,800</div>
+      <div class="wc-tick" style="left:100%">7,200</div>
+    </div>
+    <div class="wc-l" id="wSumNote"></div>
   </div>
 </section>
 
@@ -884,6 +912,16 @@ function renderWeek(){
   ticker($('#wDays'), logged.length, 'num-m');
   ticker($('#wAvg'), avg, 'num-m');
   ticker($('#wGap'), gaps, 'num-m');
+
+  /* 周收口尺：0–7200 千卡（五天 × 每日 1440 上沿），实段=五日合计，浅带=五日参考区间 */
+  const loSum=logged.reduce((a,c)=>a+c.st.lo,0), hiSum=logged.reduce((a,c)=>a+c.st.hi,0);
+  const MAXW=7200, p=v=>Math.max(0,Math.min(100,v/MAXW*100));
+  ticker($('#wSum'), sum, 'num-l');
+  $('#wBand').style.left=p(loSum).toFixed(2)+'%';
+  $('#wBand').style.width=(p(hiSum)-p(loSum)).toFixed(2)+'%';
+  $('#wMark').style.left=p(sum).toFixed(2)+'%';
+  const dayMin=Math.round(loSum/logged.length), dayMax=Math.round(hiSum/logged.length);
+  $('#wSumNote').innerHTML = `${logged.length} 日合计，参考区间 ${comma(loSum)} – ${comma(hiSum)}<br>折日均 ${comma(dayMin)} – ${comma(dayMax)} 千卡`;
 }
 
 /* ============================================================
