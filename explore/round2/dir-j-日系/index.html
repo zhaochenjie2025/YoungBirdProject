@@ -366,7 +366,7 @@ h1,h2,h3,p,dl,dd,dt{margin:0;font-weight:inherit}
 /* 变体 3：每格 200 千卡的灰阶分格（填几格即多少；成分按灰阶自上而下） */
 .wk-cells{position:absolute;inset:0;display:flex;align-items:flex-end}
 .wk-cells .cl{flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:2px}
-.wk-cells .cell{/* cf-justify: 量尺的「格」，正方刻度格是其本义；空格只留极淡描边 */width:52%;height:calc((100% - 16px)/9);background:transparent;border:1px solid var(--hair-2)}
+.wk-cells .cell{/* cf-justify: 量尺的「格」，正方刻度格是其本义；空格只留淡描边 */width:52%;height:calc((100% - 16px)/9);background:transparent;border:1px solid var(--hair)}
 .wk-cells .cell.p{background:var(--g1);border-color:var(--g1)} .wk-cells .cell.f{background:var(--g2);border-color:var(--g2)} .wk-cells .cell.c{background:var(--g3);border-color:var(--g3)}
 .wk-cells .cell.empty{background:transparent;border-color:var(--hair-2)}
 
@@ -975,7 +975,7 @@ function renderWeek(){
         const share=Math.max(0, e/c.st.mtot*100);
         return share>0.5?`<span class="sg ${cls}" style="height:${share.toFixed(2)}%"></span>`:'';
       }).join('');
-      const showVal=!isTod&&(c.st.kcal===hiK||c.st.kcal===loK)&&ranked.length>1;
+      const showVal=!isTod&&ranked.length>0&&(WK===2?true:(c.st.kcal===hiK||c.st.kcal===loK));
       const tag=c.st.status==='est'?`<span class="wk-tag">≈</span>`:'';
       const val=showVal?`<span class="wk-val">${comma(c.st.kcal)}</span>`:'';
       return `<div class="wk-col${isTod?' today':''}">
