@@ -1195,7 +1195,10 @@ function renderWeek(){
   const peakDay=recDays.reduce((a,d)=>(!a||d.kcal>a.kcal)?d:a,null);
   const deck=$('#wk-deck');
   if(deck){
-    deck.textContent=`单日峰值在周${peakDay?peakDay.day.wk:''}的 ${peakDay?peakDay.kcal:''} 千卡，最低的完整一天只有 ${recDays.filter(d=>!d.isToday&&d.status!=='est').length?Math.min(...recDays.filter(d=>!d.isToday&&d.status!=='est').map(d=>d.kcal)):0} 千卡——起伏比想象中大。今天还没吃完。`;
+    const clean=recDays.filter(d=>!d.isToday&&d.status!=='est');
+    const lo=clean.length?Math.min(...clean.map(d=>d.kcal)):0;
+    const hi=peakDay?peakDay.kcal:0;
+    deck.textContent=`完整记录的日子落在 ${lo}–${hi} 千卡，峰谷相差 ${hi-lo}。今天还没吃完，暂不计入比较。`;
   }
   $('#wk-note').innerHTML=`七天中记录了 <b>${recDays.length}</b> 天（含今天）。已结束的 <b>${pastDays.length}</b> 天日均 <b class="tnum">${avg}</b> 千卡，按此节奏一周约 <b class="tnum">${cmp}</b> 千卡；其中 ${estDays.length} 天含待估算菜品，实际可能更高，表内以 * 标出。`;
 }
