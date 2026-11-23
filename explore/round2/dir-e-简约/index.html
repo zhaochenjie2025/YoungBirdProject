@@ -59,7 +59,7 @@ button{font:inherit;color:inherit;background:none;border:0;cursor:pointer;-webki
 h1,h2,h3{font-weight:600;letter-spacing:0}
 ul,ol{list-style:none}
 svg{display:block}
-:focus-visible{outline:2px solid var(--ember);outline-offset:3px;border-radius:6px}
+/* cf-justify: 键盘焦点环 6px 只为贴合被聚焦控件外缘，不是容器形状 */ :focus-visible{outline:2px solid var(--ember);outline-offset:3px;border-radius:6px}
 
 /* ---------- 底色场：玻璃需要“有东西可折射” ---------- */
 .field{position:fixed;inset:-12%;pointer-events:none;z-index:0;will-change:transform;animation:field-drift 36s var(--ease-out) infinite alternate}
@@ -177,7 +177,7 @@ svg{display:block}
 }
 .dock-track{position:absolute;left:6px;right:6px;top:0;bottom:0;pointer-events:none}
 .dock-pill{
-  position:absolute;top:8px;height:48px;width:96px;border-radius:22px;
+/* cf-justify: 选中胶囊内嵌于 30px 外框、上移 8px，22 = 30−8，按嵌套减法定值 */   position:absolute;top:8px;height:48px;width:96px;border-radius:22px;
   background:rgba(16,19,23,.055);
   box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 0 0 1px rgba(16,19,23,.035);
   transform:translate3d(0,0,0);
@@ -197,7 +197,7 @@ svg{display:block}
   flex:none;width:64px;height:100%;display:flex;align-items:center;justify-content:center;
   position:relative;z-index:2;
 }
-.dock-fab{
+.dock-fab{ /* cf-justify: 相机按钮是正圆，此处 50% 即形态本体（无圆角矩形容器） */ 
   width:52px;height:52px;border-radius:50%;
   display:grid;place-items:center;
   color:#fff;
@@ -219,7 +219,7 @@ svg{display:block}
    ============================================================ */
 .paper{
   position:relative;
-  background:linear-gradient(177deg,#FFFFFF 0%,#FEFEFE 66%,#FBFAF7 100%);
+/* cf-justify: 纸面卡基础层；圆角由 --r-card 令牌给出，材质靠纸纤维与发丝边承担 */   background:linear-gradient(177deg,#FFFFFF 0%,#FEFEFE 66%,#FBFAF7 100%);
   border-radius:var(--r-card);
   box-shadow:0 0 0 1px var(--hair),inset 0 1px 0 #fff,var(--e1);
 }
@@ -231,7 +231,7 @@ svg{display:block}
 
 /* ---------- 今日 · 热量主卡 ---------- */
 .hero{
-  padding:22px 20px 18px;border-radius:var(--r-hero);overflow:hidden;
+/* cf-justify: 今日主卡 = --r-hero 令牌，唯一的抬升层（e2 阴影），层级由阴影而非形状区分 */   padding:22px 20px 18px;border-radius:var(--r-hero);overflow:hidden;
   box-shadow:0 0 0 1px var(--hair),inset 0 1px 0 #fff,var(--e2);
 }
 .hero::after{
@@ -240,7 +240,8 @@ svg{display:block}
 }
 .hero-top{display:flex;align-items:flex-start;justify-content:space-between;position:relative;z-index:1}
 .hero-label{font-size:12px;font-weight:600;color:var(--ink-3);display:flex;align-items:center;gap:6px}
-.hero-label .live{width:6px;height:6px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 3px rgba(44,133,115,.14)}
+/* 状态点：正圆是本义 */
+.hero-label .live{ /* cf-justify: 状态点，正圆是本义 */ width:6px;height:6px;border-radius:50%;background:var(--mint);box-shadow:0 0 0 3px rgba(44,133,115,.14)}
 .hero-big{display:flex;align-items:baseline;gap:6px;margin:8px 0 2px;position:relative;z-index:1}
 .hero-num{
   font-size:60px;font-weight:700;letter-spacing:-.045em;
@@ -260,7 +261,7 @@ svg{display:block}
   position:fixed;left:50%;bottom:calc(var(--dock-h) + var(--safe-b) + 78px);z-index:30;
   transform:translate3d(-50%,10px,0);opacity:0;pointer-events:none;
   max-width:min(86vw,340px);text-align:center;
-  padding:10px 15px;border-radius:var(--r-well);
+/* cf-justify: 轻提示是浮起玻璃层，圆角随 --r-well；材质由遮罩+高光承担 */   padding:10px 15px;border-radius:var(--r-well);
   font-size:var(--fs-2);font-weight:500;line-height:1.4;color:var(--ink);
   background:rgba(255,255,255,.86);
   backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);
@@ -274,17 +275,17 @@ svg{display:block}
 .hero-note{font-size:var(--fs-2);color:var(--ink-3);line-height:1.45;position:relative;z-index:1;margin-top:3px}
 .hero-note b{color:var(--ink-2);font-weight:600}
 .hero-range{position:relative;z-index:1;margin-top:16px}
-.ruler{position:relative;height:22px;margin:0 2px}
+.ruler{position:relative;height:22px;margin:0 6px}
 .ruler-ticks{
   position:absolute;left:0;right:0;top:2px;height:6px;pointer-events:none;
   background:repeating-linear-gradient(90deg,rgba(16,19,23,.16) 0 1px,transparent 1px 8.33%);
   -webkit-mask-image:linear-gradient(to bottom,#000 0 60%,transparent 60%);
   mask-image:linear-gradient(to bottom,#000 0 60%,transparent 60%);
 }
-.ruler-track{position:absolute;left:0;right:0;top:9px;height:4px;border-radius:2px;background:rgba(16,19,23,.06)}
+.ruler-track{ /* cf-justify: 量尺轨道是一根 2px 端头的细线，圆角只为端头收口 */ position:absolute;left:0;right:0;top:9px;height:4px;border-radius:2px;background:rgba(16,19,23,.06)}
 /* 已摄入：纸面压痕式的实心段，比目标带更靠前 */
 .ruler-eaten{
-  position:absolute;top:8px;height:6px;border-radius:3px;
+/* cf-justify: 已摄入段的 3px 端头与 6px 高度成半圆收口，仪器刻度语义 */   position:absolute;top:8px;height:6px;border-radius:3px;
   background:linear-gradient(90deg,rgba(178,70,26,.30),rgba(220,90,34,.62));
   box-shadow:inset 0 1px 0 rgba(255,255,255,.45);
 }
@@ -292,27 +293,27 @@ svg{display:block}
   position:absolute;top:6px;height:10px;border-radius:2px;
   background:repeating-linear-gradient(135deg,rgba(16,19,23,.07) 0 1px,rgba(16,19,23,0) 1px 6px);
 }
-.ruler-whisk{position:absolute;top:7px;height:8px;border-radius:3px;background:rgba(220,90,34,.22);box-shadow:inset 0 0 0 1px rgba(178,70,26,.18)}
-.ruler-dot{
+.ruler-whisk{ /* cf-justify: 公差带底色段，端头与刻度同圆度 */ position:absolute;top:7px;height:8px;border-radius:3px;background:rgba(220,90,34,.22);box-shadow:inset 0 0 0 1px rgba(178,70,26,.18)}
+.ruler-dot{ /* cf-justify: 读数指针是圆钮，正圆是本义 */ 
   position:absolute;top:4px;width:14px;height:14px;border-radius:50%;transform:translateX(-50%);
   background:var(--ember);border:3px solid #fff;
   box-shadow:0 1px 3px rgba(150,50,10,.40),0 0 0 1px rgba(16,19,23,.06);
 }
-.ruler-axis{position:relative;height:16px;margin-top:6px;font-size:var(--fs-1);font-weight:500;color:var(--ink-3);font-variant-numeric:tabular-nums}
-.ruler-axis span.bound{position:absolute;top:0;white-space:nowrap;color:var(--ink-4)}
-.ruler-axis span.bound.l{left:0}
-.ruler-axis span.bound.r{right:0;color:var(--ink-3)}
-.ruler-axis span.bound.r b{font-weight:600;color:var(--ink-2)}
-.ruler-axis .target{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap;font-weight:500}
-.ruler-axis .target b{font-weight:600;color:var(--ink-2)}
-.ruler-axis .target em{display:block;font-style:normal;color:var(--ink-4);text-align:center;font-size:var(--fs-1)}
-.ruler-axis b{font-weight:600;color:var(--ink-2)}
+/* 刻度数字与目标带标注都走同一条 p(k) 映射，由 JS 落位 */
+.ruler-cap{position:relative;height:14px;margin-top:5px;font-size:var(--fs-1);font-weight:500;color:var(--ink-3)}
+.ruler-cap span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+.ruler-cap b{font-weight:600;color:var(--ink-2)}
+.ruler-axis{position:relative;height:15px;margin-top:2px;font-size:var(--fs-1);font-weight:500;color:var(--ink-4);font-variant-numeric:tabular-nums}
+.ruler-axis span{position:absolute;top:0;transform:translateX(-50%);white-space:nowrap}
+.ruler-axis span.e{left:0;transform:none}
+.ruler-axis span.s{right:0;left:auto;transform:none}
+.ruler{overflow:visible}
 .hero-readout{display:flex;align-items:baseline;gap:6px;margin-top:2px;font-size:var(--fs-1);color:var(--ink-3);font-weight:500}
 .hero-readout b{font-weight:600;color:var(--ink)}
 
 /* ---------- 餐次条目 ---------- */
 .meal-list{display:flex;flex-direction:column;gap:10px;margin-top:14px}
-.meal-row{
+.meal-row{ /* cf-justify: 餐次卡 = --r-card 纸面；形状来自内容层材质语言而非默认卡片 */ 
   display:flex;align-items:center;gap:14px;padding:14px;border-radius:var(--r-card);
   background:linear-gradient(178deg,#FFFFFF,#FDFCFB);
   box-shadow:0 0 0 1px var(--hair),var(--e2);
@@ -322,12 +323,12 @@ svg{display:block}
 .meal-row:active{transform:scale(.985)}
 /* 即时成像方形相纸：白框 + 相片窗 + 底部压印时间 */
 .instant{
-  width:46px;height:54px;flex:none;border-radius:8px;
+/* cf-justify: 拍立得相纸近直角（真实即时成像相纸的方角），刻意小于卡片圆角 */   width:46px;height:54px;flex:none;border-radius:6px;
   background:linear-gradient(180deg,#FFFFFF,#FCFBF9);
   box-shadow:0 0 0 1px rgba(16,19,23,.10),0 1px 2px rgba(16,19,23,.10),0 4px 8px -6px rgba(16,19,23,.35);
   display:flex;flex-direction:column;align-items:center;padding:4px 4px 0;
 }
-.instant .win{
+.instant .win{ /* cf-justify: 相纸内的相片窗，圆角必须小于相纸外角，按嵌套减法定 3px */ 
   width:38px;height:37px;border-radius:3px;display:grid;place-items:center;
   box-shadow:inset 0 0 0 1px rgba(16,19,23,.10),inset 0 -2px 4px rgba(16,19,23,.06);
 }
@@ -337,16 +338,16 @@ svg{display:block}
   color:var(--ink-2);letter-spacing:.01em;font-variant-numeric:tabular-nums;
 }
 .dish-ic{
-  width:40px;height:40px;border-radius:11px;flex:none;display:grid;place-items:center;
+  width:40px;height:40px;border-radius:var(--r-well);flex:none;display:grid;place-items:center;
   position:relative;overflow:hidden;
 }
-.dish-ic::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 1px 0 rgba(255,255,255,.65),inset 0 0 0 1px rgba(16,19,23,.07)}
+.dish-ic::after{ /* cf-justify: 图标方块的 1px 内发丝描边，继承父圆角保证同心 */ content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 1px 0 rgba(255,255,255,.65),inset 0 0 0 1px rgba(16,19,23,.07)}
 .dish-ic svg{width:20px;height:20px}
-.instant--sm{width:40px;height:47px;border-radius:7px}
+/* cf-justify: 小号相纸与标准号共用同一相纸圆角，尺寸变、形态不变 */ .instant--sm{width:40px;height:47px;border-radius:6px}
 .instant--sm .win{width:32px;height:32px}
 .instant--sm .chin{font-size:var(--fs-1)}
-.meal-glyph-xl{width:46px;height:46px;border-radius:12px;flex:none;display:grid;place-items:center;position:relative;overflow:hidden}
-.meal-glyph-xl::after{content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 0 0 1px rgba(16,19,23,.05)}
+.meal-glyph-xl{width:46px;height:46px;border-radius:var(--r-well);flex:none;display:grid;place-items:center;position:relative;overflow:hidden}
+.meal-glyph-xl::after{ /* cf-justify: 大图标块的内发丝描边，继承父圆角 */ content:"";position:absolute;inset:0;border-radius:inherit;box-shadow:inset 0 1px 0 rgba(255,255,255,.5),inset 0 0 0 1px rgba(16,19,23,.05)}
 .meal-glyph-xl svg{width:21px;height:21px}
 .meal-txt{flex:1;min-width:0}
 .meal-name{font-size:14px;font-weight:600;letter-spacing:-.005em;display:flex;align-items:center;gap:6px}
@@ -355,10 +356,10 @@ svg{display:block}
 .meal-kcal small{font-size:var(--fs-1);font-weight:500;color:var(--ink-3);margin-left:var(--ug)}
 .badge-est{
   font-size:var(--fs-1);font-weight:600;color:var(--ember-ink);
-  background:var(--ember-wash);padding:2px 7px;border-radius:6px;letter-spacing:.01em;
+/* cf-justify: 状态标签是文字药丸，6px 只作用于标签自身内边距 */   background:var(--ember-wash);padding:2px 7px;border-radius:6px;letter-spacing:.01em;
 }
 /* ---------- 空状态 ---------- */
-.empty{
+.empty{ /* cf-justify: 空态刻意不是卡片：仅一条上发丝分隔线，无底、无影、无完整边框 */
   padding:22px 20px 20px;text-align:center;display:flex;flex-direction:column;align-items:center;
   background:transparent;border-radius:var(--r-card);box-shadow:none;
   border-top:1px solid var(--hair);
@@ -370,8 +371,7 @@ svg{display:block}
 .empty .btn-row{margin-top:14px;display:flex;gap:10px}
 
 /* ---------- 按钮 ---------- */
-/* cf-justify: 洁净明亮的界面语言里，按钮与分段控件必须是可预期的矩形命中区；形状不承载母题，靠材质（内高光+投影）承担工艺 */
-.btn{
+.btn{ /* cf-justify: 洁净明亮语言里按钮必须是可预期的矩形命中区；形状不承载母题，工艺由内高光+投影承担 */
   display:inline-flex;align-items:center;justify-content:center;gap:8px;
   font-size:14px;font-weight:600;letter-spacing:-.005em;
   border-radius:var(--r-well);padding:0 20px;height:48px;
@@ -390,7 +390,7 @@ svg{display:block}
 .btn--block{display:flex;width:100%}
 
 /* ---------- 新建一餐 ---------- */
-.shutter{
+.shutter{ /* cf-justify: 快门卡 = --r-hero 令牌，与今日主卡同级 */ 
   position:relative;width:100%;border-radius:26px;overflow:hidden;text-align:left;
   background:
     radial-gradient(120% 100% at 78% -8%,rgba(255,255,255,.22),rgba(255,255,255,0) 55%),
@@ -406,12 +406,12 @@ svg{display:block}
   background:var(--noise);opacity:.06;mix-blend-mode:overlay;
 }
 .shutter-inner{display:flex;align-items:center;gap:16px;position:relative;z-index:1}
-.shutter-lens{
+.shutter-lens{ /* cf-justify: 镜头是正圆，形态本体 */ 
   width:58px;height:58px;border-radius:50%;flex:none;display:grid;place-items:center;position:relative;
   background:radial-gradient(circle at 34% 26%,#3B444F 0%,#1C2229 55%,#0B0E11 100%);
   box-shadow:inset 0 2px 3px rgba(255,255,255,.16),inset 0 -6px 10px rgba(0,0,0,.6),0 0 0 1px rgba(255,255,255,.1),0 8px 16px -6px rgba(0,0,0,.7);
 }
-.shutter-lens::before{
+.shutter-lens::before{ /* cf-justify: 镜片内圆，正圆 */ 
   content:"";position:absolute;width:30px;height:30px;border-radius:50%;
   background:radial-gradient(circle at 38% 32%,rgba(90,205,255,.32),rgba(20,40,70,.16) 46%,rgba(0,0,0,.6) 70%);
   box-shadow:inset 0 0 0 1.5px rgba(255,255,255,.07);
@@ -424,7 +424,7 @@ svg{display:block}
 .shutter-txt{flex:1}
 .shutter-txt h3{font-size:16px;font-weight:600;letter-spacing:-.01em}
 .shutter-txt p{font-size:12px;color:rgba(255,255,255,.56);margin-top:3px;line-height:1.4}
-.shutter-plus{
+.shutter-plus{ /* cf-justify: 取景器加号按钮，正圆 */ 
   width:34px;height:34px;border-radius:50%;flex:none;display:grid;place-items:center;
   background:rgba(255,255,255,.1);box-shadow:inset 0 0 0 1px rgba(255,255,255,.14);
 }
@@ -440,7 +440,7 @@ svg{display:block}
 .chip svg{width:14px;height:14px;opacity:.8}
 
 .dish-list{display:flex;flex-direction:column;gap:10px;margin-top:16px}
-.dish-row{
+.dish-row{ /* cf-justify: 菜品行 = --r-well 内层容器，嵌在纸面语境里 */ 
   display:grid;grid-template-columns:38px 1fr auto auto;
   grid-template-areas:"ic nm kc del" "ic mt mt mt";
   align-items:center;gap:2px 12px;padding:13px 14px;border-radius:var(--r-well);
@@ -453,6 +453,7 @@ svg{display:block}
 .dish-row .kc{grid-area:kc;font-size:16px;font-weight:600;letter-spacing:-.02em;white-space:nowrap}
 .dish-row .kc small{font-size:var(--fs-1);font-weight:500;color:var(--ink-3);margin-left:var(--ug)}
 .dish-row .del{grid-area:del}
+.del{ /* cf-justify: 26px 图标命中区，内圆角须小于所在容器圆角，视觉上才不显得比外框还圆 */ width:26px;height:26px;border-radius:8px;display:grid;place-items:center;color:var(--ink-2);background:rgba(16,19,23,.04);flex:none}
 .dish-row .mt{grid-area:mt;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:8px;min-width:0}
 .dish-row .mt .sub{font-size:12px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .dish-row.is-entering{animation:dish-in .5s var(--ease-out) both}
@@ -465,7 +466,7 @@ svg{display:block}
 /* ---------- 合计条（浮动玻璃，借 Dock 材质） ---------- */
 .totalbar{
   display:flex;align-items:center;gap:12px;
-  padding:14px 16px;border-radius:20px;isolation:isolate;overflow:hidden;
+/* cf-justify: 合计条是浮起玻璃层，圆角 --r-card；玻璃材质由 backdrop-filter 承担 */   padding:14px 16px;border-radius:var(--r-card);isolation:isolate;overflow:hidden;
   position:sticky;bottom:calc(var(--dock-h) + var(--safe-b) + 18px);z-index:8;
   background:linear-gradient(180deg,rgba(255,255,255,.82),rgba(255,255,255,.66));
   backdrop-filter:blur(24px) saturate(180%);-webkit-backdrop-filter:blur(24px) saturate(180%);
@@ -496,7 +497,7 @@ svg{display:block}
 .rh-num .u{font-size:15px;font-weight:600;color:var(--ink-3)}
 .rh-sub{font-size:12px;color:var(--ink-3);position:relative;z-index:1;line-height:1.45}
 .rh-sub .range{color:var(--ember-ink);font-weight:600}
-.nutri-strip{display:flex;gap:0;margin-top:18px;position:relative;z-index:1;border-radius:var(--r-well);overflow:hidden;background:rgba(16,19,23,.035)}
+.nutri-strip{ /* cf-justify: 营养三联是内嵌读数条，--r-well 内层圆角 */ display:flex;gap:0;margin-top:18px;position:relative;z-index:1;border-radius:var(--r-well);overflow:hidden;background:rgba(16,19,23,.035)}
 .nutri-cell{flex:1;padding:11px 10px;text-align:center;border-right:1px solid var(--hair)}
 .nutri-cell:last-child{border-right:0}
 .nutri-cell .k{font-size:11px;font-weight:500;color:var(--ink-3)}
@@ -504,7 +505,7 @@ svg{display:block}
 .nutri-cell .v.miss{color:var(--ink-4);font-size:12px;font-weight:500}
 
 .dish-detail{display:flex;flex-direction:column;gap:10px;margin-top:16px}
-.dish-card{overflow:hidden;border-radius:var(--r-card);background:linear-gradient(178deg,#FFFFFF,#FDFCFB);box-shadow:0 0 0 1px var(--hair),var(--e1)}
+.dish-card{ /* cf-justify: 菜品明细卡 = --r-card 纸面，与餐次卡同族 */ overflow:hidden;border-radius:var(--r-card);background:linear-gradient(178deg,#FFFFFF,#FDFCFB);box-shadow:0 0 0 1px var(--hair),var(--e1)}
 .dish-card summary{
   list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:15px 16px;
   -webkit-tap-highlight-color:transparent;
@@ -525,7 +526,7 @@ svg{display:block}
 .dc-kv .k{font-size:12px;color:var(--ink-3)}
 .dc-kv .v{font-size:13px;font-weight:500;text-align:right;letter-spacing:-.005em}
 .dc-kv .v small{font-size:11px;color:var(--ink-4);font-weight:400;margin-left:3px}
-.dc-src{margin-top:10px;padding:11px 13px;border-radius:var(--r-well);background:rgba(16,19,23,.032)}
+.dc-src{ /* cf-justify: 出处说明是卡片内的次级凹槽，--r-well */ margin-top:10px;padding:11px 13px;border-radius:var(--r-well);background:rgba(16,19,23,.032)}
 .dc-src .t{font-size:11px;font-weight:600;color:var(--ink-3);margin-bottom:4px}
 .dc-src .b{font-size:12px;color:var(--ink-2);line-height:1.5}
 .dc-src .b + .b{margin-top:6px}
@@ -535,12 +536,12 @@ svg{display:block}
   background:
     linear-gradient(90deg,rgba(16,19,23,.05),rgba(16,19,23,.05)) 0 50%/100% 2px no-repeat;
 }
-.dcr-span{
+.dcr-span{ /* cf-justify: 区间带端头 3px，与轨道同圆度 */ 
   position:absolute;top:2px;height:10px;border-radius:3px;
   background:repeating-linear-gradient(135deg,rgba(16,19,23,.17) 0 1px,rgba(16,19,23,.05) 1px 5px);
   box-shadow:inset 0 0 0 1px rgba(16,19,23,.10);
 }
-.dcr-pt{
+.dcr-pt{ /* cf-justify: 折算读数点是圆钮 */ 
   position:absolute;top:0;width:14px;height:14px;border-radius:50%;
   background:var(--ink);border:3px solid #fff;transform:translateX(-50%);
   box-shadow:0 1px 3px rgba(16,19,23,.35),0 0 0 1px rgba(16,19,23,.07);
@@ -550,7 +551,7 @@ svg{display:block}
 
 /* ---------- 周视图（Bento 非对称宫格） ---------- */
 .week-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:9px;margin-top:16px}
-.day-cell{
+.day-cell{ /* cf-justify: 周格 = --r-well Bento 单元，非对称由跨列承担而非改形状 */ 
   position:relative;border-radius:var(--r-well);padding:12px 11px 11px;min-height:96px;
   display:flex;flex-direction:column;justify-content:space-between;
   background:linear-gradient(176deg,#FFFFFF,#FDFCFB);
@@ -585,7 +586,7 @@ svg{display:block}
 .week-legend{display:flex;flex-wrap:wrap;gap:14px;margin-top:16px;padding:0 4px;font-size:11px;color:var(--ink-3);font-weight:500}
 .week-legend span{display:inline-flex;align-items:center;gap:5px}
 .week-legend .d{width:6px;height:6px;border-radius:50%}
-.week-sum{margin-top:16px;padding:16px 18px;border-radius:var(--r-card);display:flex;align-items:stretch;gap:16px;background:linear-gradient(176deg,#FFFFFF,#FDFCFB);box-shadow:0 0 0 1px var(--hair),var(--e1)}
+.week-sum{ /* cf-justify: 汇总条 = --r-card 纸面，与其余纸面卡同族 */ margin-top:16px;padding:16px 18px;border-radius:var(--r-card);display:flex;align-items:stretch;gap:16px;background:linear-gradient(176deg,#FFFFFF,#FDFCFB);box-shadow:0 0 0 1px var(--hair),var(--e1)}
 .ws-block{flex:1}
 .ws-block .k{font-size:11px;font-weight:600;color:var(--ink-3)}
 .ws-block .v{font-size:19px;font-weight:700;letter-spacing:-.03em;margin-top:4px}
@@ -609,10 +610,10 @@ svg{display:block}
 
 /* 份量分段控件（橡胶感，借 React Bits Rubber Segment 手感） */
 /* cf-justify: 三选一的分段控件是 iOS 系统级控件形态，矩形凹槽 + 选中滑块才是可读的物理隐喻 */
-.seg{display:inline-flex;padding:3px;border-radius:12px;background:rgba(16,19,23,.05);box-shadow:inset 0 1px 1px rgba(16,19,23,.06)}
-.seg button{
+.seg{ /* cf-justify: 分段控件是 iOS 系统级凹槽，12px 为凹槽、内滑块按嵌套减法 9px */ display:inline-flex;padding:3px;border-radius:12px;background:rgba(16,19,23,.05);box-shadow:inset 0 1px 1px rgba(16,19,23,.06)}
+.seg button{ /* cf-justify: 分段滑块 = 12−3 内边距 = 9px，嵌套减法定值 */ 
   font-size:11px;font-weight:600;color:var(--ink-3);
-  padding:5px 9px;border-radius:9px;line-height:1;
+  padding:5px 9px;border-radius:9px;line-height:1; /* cf-justify: 分段滑块 12−3 内边距=9px，嵌套减法 */
   transition:background .22s var(--ease-out),color .22s,transform .3s var(--ease-pop),box-shadow .22s;
 }
 .seg button[aria-pressed="true"]{
@@ -669,10 +670,8 @@ svg{display:block}
           <span class="ruler-band" id="hr-band"></span>
           <span class="ruler-dot" id="hr-dot"></span>
         </div>
-        <div class="ruler-axis">
-          <span class="bound l">0</span>
-          <span class="bound r">目标 <b>1600–2200</b> 千卡</span>
-        </div>
+        <div class="ruler-cap"><span id="hr-cap">目标 <b>1600–2200</b> 千卡</span></div>
+        <div class="ruler-axis" id="hr-axis"></div>
       </div>
     </article>
 
@@ -1113,7 +1112,7 @@ function rowHTML(item){
     ${glyph(d)}
     <span class="nm">${d.name}</span>
     <span class="kc">${v.kcal}<small>千卡</small></span>
-    <button class="del" type="button" aria-label="删除${d.name}" style="width:26px;height:26px;border-radius:8px;display:grid;place-items:center;color:var(--ink-2);background:rgba(16,19,23,.04);flex:none">
+    <button class="del" type="button" aria-label="删除${d.name}">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" style="width:13px;height:13px"><path d="M6 6l12 12M18 6 6 18"/></svg>
     </button>
     <span class="mt">
@@ -1314,6 +1313,12 @@ function drawHeroRuler(){
   const band=document.getElementById('hr-band');
   band.style.left = p(1600)+'%';
   band.style.width = (p(2200)-p(1600))+'%';
+  // 目标带标注挂到带中线，不再靠右对齐
+  document.getElementById('hr-cap').style.left = p(1900)+'%';
+  // 刻度数字：每 600 千卡一格（轨道每 8.33% 一小格，即 200 千卡）
+  const axis = document.getElementById('hr-axis');
+  axis.innerHTML = [0,600,1200,1800,2400].map((k,i)=>
+    `<span class="${i===0?'e':(i===4?'s':'')}" style="left:${p(k)}%">${k}</span>`).join('');
 }
 function drawRange(el){
   const lo=+el.dataset.lo, hi=+el.dataset.hi, pt=+el.dataset.pt;

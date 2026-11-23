@@ -197,19 +197,33 @@ h1,h2,h3,p{margin:0}
   box-shadow:inset 0 1px 0 rgba(255,255,255,.9), inset 0 -10px 22px -12px rgba(60,92,84,.5), 0 1px 0 rgba(255,255,255,.6);
   opacity:.9;
 }
-.aperture .dish{ /* 里层的承光玻璃盘：翻转光斑随热量变亮 */
+.aperture .dish{ /* 里层承光玻璃盘：与卡片同一材质（透明玻璃折射背景光），不是实心蛋液 */
   position:absolute;inset:28px;border-radius:50%;
   background:
-    radial-gradient(74% 74% at 32% 26%, rgba(255,255,255,.72), rgba(255,255,255,.14) 46%, rgba(255,255,255,.30));
-  -webkit-backdrop-filter:blur(8px) saturate(150%);backdrop-filter:blur(8px) saturate(150%);
-  border:1px solid rgba(255,255,255,.55);
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.95),inset 0 -18px 34px -20px var(--g-thick),0 14px 30px -18px rgba(var(--sh),.5);
+    linear-gradient(150deg, rgba(210,236,228,.26), rgba(255,255,255,.02) 46%, rgba(236,222,204,.18));
+  -webkit-backdrop-filter:blur(9px) saturate(215%) brightness(1.05);backdrop-filter:blur(9px) saturate(215%) brightness(1.05);
+  border:1px solid rgba(255,255,255,.62);
+  box-shadow:
+    inset 0 2.5px 0 -0.5px rgba(255,255,255,1),
+    inset 0 8px 12px -8px rgba(255,255,255,.9),
+    inset 0 -7px 0 -3px rgba(74,104,96,.5),
+    inset 0 -22px 28px -22px rgba(40,72,64,.5),
+    0 1px 0 rgba(255,255,255,.7);
   display:grid;place-items:center;overflow:hidden;
 }
-.aperture .glow{ /* 困在玻璃里的光：亮度与色温随热量（0 偏冷青、满偏暖琥珀） */
-  position:absolute;inset:-30%;border-radius:50%;pointer-events:none;
-  background:radial-gradient(closest-side, hsla(var(--ap-h,42),var(--ap-s,58%),64%,var(--lit,.55)), hsla(var(--ap-h,42),var(--ap-s,58%),64%,0) 72%);
-  transform:scale(var(--litScale, .9));filter:blur(6px);mix-blend-mode:screen;
+/* 盘内一圈镜面环：玻璃盘的倒角内沿 + 色散，和卡片的边环同一门语 */
+.aperture .dish::before{content:"";position:absolute;inset:5px;border-radius:50%;pointer-events:none;z-index:1;
+  padding:1.6px;
+  background:linear-gradient(145deg, rgba(255,255,255,1), rgba(120,214,200,.6) 14%, rgba(255,255,255,.1) 42%, rgba(255,255,255,0) 62%, rgba(255,188,210,.5) 88%, rgba(255,255,255,.8));
+  -webkit-mask:linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite:xor; mask-composite:exclude}
+.aperture .glow{ /* 困在玻璃里的光：环形内发光（中空），色温随热量，盘后透上来的光而非盘面填充 */
+  position:absolute;inset:-14%;border-radius:50%;pointer-events:none;z-index:0;
+  background:radial-gradient(closest-side,
+    hsla(var(--ap-h,42),var(--ap-s,60%),64%,0) 0 34%,
+    hsla(var(--ap-h,42),var(--ap-s,60%),62%,var(--lit,.4)) 62%,
+    hsla(var(--ap-h,42),var(--ap-s,60%),62%,0) 84%);
+  transform:scale(var(--litScale, .9));filter:blur(10px);mix-blend-mode:screen;
   transition:transform .8s ease, opacity .8s ease, background .8s ease;
 }
 /* 承光玻璃层：每记一餐叠一片带真实厚度的玻璃圆片，层数=餐数，一眼可数 */
@@ -460,9 +474,10 @@ h1,h2,h3,p{margin:0}
   mix-blend-mode:screen}
 .plate:hover .spot,.plate.touching .spot{opacity:1}
 .plate .prow{display:flex;align-items:center;gap:11px}
-.plate .swatch{width:34px;height:34px;border-radius:11px;flex:none;position:relative;
-  box-shadow:inset 0 1px 0 rgba(255,255,255,.7),inset 0 -3px 6px rgba(0,0,0,.14),0 4px 10px -6px rgba(var(--sh),.6)}
-.plate .swatch::after{content:"";position:absolute;inset:5px 5px auto 5px;height:7px;border-radius:50%;background:linear-gradient(rgba(255,255,255,.85),rgba(255,255,255,0));opacity:.75}
+.plate .swatch{width:36px;height:36px;border-radius:50%;flex:none;position:relative;
+  box-shadow:inset 0 2px 2px rgba(255,255,255,.8),inset 0 -4px 8px rgba(0,0,0,.2),inset 0 0 0 1px rgba(255,255,255,.35),0 4px 10px -5px rgba(var(--sh),.7)}
+.plate .swatch::after{content:"";position:absolute;left:19%;top:15%;width:42%;height:34%;border-radius:50%;
+  background:radial-gradient(circle at 40% 35%, rgba(255,255,255,.95), rgba(255,255,255,0) 72%);filter:blur(.3px)}
 .plate .meta{flex:1;min-width:0}
 .plate .meta b{display:block;font-size:14.5px;font-weight:700;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .plate .meta span{font-size:11.5px;color:var(--ink-3);margin-top:2px;display:block}
@@ -495,9 +510,10 @@ h1,h2,h3,p{margin:0}
 .sheet-scrim.on .sheet{transform:none}
 .sheet .grab{width:40px;height:4px;border-radius:99px;background:rgba(80,110,102,.4);margin:0 auto 14px}
 .sheet h3{font-size:17px;font-weight:700;color:var(--ink);margin-bottom:12px}
-.sheet .sitem{display:flex;width:100%;align-items:center;gap:11px;text-align:left;border:0;cursor:pointer;padding:11px 12px;margin-bottom:8px;border-radius:16px;font-family:var(--font);
-  background:rgba(255,255,255,.5);border:1px solid rgba(255,255,255,.6);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 4px 10px -7px rgba(var(--sh),.5)}
-.sheet .sitem .swatch{width:30px;height:30px;border-radius:10px;flex:none}
+.sheet .sitem{display:flex;width:100%;align-items:center;gap:11px;text-align:left;border:0;cursor:pointer;padding:11px 12px;margin-bottom:8px;border-radius:12px;font-family:var(--font);
+  background:linear-gradient(180deg,rgba(255,255,255,.34),rgba(255,255,255,.14));border:1px solid rgba(255,255,255,.6);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 0 rgba(110,138,130,.28),0 4px 10px -7px rgba(var(--sh),.5)}
+.sheet .sitem .swatch{width:30px;height:30px;border-radius:50%;flex:none;box-shadow:inset 0 1px 1px rgba(255,255,255,.8),inset 0 -3px 6px rgba(0,0,0,.18)}
 .sheet .sitem .nm{flex:1;min-width:0}
 .sheet .sitem .nm b{font-size:14px;font-weight:700;color:var(--ink);display:block}
 .sheet .sitem .nm span{font-size:11px;color:var(--ink-3);margin-top:1px;display:block}
@@ -513,8 +529,14 @@ h1,h2,h3,p{margin:0}
 .res-hero .big small{font-size:13px;color:var(--ink-3);margin-bottom:8px;font-weight:600}
 .res-hero .rng{margin-top:8px;font-size:12.5px;color:var(--honey-deep);font-weight:600;display:flex;align-items:center;gap:6px}
 .res-hero .rng .bar{height:5px;width:80px;border-radius:99px;background:linear-gradient(90deg,var(--honey-l),var(--honey-deep));position:relative;box-shadow:inset 0 1px 1px rgba(120,80,20,.3)}
-.res-hero .macros{display:flex;gap:8px;margin-top:16px}
-.res-hero .mac{flex:1;text-align:center;padding:9px 4px;border-radius:14px;background:rgba(255,255,255,.4);border:1px solid rgba(255,255,255,.55);box-shadow:inset 0 1px 0 rgba(255,255,255,.85)}
+/* 营养三格：内凹蚀刻格，与玻璃槽同门语，不是三块白卡 */
+.res-hero .macros{display:flex;gap:8px;margin-top:16px;padding:5px;border-radius:14px;
+  background:linear-gradient(180deg,rgba(60,92,84,.10),rgba(255,255,255,.26));
+  box-shadow:inset 0 1.5px 3px rgba(40,72,64,.28),inset 0 -1px 0 rgba(255,255,255,.55)}
+.res-hero .mac{flex:1;text-align:center;padding:8px 4px;border-radius:9px;
+  background:linear-gradient(180deg,rgba(255,255,255,.42),rgba(255,255,255,.12));
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 2px rgba(40,72,64,.18)}
+.res-hero .mac+.mac{box-shadow:inset 1px 0 0 rgba(60,92,84,.14),inset 0 1px 0 rgba(255,255,255,.9),inset 0 -1px 2px rgba(40,72,64,.18)}
 .res-hero .mac b{font-family:var(--num);font-size:15px;font-weight:600;color:var(--ink);display:block}
 .res-hero .mac b.na{color:var(--ink-4);font-size:12px}
 .res-hero .mac span{font-size:11px;color:var(--ink-3);letter-spacing:.04em}
@@ -525,7 +547,7 @@ h1,h2,h3,p{margin:0}
 .dish-detail{border-radius:var(--r-md);padding:0;margin-bottom:11px;cursor:pointer;
   /* cf-justify: 明细是一张可展开的承光玻璃卡，连续圆角=玻璃卡本体 */}
 .dish-detail .head{display:flex;align-items:center;gap:11px;padding:14px}
-.dish-detail .head .swatch{width:36px;height:36px;border-radius:12px;flex:none;box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 4px 10px -6px rgba(var(--sh),.6)}
+.dish-detail .head .swatch{width:36px;height:36px;border-radius:50%;flex:none;box-shadow:inset 0 2px 2px rgba(255,255,255,.8),inset 0 -4px 8px rgba(0,0,0,.2),inset 0 0 0 1px rgba(255,255,255,.35),0 4px 10px -5px rgba(var(--sh),.7)}
 .dish-detail .head .nm{flex:1;min-width:0}
 .dish-detail .head .nm b{display:block;font-size:14.5px;font-weight:700;color:var(--ink)}
 .dish-detail .head .nm span{font-size:11.5px;color:var(--ink-3);margin-top:2px;display:block}

@@ -186,6 +186,8 @@ input{font:inherit;color:inherit}
 .tape{margin:0;position:relative;padding:0 0 0}
 .tape-head{display:flex;align-items:baseline;gap:8px;padding:9px 20px 5px;
   border-bottom:1px solid rgba(37,35,30,.14)}
+.tape-head .t{font-size:12px;letter-spacing:.08em;color:var(--ink-2);font-weight:600}
+.tape-head .n{margin-left:auto;font-family:var(--mono);font-size:11px;color:var(--ink-3)}
 .log{border:0;box-shadow:none;background:
     var(--noise),
     linear-gradient(180deg,#f0eadb 0%,#e6dfce 60%,#dcd5c4 100%);background-blend-mode:multiply,normal}
@@ -286,7 +288,7 @@ input{font:inherit;color:inherit}
 .meal-kcal .u{font-size:11px;color:var(--ink-3)}
 .meal-kcal .k.pending{color:#9a6b1f}
 .rowflag{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:#9a6b1f;margin-top:2px}
-.tape-head .t{color:#cfc9b9}
+
 
 /* empty state */
 .empty{
@@ -641,10 +643,15 @@ input{font:inherit;color:inherit}
 .nav-knob::before,.nav-knob::after{content:"";position:absolute;top:0;bottom:0;width:1px;background:rgba(255,255,255,.12)}
 .nav-knob::before{left:0}
 .nav-knob::after{right:0}
-.nav-btn{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:9px 2px 8px;color:#7d786c;transition:color .25s ease;border-right:1px solid rgba(0,0,0,.4);box-shadow:inset -1px 0 0 rgba(255,255,255,.03)}
+.nav-btn{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:9px 2px 8px;color:#7d786c;
+  transition:color .2s ease, box-shadow .12s ease, transform .12s ease;
+  margin:3px;border-radius:2px;
+  background:linear-gradient(180deg,#22262a,#191c1f);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.09),inset 0 -1px 0 rgba(0,0,0,.55),0 1px 1px rgba(0,0,0,.4)}
+.nav-btn:active{transform:translateY(1px);box-shadow:inset 0 2px 4px rgba(0,0,0,.7),inset 0 1px 0 rgba(0,0,0,.4)}
 .nav-btn .ico{width:19px;height:19px;filter:drop-shadow(0 1px 0 rgba(0,0,0,.5))}
 .nav-btn .t{font-size:11px;letter-spacing:.04em}
-.nav-btn.on{color:#f2ecdd}.nav-btn.on .ico{filter:drop-shadow(0 1px 0 rgba(0,0,0,.5)) drop-shadow(0 0 4px rgba(210,205,190,.25))}
+.nav-btn.on{color:#f2ecdd;background:linear-gradient(180deg,#15181a,#202427);box-shadow:inset 0 2px 4px rgba(0,0,0,.75),inset 0 1px 0 rgba(0,0,0,.5),0 1px 0 rgba(255,255,255,.05)}.nav-btn.on .ico{filter:drop-shadow(0 1px 0 rgba(0,0,0,.5)) drop-shadow(0 0 4px rgba(210,205,190,.25))}
 
 /* misc */
 .hr-etch{height:1px;margin:0 12px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent)}
@@ -1041,18 +1048,30 @@ function ringPath(rOut, rIn){
 }
 
 /* ---- recessed annular well: a real turned-metal bezel, not a flat stroke ---- */
-/* brushed metal bezel = conic sheen rotating with the arc + fine groove rings */
-var bezelMetal = el("linearGradient", { id: "bezelMetal", x1: "0", y1: "0", x2: "1", y2: "1" });
-bezelMetal.appendChild(el("stop", { offset: "0%",  "stop-color": "#fbf9f2" }));
-bezelMetal.appendChild(el("stop", { offset: "18%", "stop-color": "#b7b1a2" }));
-bezelMetal.appendChild(el("stop", { offset: "34%", "stop-color": "#e9e4d6" }));
-bezelMetal.appendChild(el("stop", { offset: "52%", "stop-color": "#8f897b" }));
-bezelMetal.appendChild(el("stop", { offset: "70%", "stop-color": "#dcd6c7" }));
-bezelMetal.appendChild(el("stop", { offset: "86%", "stop-color": "#b0aa9b" }));
-bezelMetal.appendChild(el("stop", { offset: "100%","stop-color": "#efe9db" }));
-defs.appendChild(bezelMetal);
-/* the raised metal ring band (outer) */
-var bezelRing = el("path", { d: ringPath(152, 143), fill: "url(#bezelMetal)" });
+/* turned-metal bezel: segments whose tone shifts along the arc (angular sheen, matcap-like) */
+var segN = 26;
+var bezelGroup = el("g", {});
+for (var si = 0; si < segN; si++){
+  var a0 = -DIAL.sweep/2 + (DIAL.sweep) * (si / segN);
+  var a1 = -DIAL.sweep/2 + (DIAL.sweep) * ((si + 1) / segN);
+  // light sweeps: bright near 0deg top, darker at the shoulders -> tone by cosine of angle
+  var mid = (a0 + a1) / 2;
+  var lit = Math.cos(mid * Math.PI / 180);           // 1 at top, -x at sides
+  var l = 0.5 + lit * 0.36;                            // 0.14..0.86
+  var base = Math.round(120 + l * 110);
+  var col = "rgb(" + (base) + "," + (base - 4) + "," + (base - 20) + ")";
+  bezelGroup.appendChild(el("path", { d: ringPathAt(152, 143, a0, a1), fill: col }));
+}
+/* soft specular hotspot near the top of the ring */
+defs.appendChild((function(){
+  var g = el("radialGradient", { id: "bezelSpec", cx: "50%", cy: "6%", r: "52%" });
+  g.appendChild(el("stop", { offset: "0%", "stop-color": "#ffffff", "stop-opacity": ".95" }));
+  g.appendChild(el("stop", { offset: "45%", "stop-color": "#ffffff", "stop-opacity": ".22" }));
+  g.appendChild(el("stop", { offset: "100%", "stop-color": "#ffffff", "stop-opacity": "0" }));
+  return g;
+})());
+var bezelSpec = el("path", { d: ringPath(152, 143), fill: "url(#bezelSpec)" });
+var bezelRing = bezelGroup;
 /* a specular hotspot travelling along the upper arc (reads as polished curve: matcap-like) */
 var spec = el("radialGradient", { id: "bezelSpec", cx: "50%", cy: "8%", r: "60%" });
 spec.appendChild(el("stop", { offset: "0%", "stop-color": "#ffffff", "stop-opacity": ".9" }));
@@ -1166,7 +1185,7 @@ defs.appendChild(hubMetal);
 
 /* needle drop-shadow filter (angle-independent soft real shadow) */
 var nsf = el("filter", { id: "needleShadow", x: "-30%", y: "-30%", width: "160%", height: "160%" });
-nsf.appendChild(el("feDropShadow", { dx: "1.6", dy: "2.4", stdDeviation: "1.1", "flood-color": "rgba(20,16,10,.35)" }));
+nsf.appendChild(el("feDropShadow", { dx: "2.2", dy: "3.4", stdDeviation: "1.4", "flood-color": "rgba(20,16,10,.5)" }));
 defs.appendChild(nsf);
 
 /* domed glass overlay: broad soft specular + bright crescent + vignette */
