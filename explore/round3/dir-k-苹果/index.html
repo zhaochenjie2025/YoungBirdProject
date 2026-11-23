@@ -108,7 +108,7 @@ button.row:active{background:rgba(0,0,0,.045)}
 
 /* ---------- 数字 ---------- */
 .metric{font-size:34px;line-height:1.15;font-weight:400;letter-spacing:-.02em;font-variant-numeric:tabular-nums;margin-left:-2px}
-.metric em{font-style:normal;font-size:26px;font-weight:400;margin-left:3px;letter-spacing:0}
+.metric em{font-style:normal;font-size:30px;font-weight:400;margin-left:3px;letter-spacing:0}
 .metric-sm{font-size:28px;line-height:1.2;font-weight:600;font-variant-numeric:tabular-nums}
 .metric-sm em{font-style:normal;font-size:var(--fs-sm);font-weight:400;margin-left:2px;color:var(--lbl2)}
 .t-sub{font-size:var(--fs-sm);color:var(--lbl2);line-height:1.4}
@@ -319,13 +319,13 @@ button.row:active{background:rgba(0,0,0,.045)}
     <button role="tab" data-seg="day" aria-selected="false">每天</button>
   </div>
 
-  <div class="sec sec--lg">汇总</div>
+  <div class="sec sec--lg">饮食记录</div>
 
   <div class="card" id="week-card" style="margin-top:0;padding-bottom:var(--s2)">
     <div class="week-date" id="week-cap"></div>
     <div class="metric" id="week-total">—</div>
     <svg class="chart" id="week-chart" viewBox="0 0 358 176" role="img" aria-label="本周热量柱状图，按蛋白质、脂肪、碳水堆叠"></svg>
-    <svg class="chart" id="day-chart" viewBox="0 0 358 150" role="img" aria-label="今天三餐热量按时间分布" style="margin-top:6px"></svg>
+    <svg class="chart" id="day-chart" viewBox="0 0 358 176" role="img" aria-label="今天三餐热量按时间分布" style="display:none"></svg>
     <div class="legend" id="week-legend"></div>
   </div>
   <div class="chart-note" id="week-note" style="margin:6px var(--s4) 0"></div>
@@ -539,11 +539,11 @@ function renderWeek(mode){
   const days=WEEK.map(d=>({d,day:dayOf(d)}));
   const isDay=mode==="day";
   $("#week-card").dataset.mode=mode;
+  /* 分段控件是切换视图：每周只显示周柱图，每天只显示小时图 */
   $("#week-chart").style.display=isDay?"none":"";
-  $("#day-chart").style.marginTop=isDay?"0":"6px";
-  $("#day-chart").setAttribute("viewBox", isDay?"0 0 358 176":"0 0 358 150");
-  $("#week-days").closest(".grp").style.display="";
-  $("#week-days").previousElementSibling.style.display=""; /* 限额小标题 */
+  $("#day-chart").style.display=isDay?"":"none";
+  $("#day-chart").style.marginTop="0";
+  $("#day-chart").setAttribute("viewBox","0 0 358 176");
 
   if(isDay){
     const d=WEEK[6], day=dayOf(d);
@@ -617,8 +617,6 @@ function renderWeek(mode){
   $("#week-legend").innerHTML=[["p","蛋白质","蛋白",tot.p],["f","脂肪","脂肪",tot.f],["c","碳水","碳水",tot.c]]
     .map(([k,_n,n,v])=>`<div><div class="k ${k}">${n}</div><div class="v">${fmt(v)} 千卡</div></div>`).join("");
   $("#week-note").innerHTML=`更新于：今天 11:52`;
-
-  renderDayChart();
 
   /* 逐日列表：形式照「限额」卡——左名右值 + chevron */
   let rows="";
