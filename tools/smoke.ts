@@ -53,7 +53,7 @@ async function main() {
   // 进入记录页
   await page.getByRole('button', { name: /记录这一餐/ }).click();
   await page.waitForTimeout(200);
-  check('进入记录页', (await page.locator('h1').first().innerText()).includes('记录这一餐'));
+  check('进入记录页', (await page.locator('.cam-body').count()) > 0);
 
   // 搜索添加
   await page.getByRole('button', { name: '搜索添加' }).click();

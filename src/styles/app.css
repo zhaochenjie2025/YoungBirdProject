@@ -16,8 +16,28 @@
   overflow: hidden;
 }
 
-/* 内层滚动容器：定稿叫 .app-scroll，React 现有页面容器叫 .app__main，两者同权 */
-.app-scroll,
+/* 内层滚动容器：定稿叫 .app-scroll，包住 .app__main；.app__main 也单独兜底
+   （错误边界直接用 .app > .app__main）。两者分层：外层只管滚动、不设内边距，
+   内层负责限宽与页面留白，避免父子各加一份边距把正文挤窄。 */
+.app-scroll {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  /* 不在这里滚动：滚动交给 .app__main 单独承担。
+     两层都设 overflow-y:auto 时，滚轮落在「不可滚的内层、可滚的外层」这种组合上，
+     Chromium 的命中判定会失效，表现为桌面端滚轮完全没反应（触摸因走不同路径而侥幸可用）。
+     唯一滚动容器 = 唯一可预测的滚轮目标。 */
+  overflow: hidden;
+  width: 100%;
+}
+
+
+.app-scroll::-webkit-scrollbar,
+.app__main::-webkit-scrollbar {
+  display: none;
+}
+
 .app__main {
   flex: 1 1 auto;
   min-height: 0;
@@ -33,9 +53,14 @@
   outline: none;
 }
 
-.app-scroll::-webkit-scrollbar,
-.app__main::-webkit-scrollbar {
-  display: none;
+/* 嵌在外层容器里时，由本元素独占滚动。 */
+.app-scroll > .app__main {
+  /* 这里就是唯一的滚动容器：overflow-y:auto + min-height:0 才能真正收住高度并滚动。
+     缺了 min-height:0，flex 子项会按内容撑高，溢出到父级之外，滚轮就没东西可滚。 */
+  overflow-y: auto;
+  overflow-x: hidden;
+  flex: 1 1 auto;
+  min-height: 0;
 }
 
 /* 屏幕切换：定稿用 [hidden] 显隐，React 侧用条件渲染，两者都兼容 */
@@ -167,7 +192,7 @@
   font: 600 14px/1 var(--f-hand);
   letter-spacing: 0.04em;
   color: var(--ink3);
-  transition: color 0.18s ease, transform 0.15s ease;
+  transition: transform 0.15s ease;
 }
 
 .tab:active,
@@ -211,7 +236,7 @@
     0 5px 12px -5px rgba(108, 82, 48, 0.2);
   isolation: isolate;
   transform-style: preserve-3d;
-  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1), box-shadow 0.22s ease;
+  transition: transform 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 .print--interactive {
@@ -882,7 +907,7 @@
     0 2px 4px rgba(108, 86, 56, 0.26);
   display: grid;
   place-items: center;
-  transition: transform 0.1s cubic-bezier(0.3, 0.7, 0.3, 1), box-shadow 0.1s ease;
+  transition: transform 0.1s cubic-bezier(0.3, 0.7, 0.3, 1);
 }
 
 /* 快门键中央精致暖陶红小圆点 */
@@ -914,7 +939,7 @@
   background: linear-gradient(180deg, #fffef9, #f4ebd8);
   box-shadow: 0 3px 8px -5px rgba(108, 86, 56, 0.38), inset 0 0 0 1px rgba(196, 178, 146, 0.52);
   clip-path: polygon(0 0, calc(100% - 8px) 0, 100% 8px, 100% 100%, 0 100%);
-  transition: transform 0.12s ease, color 0.15s ease;
+  transition: transform 0.12s ease;
 }
 
 .cam-side-btn svg {
@@ -1030,7 +1055,7 @@
   padding: 0 14px;
   font: 700 13.5px/1 var(--f-hand);
   color: #fff;
-  background: linear-gradient(180deg, #6da062, #4f7e47);
+  background: linear-gradient(180deg, #4f7e47, #3f6a39);
   clip-path: polygon(0 0, calc(100% - 6px) 0, 100% 6px, 100% 100%, 0 100%);
 }
 
@@ -1209,7 +1234,7 @@
   inset: 14% 20%;
   z-index: 3;
   pointer-events: none;
-  transition: inset 0.42s cubic-bezier(0.2, 0.9, 0.2, 1);
+  transition: opacity 0.3s ease;
 }
 
 .dl-focus i {
@@ -1362,7 +1387,7 @@
   height: 14px;
   pointer-events: none;
   background: linear-gradient(225deg, #f3ead7 48%, rgba(160, 144, 114, 0.32) 50%, #fff 54%);
-  transition: width 0.16s ease, height 0.16s ease;
+  transition: opacity 0.16s ease;
 }
 
 .dl-chip[aria-pressed='false']::after {
@@ -1425,7 +1450,7 @@
   border: 2px dashed rgba(214, 92, 58, 0.45);
   color: var(--coral);
   transform: rotate(-6deg);
-  transition: transform 0.15s ease, border-color 0.15s ease;
+  transition: transform 0.15s ease;
 }
 
 .dl-chip[aria-pressed='true'] .dl-chip__box {
@@ -1468,7 +1493,7 @@
   font: 800 16px/1 var(--f-hand);
   letter-spacing: 0.05em;
   color: #fffdf8;
-  background: linear-gradient(160deg, #dc6542, #b84526);
+  background: linear-gradient(160deg, #c04f2c, #ab4022);
   box-shadow: 0 12px 20px -12px rgba(184, 69, 38, 0.72), inset 0 1px 0 rgba(255, 232, 216, 0.45);
   transition: transform 0.12s cubic-bezier(0.3, 1.6, 0.5, 1);
 }
@@ -1798,7 +1823,7 @@
   border-radius: 4px;
   pointer-events: none;
   background: rgba(244, 236, 220, 0.38);
-  transition: background 0.16s ease, box-shadow 0.16s ease;
+  transition: opacity 0.16s ease;
 }
 
 .wcol.is-active .wcol__win {
@@ -1879,6 +1904,7 @@
 .wbar {
   position: relative;
   z-index: 1;
+  background: linear-gradient(180deg, #cfe3c2, #8fbb7d);
   width: calc(100% - 4px);
   display: flex;
   flex-direction: column-reverse;
@@ -1921,12 +1947,12 @@
   color: var(--ink2);
 }
 
-.wcol__lab--today {
+.wedge__xlab .wcol__lab--today {
   color: var(--coralDeep);
   font-weight: 800;
 }
 
-.wcol__lab--empty {
+.wedge__xlab .wcol__lab--empty {
   color: var(--ink3);
 }
 
@@ -1946,6 +1972,10 @@
 }
 
 .wytick--avg {
+  z-index: 2;
+  padding: 2px 3px;
+  background: #fffdf8;
+  border-radius: 2px;
   color: var(--coralDeep);
   font-weight: 700;
 }
@@ -2099,7 +2129,7 @@
   letter-spacing: 0.04em;
   color: var(--ink2);
   border-radius: 9px;
-  transition: background 0.18s ease, color 0.18s ease;
+  transition: opacity 0.18s ease;
 }
 
 .sh-seg button[aria-selected='true'] {
@@ -2156,7 +2186,7 @@
   font: 700 16px/1 var(--f-hand);
   letter-spacing: 0.04em;
   color: #fffdf8;
-  background: linear-gradient(165deg, #6ea462, #4d7e45);
+  background: linear-gradient(165deg, #4f7e47, #3f6a39);
   box-shadow: 0 12px 22px -12px rgba(77, 126, 69, 0.72), inset 0 1px 0 rgba(255, 255, 255, 0.35);
   transition: transform 0.13s cubic-bezier(0.3, 1.6, 0.5, 1);
 }
@@ -2203,7 +2233,6 @@
 
 /* ============ 窄屏（360 宽及以下）：收紧页边距与关键数字 ============ */
 @media (max-width: 380px) {
-  .app-scroll,
   .app__main {
     padding-left: 13px;
     padding-right: 13px;
@@ -2340,7 +2369,7 @@
   font-size: var(--t-base);
   font-weight: 600;
   color: var(--ink);
-  transition: transform var(--dur) var(--ease), background var(--dur) var(--ease);
+  transition: transform var(--dur) var(--ease);
 }
 
 .btn:active {
@@ -2348,7 +2377,7 @@
 }
 
 .btn--primary {
-  background: linear-gradient(165deg, #6ea462, #4d7e45);
+  background: linear-gradient(165deg, #4f7e47, #3f6a39);
   color: var(--accent-ink);
   border-color: transparent;
   box-shadow: 0 8px 16px -10px rgba(77, 126, 69, 0.6);
@@ -2395,7 +2424,7 @@
   color: var(--coralDeep);
   font-family: var(--f-hand);
   font-weight: 700;
-  transition: transform var(--dur) var(--ease), background var(--dur) var(--ease);
+  transition: transform var(--dur) var(--ease);
 }
 
 .capture:active {
@@ -2539,7 +2568,7 @@
   font-family: var(--f-hand);
   font-size: var(--t-sm);
   color: var(--ink2);
-  transition: all var(--dur) var(--ease);
+  transition: transform var(--dur) var(--ease);
 }
 
 .portion[aria-pressed='true'] {
@@ -2603,6 +2632,13 @@
   color: var(--ink2);
   font-weight: 700;
   margin-bottom: var(--s-2);
+}
+
+.empty__sub {
+  font-family: var(--f-hand);
+  font-size: var(--t-sm);
+  color: var(--ink3);
+  line-height: 1.6;
 }
 
 /* 周视图简易七格（WeekPage 现有实现） */
@@ -2767,7 +2803,7 @@
   line-height: 1;
   color: var(--ink2);
   border-radius: var(--r1);
-  transition: background var(--dur) var(--ease), color var(--dur) var(--ease);
+  transition: transform var(--dur) var(--ease);
 }
 
 .datenav__btn:hover:not(:disabled) {

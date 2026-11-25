@@ -45,7 +45,10 @@ export function useRoute(): { route: Route; navigate: (to: string) => void } {
   const [route, setRoute] = useState<Route>(() => parse(window.location.hash));
 
   useEffect(() => {
-    const onChange = () => setRoute(parse(window.location.hash));
+    const onChange = () => {
+      setRoute(parse(window.location.hash));
+      resetScroll();
+    };
     window.addEventListener('hashchange', onChange);
     return () => window.removeEventListener('hashchange', onChange);
   }, []);
@@ -57,10 +60,22 @@ export function useRoute(): { route: Route; navigate: (to: string) => void } {
     } else {
       window.location.hash = target;
     }
-    window.scrollTo({ top: 0 });
+    resetScroll();
   }, []);
 
   return { route, navigate };
+}
+
+/**
+ * 切页时把滚动复位到顶部。滚动发生在这个内层容器上，不是 window 上，
+ * 所以 window.scrollTo 不管用；两处都复位，兼容错误边界直接用 .app > .app__main 的情形。
+ */
+function resetScroll() {
+  window.scrollTo({ top: 0 });
+  for (const sel of ['.app__main', '.app-scroll']) {
+    const el = document.querySelector(sel);
+    if (el) el.scrollTop = 0;
+  }
 }
 
 export function mealHref(id: string): string {

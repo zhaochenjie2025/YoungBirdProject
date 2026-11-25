@@ -192,7 +192,8 @@ function DraftPrint({
         ) : (
           items.map((it) => {
             const photo = dishPhoto(it.dishId);
-            if (!photo) {
+            // 待估算优先：存储里的旧记录可能 pending=true 却带着数值快照，不能只看有没有照片。
+            if (it.pending || !photo) {
               return (
                 <div key={it.uid} className="contact__cell contact__cell--todo">
                   <span>待估</span>
@@ -227,15 +228,24 @@ function DraftPrint({
         </div>
         <div className="draft-sum">
           <div className="ds-l">
-            这一餐合计
+            {summary.pendingCount > 0 ? '已估算部分' : '这一餐合计'}
             <b>
               {items.length} 道菜
-              {summary.pendingCount > 0 ? `，含 ${summary.pendingCount} 道待估算` : ''}
+              {summary.pendingCount > 0
+                ? `，含 ${summary.pendingCount} 道待估算（未计入上方数字）`
+                : ''}
             </b>
           </div>
           <div className="ds-k" data-kcal={summary.kcal}>
-            {tickedKcal}
-            <em>千卡</em>
+            {summary.pendingCount > 0 && items.every((it) => it.pending) ? (
+              <em style={{ font: '600 14px/1 var(--f-hand)', marginLeft: 0 }}>全部待估算</em>
+            ) : (
+              <>
+                {summary.pendingCount > 0 ? '≈' : ''}
+                {tickedKcal}
+                <em>千卡</em>
+              </>
+            )}
           </div>
         </div>
         <MacroRow nutrition={summary} />
@@ -273,20 +283,22 @@ function DraftItemRow({
   }
 
   const kcal = item.nutrition.kcal;
+  // 待估算以 pending 为准：旧记录可能 pending=true 却保留数值快照。
+  const todo = item.pending || kcal === null;
 
   return (
     <div>
-      <div className={`dishrow${kcal === null ? ' dishrow--todo' : ''}`}>
+      <div className={`dishrow${todo ? ' dishrow--todo' : ''}`}>
         <span className="dishrow__name">{item.name}</span>
         <span className="dishrow__qty">
           {item.portionLabel} <span className="num">{formatGrams(item.grams)}</span>g
         </span>
-        <span className={`dishrow__kcal${kcal === null ? ' todo-mark' : ''}`}>
-          {kcal === null ? (
+        <span className={`dishrow__kcal${todo ? ' todo-mark' : ''}`}>
+          {todo ? (
             '待定'
           ) : (
             <>
-              <span className="num">{Math.round(kcal)}</span>
+              <span className="num">{Math.round(kcal ?? 0)}</span>
               <em>千卡</em>
             </>
           )}
@@ -375,7 +387,7 @@ function AddDish({
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [mode, setMode] = useState<'idle' | 'search' | 'manual'>('idle');
-  const [shotCap, setShotCap] = useState<ReactNode>(<>轻按中央快门，拍下<b>当前餐盘</b></>);
+  const [shotCap, setShotCap] = useState<ReactNode>(<>单道菜一张，识别后由你确认</>);
   const [firing, setFiring] = useState(false);
   const fireTimer = useRef<number | null>(null);
   const previewUrlRef = useRef<string | null>(null);
@@ -478,6 +490,8 @@ function AddDish({
 
   function pickFromSearch(dish: Dish) {
     setError(null);
+    setMode('idle');
+    setSearch('');
     setShotCap(
       <>
         已加 <b>{dish.name}</b>，确认份量后加入
@@ -685,7 +699,7 @@ function AddDish({
 
       {mode === 'search' && (
         <div className="quick-drawer" aria-label="搜索添加菜品">
-          <div className="qd-title">食堂常见菜品 · 点击加入本餐</div>
+          <div className="qd-title">食堂常见菜品 · 选一道后确认份量</div>
           <div className="qd-grid">
             {common.map((d) => (
               <button
@@ -823,6 +837,7 @@ function ManualEntry({ onSubmit }: { onSubmit: (item: Omit<MealItem, 'uid'>) => 
         aria-label="克数"
         min={1}
         max={MAX_GRAMS}
+        step="any"
         value={grams}
         onChange={(e) => setGrams(e.target.value)}
       />

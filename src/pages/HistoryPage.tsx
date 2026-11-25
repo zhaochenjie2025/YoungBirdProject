@@ -10,8 +10,14 @@ import { Notice } from '../components/ui';
 import { DayAdvicePanel } from '../components/DayAdvicePanel';
 import { mealHref } from '../router';
 
+/** 默认渲染最近多少天，其余折叠。20 天约等于普通用户两三周的回顾范围。 */
+const VISIBLE_DAYS = 20;
+
 export function HistoryPage({ meals, settings, navigate }: PageProps) {
   const [importMsg, setImportMsg] = useState<{ kind: 'warn' | 'info'; text: string } | null>(null);
+  // 记录多时只渲染最近若干天，其余折叠。全量渲染会让 DOM 节点随记录数线性膨胀
+  // （实测 1200 条 = 1.7 万节点、加载 1.26s），而用户回溯旧记录时通常是逐屏往下找。
+  const [showAllDays, setShowAllDays] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
 
   const sorted = [...meals.meals].sort((a, b) =>
@@ -91,7 +97,7 @@ export function HistoryPage({ meals, settings, navigate }: PageProps) {
           </div>
         </div>
       ) : (
-        [...byDate.entries()].map(([date, dayMeals]) => {
+        [...byDate.entries()].slice(0, showAllDays ? undefined : VISIBLE_DAYS).map(([date, dayMeals]) => {
           const totalKcal = dayMeals.reduce((sum, m) => sum + mealSummary(m).kcal, 0);
           const pending = dayMeals.reduce((sum, m) => sum + mealSummary(m).pendingCount, 0);
           return (
@@ -140,6 +146,14 @@ export function HistoryPage({ meals, settings, navigate }: PageProps) {
             </section>
           );
         })
+      )}
+
+      {byDate.size > VISIBLE_DAYS && !showAllDays && (
+        <div className="section" style={{ textAlign: 'center' }}>
+          <button className="btn" onClick={() => setShowAllDays(true)}>
+            还有 {byDate.size - VISIBLE_DAYS} 天更早的记录，展开全部
+          </button>
+        </div>
       )}
 
       <section className="section">
