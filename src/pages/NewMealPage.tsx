@@ -75,10 +75,14 @@ export function NewMealPage({ meals, settings, navigate, editId }: PageProps & {
 
   function handleSave() {
     if (items.length === 0) return;
+    // 日期或时间被清空时不保存：空日期的记录在今日页与历史页都归不进任何一天，
+    // 等于凭空丢掉一条数据，比拦下来更糟。默认回落到当天与当前时刻。
+    const safeDate = date.trim() || localDate();
+    const safeTime = time.trim() || localTime();
     const meal = meals.saveMeal({
       id: editing?.id,
-      date,
-      time,
+      date: safeDate,
+      time: safeTime,
       slot,
       items: items.map(({ uid: _uid, ...rest }) => rest),
     });
@@ -673,6 +677,7 @@ function AddDish({
                 inputMode="decimal"
                 placeholder={String(portionFor.grams)}
                 value={customGrams}
+                aria-invalid={customGrams.trim() !== '' && parseGrams(customGrams) === null}
                 onChange={(e) => {
                   setCustomGrams(e.target.value);
                   const g = parseGrams(e.target.value);
@@ -683,10 +688,15 @@ function AddDish({
               />
               <span>克</span>
             </div>
+            {customGrams.trim() !== '' && parseGrams(customGrams) === null && (
+              <div className="field__hint">请填 1 到 5000 之间的克数。</div>
+            )}
           </div>
           <div className="actions">
             <button
               className="btn btn--primary"
+              /* 克数非法时禁用：否则按钮仍按上一个合法值加入，用户会以为用的是自己填的数 */
+              disabled={customGrams.trim() !== '' && parseGrams(customGrams) === null}
               onClick={() => {
                 onPick(computeItem(portionFor.dish, portionFor.grams, portionFor.portionLabel));
                 setPortionFor(null);
@@ -695,7 +705,13 @@ function AddDish({
             >
               加入这一餐（<span className="num">{formatGrams(portionFor.grams)}</span> 克）
             </button>
-            <button className="btn btn--ghost" onClick={() => setPortionFor(null)}>
+            <button
+              className="btn btn--ghost"
+              onClick={() => {
+                setPortionFor(null);
+                setCustomGrams('');
+              }}
+            >
               取消
             </button>
           </div>

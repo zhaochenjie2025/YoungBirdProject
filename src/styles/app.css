@@ -2975,3 +2975,15 @@
 .draft .draft-sum .ds-l b {
   color: var(--ink3);
 }
+
+/* ============ 表单校验提示：克数越界时显式说明，而不是静默用旧值 ============ */
+.field__hint {
+  margin-top: var(--s-1);
+  font-size: var(--t-xs);
+  color: var(--coralDeep);
+}
+
+.input[aria-invalid='true'] {
+  border-color: var(--coral);
+  background: var(--coralSoft);
+}
