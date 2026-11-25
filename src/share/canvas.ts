@@ -1,5 +1,5 @@
 // S39O-cs-share: 分享明信片的 Canvas 绘制模块，把统计数据画成 1080×1350 的拍立得样片并可保存为 PNG。
-// 实现 纯绘制函数 drawShare 只读入调用方算好的 ShareData 落笔，downloadShare 触发 PNG 下载并在被拦截时返回 false。
+// 实现 纯绘制函数 drawShare 只读入调用方算好的 ShareData 落笔，downloadShare 发起 PNG 下载、仅在抛错时返回 false（静默拦截无法探测）。
 // 原理 数据与绘制分离：本模块不碰 store、localStorage 或 domain 取数，同一份 ShareData 在测试与浏览器里都能确定性复现，页面层换算法也不牵动画工。
 import type { MacroShare } from '../domain/nutrition';
 import { dishPhoto } from '../data/photos';
@@ -259,7 +259,7 @@ export async function drawShare(canvas: HTMLCanvasElement, data: ShareData): Pro
   ctx.textBaseline = 'alphabetic';
   ctx.fillStyle = '#33261b';
   ctx.font = `800 54px ${SERIF}`;
-  // 标题基线留到 146：顶部胶带从 164 起，再低就会被胶带压住字脚。
+  // 标题基线落在约 146：胶带纵向覆盖约 160–204，基线再低字脚就会压进胶带。
   ctx.fillText(data.kicker, P, 146);
 
   // 珍珠白拍立得相纸本体
@@ -281,7 +281,7 @@ export async function drawShare(canvas: HTMLCanvasElement, data: ShareData): Pro
   ctx.stroke();
 
   // 顶部鼠尾草和纸胶带：贴在相纸上沿，只压纸不压字。
-  // 标题基线在 146，字顶约 108、字脚约 146，胶带从 164 起，中间留 18px 空隙。
+  // 标题基线约 146，胶带旋转后纵向覆盖约 160–204，文字墨迹与其不重叠。
   ctx.save();
   ctx.translate(cardX + 128, cardY - 4);
   ctx.rotate(-0.04);
@@ -449,21 +449,25 @@ export async function drawShare(canvas: HTMLCanvasElement, data: ShareData): Pro
 }
 
 /**
- * 生成 PNG 并触发下载。浏览器拦截 a.click() 或 toDataURL 抛错时返回 false，
- * 由调用方显示「长按预览图保存」的降级提示。
+ * 生成 PNG 并触发下载，返回「下载请求是否已发起」。
+ * toDataURL 或 a.click() 抛错（如画布被污染、缺用户手势）时返回 false，调用方据此显示
+ * 「长按预览图保存」的降级提示。注意：浏览器静默忽略点击不抛错时无法探测，此种情况返回 true。
  */
 export function downloadShare(canvas: HTMLCanvasElement): boolean {
+  let a: HTMLAnchorElement | null = null;
   try {
     const url = canvas.toDataURL('image/png');
-    const a = document.createElement('a');
+    a = document.createElement('a');
     a.href = url;
     a.download = `caloriesnap-${Date.now()}.png`;
     document.body.appendChild(a);
     a.click();
-    a.remove();
     return true;
   } catch {
     return false;
+  } finally {
+    // 无论点击是否抛错都移除临时链接，避免重试时在 DOM 里累积含 PNG 数据地址的节点。
+    a?.remove();
   }
 }
 
