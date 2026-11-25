@@ -494,7 +494,7 @@ function AddDish({
     setSearch('');
     setShotCap(
       <>
-        已加 <b>{dish.name}</b>，确认份量后加入
+        已选 <b>{dish.name}</b>，确认份量后加入
       </>,
     );
     setPortionFor({ dish, grams: standardGrams(dish), portionLabel: '标准份' });
