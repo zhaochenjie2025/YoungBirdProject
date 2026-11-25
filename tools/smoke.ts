@@ -56,7 +56,7 @@ async function main() {
   check('进入记录页', (await page.locator('h1').first().innerText()).includes('记录这一餐'));
 
   // 搜索添加
-  await page.getByRole('button', { name: '搜索菜品' }).click();
+  await page.getByRole('button', { name: '搜索添加' }).click();
   await page.locator('input[placeholder*="番茄炒蛋"]').fill('番茄');
   await page.waitForTimeout(150);
   const resultCount = await page.locator('.results .result').count();
@@ -73,12 +73,12 @@ async function main() {
   check('菜品加入草稿', itemCount > 0);
 
   // 改成半份，检查热量变化
-  const kcalBefore = await page.locator('.kcal-num').first().innerText();
+  const kcalBefore = await page.locator('.ds-k').first().getAttribute('data-kcal');
   const halfBtn = page.locator('.portion', { hasText: '半份' }).first();
   if ((await halfBtn.count()) > 0) {
     await halfBtn.click();
     await page.waitForTimeout(150);
-    const kcalAfter = await page.locator('.kcal-num').first().innerText();
+    const kcalAfter = await page.locator('.ds-k').first().getAttribute('data-kcal');
     check('改份量后热量同步变化', kcalBefore !== kcalAfter, `${kcalBefore} → ${kcalAfter}`);
   } else {
     check('改份量后热量同步变化', false, '找不到半份选项');
@@ -87,7 +87,7 @@ async function main() {
   // 保存
   await page.getByRole('button', { name: /保存这一餐/ }).click();
   await page.waitForTimeout(400);
-  check('保存后进入明细', (await page.locator('text=菜品明细').count()) > 0);
+  check('保存后进入明细', (await page.locator('.print.res-print').count()) > 0);
 
   let hash = await page.evaluate(() => location.hash);
   check('URL 指向明细页', hash.startsWith('#/meal/'), hash);
@@ -95,7 +95,7 @@ async function main() {
   // 刷新后记录仍在
   await page.reload({ waitUntil: 'networkidle' });
   await page.waitForTimeout(300);
-  check('刷新后明细仍可见', (await page.locator('text=菜品明细').count()) > 0);
+  check('刷新后明细仍可见', (await page.locator('.print.res-print').count()) > 0);
 
   // 回到今日页，检查汇总
   await page.goto(BASE + '#/today', { waitUntil: 'networkidle' });
@@ -112,7 +112,7 @@ async function main() {
   // 周视图
   await page.goto(BASE + '#/week', { waitUntil: 'networkidle' });
   await page.waitForTimeout(300);
-  const weekCells = await page.locator('.week__cell').count();
+  const weekCells = await page.locator('.wcol').count();
   check('周视图七个格子', weekCells === 7, `${weekCells}`);
 
   // 删除

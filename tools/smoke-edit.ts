@@ -31,7 +31,7 @@ async function main() {
   // 建一餐：搜索加番茄炒蛋，标准份
   await page.getByRole('button', { name: /记录这一餐/ }).click();
   await page.waitForTimeout(200);
-  await page.getByRole('button', { name: '搜索菜品' }).click();
+  await page.getByRole('button', { name: '搜索添加' }).click();
   await page.locator('input[placeholder*="番茄炒蛋"]').fill('番茄');
   await page.waitForTimeout(150);
   await page.locator('.results .result').first().click();
@@ -41,29 +41,30 @@ async function main() {
   await page.getByRole('button', { name: /保存这一餐/ }).click();
   await page.waitForTimeout(400);
 
-  const kcalBefore = await page.locator('.kcal-num').first().innerText();
-  check('保存后有热量', Number(kcalBefore) > 0, kcalBefore);
+  const kcalBefore = await page.locator('.ds-k').first().getAttribute('data-kcal');
+  check('保存后有热量', Number(kcalBefore) > 0, String(kcalBefore));
 
   // 修改：改成半份
   await page.getByRole('button', { name: '修改这一餐' }).click();
   await page.waitForTimeout(300);
-  const onEdit = (await page.locator('h1').first().innerText()).includes('修改');
-  check('进入修改页', onEdit);
+  // 改版后编辑页顶部改用语标，不再有 h1；用可见文案判断当前在哪一页。
+  const editBody = await page.locator('body').innerText();
+  check('进入修改页', editBody.includes('修改这一餐') || editBody.includes('保存修改'));
 
   // 编辑页应预填已保存的菜品
-  const prefilled = await page.locator('text=这一餐的菜品（1）').count();
+  const prefilled = await page.locator('text=1 道菜').count();
   check('编辑页预填已有菜品', prefilled > 0);
 
   const halfBtn = page.locator('.portion', { hasText: '半份' }).first();
   await halfBtn.click();
   await page.waitForTimeout(150);
-  const kcalEdit = await page.locator('.kcal-num').first().innerText();
+  const kcalEdit = await page.locator('.ds-k').first().getAttribute('data-kcal');
   check('编辑页改份量生效', kcalEdit !== kcalBefore, `${kcalBefore} → ${kcalEdit}`);
 
   await page.getByRole('button', { name: '保存修改' }).click();
   await page.waitForTimeout(400);
 
-  const kcalAfter = await page.locator('.kcal-num').first().innerText();
+  const kcalAfter = await page.locator('.ds-k').first().getAttribute('data-kcal');
   check('明细页热量已更新', kcalAfter === kcalEdit, `${kcalBefore} → ${kcalAfter}`);
 
   // 记录数不应翻倍（是修改不是新增）

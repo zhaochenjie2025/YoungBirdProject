@@ -62,7 +62,7 @@ async function main() {
   // 建一餐
   await page.goto(BASE + '#/new', { waitUntil: 'networkidle' });
   await page.waitForTimeout(200);
-  await page.getByRole('button', { name: '搜索菜品' }).click();
+  await page.getByRole('button', { name: '搜索添加' }).click();
   await page.locator('input[placeholder*="番茄炒蛋"]').fill('番茄');
   await page.waitForTimeout(150);
   await page.locator('.results .result').first().click();
@@ -88,8 +88,8 @@ async function main() {
   check('建议失败有提示', hasError);
 
   // 失败后主流程仍可用
-  const stillKcal = await page.locator('.kcal-num').first().innerText();
-  check('失败后估算结果仍可见', Number(stillKcal) > 0, stillKcal);
+  const stillKcal = await page.locator('.ds-k').first().getAttribute('data-kcal');
+  check('失败后估算结果仍可见', Number(stillKcal) > 0, String(stillKcal));
   await page.goto(BASE + '#/history', { waitUntil: 'networkidle' });
   await page.waitForTimeout(300);
   check('失败后历史仍可查看', (await page.locator('body').innerText()).includes('共 1 条记录'));

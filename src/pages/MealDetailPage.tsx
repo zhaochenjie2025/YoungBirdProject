@@ -130,7 +130,7 @@ export function MealDetailPage({ meals, settings, navigate, id }: PageProps & { 
                 {summary.pendingCount > 0 ? `，含 ${summary.pendingCount} 道待估算` : ''}
               </b>
             </div>
-            <div className="ds-k">
+            <div className="ds-k" data-kcal={summary.kcal}>
               {summary.kcal}
               <em>千卡</em>
             </div>

@@ -2889,3 +2889,53 @@
   padding-top: 0;
   border-top: 0;
 }
+
+/* ============ 新建一餐顶栏：取消 / 标题 / 占位，不重复页面大标题 ============ */
+.nm-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-2);
+  padding: calc(var(--s-3) + var(--safe-t)) var(--s-4) 0;
+}
+
+.nm-top .btn {
+  font-size: var(--t-sm);
+  padding: var(--s-1) var(--s-2);
+}
+
+.nm-top__t {
+  font-family: var(--f-hand);
+  font-size: var(--t-sm);
+  color: var(--ink3);
+  letter-spacing: 0.04em;
+}
+
+.nm-top__sp {
+  width: 44px;
+}
+
+/* 取景框四角原本伸到 inset 12% 16%，低角会与左下角的状态胶囊重叠；
+   收高一点并让胶囊贴住下沿，两者不再打架。 */
+.cam-reticle {
+  inset: 13% 16% 20%;
+}
+
+.cam-vf-pill {
+  bottom: 10px;
+}
+
+/* 草稿相纸在新建页是兄弟节点里的第一个，nth-child(2n) 会误命中它把胶带甩到右侧；
+   显式钉住左对齐，并让胶带落在相纸内沿而不是骑在边框上。 */
+.draft .tape,
+.print.draft .tape {
+  left: 14px;
+  right: auto;
+  top: -9px;
+  transform: rotate(-1.8deg);
+}
+
+/* 草稿里「0 道菜」不该用警示红，红只留给真正的待估算 */
+.draft .draft-sum .ds-l b {
+  color: var(--ink3);
+}

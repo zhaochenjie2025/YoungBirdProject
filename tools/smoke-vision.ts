@@ -122,13 +122,13 @@ async function main() {
 
     await page.getByRole('button', { name: /加入这一餐/ }).click();
     await page.waitForTimeout(200);
-    const added = await page.locator('text=这一餐的菜品').count();
+    const added = await page.locator('text=这一餐合计').count();
     check('识别结果加入草稿', added > 0);
 
     // 保存并验证
     await page.getByRole('button', { name: /保存这一餐/ }).click();
     await page.waitForTimeout(400);
-    check('保存后进入明细', (await page.locator('text=菜品明细').count()) > 0);
+    check('保存后进入明细', (await page.locator('.print.res-print').count()) > 0);
   }
 
   await browser.close();

@@ -1,10 +1,13 @@
-// S39O-cs-newmeal: 新建/编辑一餐的草稿页，拍照、搜索、手动补录共用同一份草稿。
-// 实现 草稿含物品列表与餐次时间；每个物品先选菜品再选份量，任何一步失败都不丢已加内容。
-// 原理 识别失败只影响「本次添加」这一步，草稿列表是独立状态，所以 PRD 要求的
-// 「识别超时后已添加菜品仍保留」是状态结构保证，不需要额外的恢复逻辑。
+// S39O-cs-newmeal: 新建/编辑一餐的草稿页，复古拍立得机身取景器下拍照、搜索、手写共用同一份草稿。
+// 实现 相机机身（取景预览 + 双环快门 + 左右快捷入口）负责拍照与两个抽屉，本餐草稿相纸承载
+//      接触印相条、可改份量可删除的菜品行与合计，餐次/日期/时间与保存留在页面下方。
+// 原理 识别、搜索、手写只是三种「往同一份草稿里加一条」的途径，入口本身失败只影响本次添加；
+//      草稿 items 是独立状态，所以 PRD「识别超时或失败后已添加菜品仍保留」是状态结构保证，
+//      不需要额外的回滚或恢复逻辑。
 import { useEffect, useMemo, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import type { PageProps } from '../App';
-import type { Dish, MealItem, MealSlot } from '../domain/types';
+import type { Dish, MealItem, MealSlot, MealSummary } from '../domain/types';
 import { MEAL_SLOT_LABEL } from '../domain/types';
 import { computeCustomItem, computeItem, formatGrams, summarizeItems } from '../domain/nutrition';
 import { localDate, localTime, defaultSlot, newId } from '../domain/stats';
@@ -12,7 +15,9 @@ import { recognizeDish, downscaleImage, type Candidate } from '../vision/recogni
 import { ApiError, apiErrorText } from '../vision/client';
 import { searchDishes } from '../data/search';
 import { allDishes, getDish } from '../data/dishes';
-import { KcalBlock, MacroRow, Notice, ItemRow, PendingTag } from '../components/ui';
+import { dishPhoto } from '../data/photos';
+import { MacroRow, Notice, PendingTag } from '../components/ui';
+import { useTicker } from '../components/useTicker';
 import { mealHref } from '../router';
 
 type DraftItem = Omit<MealItem, 'uid'> & { uid: string };
@@ -41,15 +46,14 @@ interface PickerState {
 export function NewMealPage({ meals, settings, navigate, editId }: PageProps & { editId?: string }) {
   const editing = editId ? meals.meals.find((m) => m.id === editId) : undefined;
   const [items, setItems] = useState<DraftItem[]>(() =>
-    editing
-      ? editing.items.map((it) => ({ ...it }))
-      : [],
+    editing ? editing.items.map((it) => ({ ...it })) : [],
   );
   const [date, setDate] = useState(editing?.date ?? localDate());
   const [time, setTime] = useState(editing?.time ?? localTime());
   const [slot, setSlot] = useState<MealSlot>(editing?.slot ?? defaultSlot());
 
   const summary = useMemo(() => summarizeItems(items as MealItem[]), [items]);
+  const tickedKcal = useTicker(summary.kcal);
   const isEditing = Boolean(editing);
 
   function addItem(item: Omit<MealItem, 'uid'>) {
@@ -79,53 +83,35 @@ export function NewMealPage({ meals, settings, navigate, editId }: PageProps & {
 
   return (
     <>
-      <header className="app__header">
-        <div>
-          <h1 className="app__title">{isEditing ? '修改这一餐' : '记录这一餐'}</h1>
-          <div className="app__sub">拍照识别、搜索或手动补录，可以混着用</div>
-        </div>
+      <nav className="nm-top">
         <button className="btn btn--ghost" onClick={() => navigate('today')}>
-          取消
+          ‹ 取消
         </button>
-      </header>
+        <span className="nm-top__t">{isEditing ? '修改这一餐' : '新的一餐'}</span>
+        <span className="nm-top__sp" aria-hidden="true" />
+      </nav>
 
-      <AddDish
-        apiKey={settings.apiKey}
-        hasKey={settings.hasKey}
-        onPick={(item) => addItem(item)}
+      <div className="nm-head">
+        <h2>拍下这一餐</h2>
+        <div className="nm-hint">
+          对准餐盘按快门
+          <br />
+          也可搜索或手写
+        </div>
+      </div>
+
+      <AddDish apiKey={settings.apiKey} hasKey={settings.hasKey} onPick={addItem} />
+
+      <DraftPrint
+        items={items}
+        summary={summary}
+        tickedKcal={tickedKcal}
+        onChange={updateItem}
+        onRemove={removeItem}
       />
 
-      <section className="section">
-        <div className="section__head">
-          <span className="section__title">这一餐的菜品（{items.length}）</span>
-        </div>
-        {items.length === 0 ? (
-          <div className="card">
-            <div style={{ color: 'var(--ink-3)', fontSize: 'var(--t-sm)' }}>
-              还没有添加菜品。先拍一张，或者搜索添加。
-            </div>
-          </div>
-        ) : (
-          <div className="card">
-            {items.map((it) => (
-              <DraftItemRow
-                key={it.uid}
-                item={it}
-                onChange={(patch) => updateItem(it.uid, patch)}
-                onRemove={() => removeItem(it.uid)}
-              />
-            ))}
-          </div>
-        )}
-      </section>
-
       <section className="card section">
-        <KcalBlock kcal={summary.kcal} pendingCount={summary.pendingCount} />
-        <MacroRow nutrition={summary} />
-      </section>
-
-      <section className="card section">
-        <div className="field">
+        <div className="field" style={{ marginTop: 0 }}>
           <label className="field__label" htmlFor="slot">
             餐次
           </label>
@@ -181,6 +167,83 @@ export function NewMealPage({ meals, settings, navigate, editId }: PageProps & {
   );
 }
 
+/** 草稿相纸：胶片接触印相条 + 可改份量可删除的菜品行 + 这一餐合计。 */
+function DraftPrint({
+  items,
+  summary,
+  tickedKcal,
+  onChange,
+  onRemove,
+}: {
+  items: DraftItem[];
+  summary: MealSummary;
+  tickedKcal: number;
+  onChange: (uid: string, patch: Partial<DraftItem>) => void;
+  onRemove: (uid: string) => void;
+}) {
+  const ghosts = items.length > 0 ? Math.max(0, 5 - items.length) : 0;
+
+  return (
+    <div className="print draft">
+      <div className="tape">本餐草稿</div>
+      <div className="contact" aria-label="本餐已拍菜品">
+        {items.length === 0 ? (
+          <span className="contact__empty">拍到的菜会排成一列小相片</span>
+        ) : (
+          items.map((it) => {
+            const photo = dishPhoto(it.dishId);
+            if (!photo) {
+              return (
+                <div key={it.uid} className="contact__cell contact__cell--todo">
+                  <span>待估</span>
+                </div>
+              );
+            }
+            return (
+              <div key={it.uid} className="contact__cell">
+                <img src={photo} alt="" loading="lazy" />
+              </div>
+            );
+          })
+        )}
+        {Array.from({ length: ghosts }, (_, i) => (
+          <div key={`ghost-${i}`} className="contact__ghost" aria-hidden="true" />
+        ))}
+      </div>
+      <div className="print__chin">
+        <div className="dishlist">
+          {items.length === 0 ? (
+            <div className="draft-empty">还没有菜。按快门拍一张，或点两侧快捷补录。</div>
+          ) : (
+            items.map((it) => (
+              <DraftItemRow
+                key={it.uid}
+                item={it}
+                onChange={(patch) => onChange(it.uid, patch)}
+                onRemove={() => onRemove(it.uid)}
+              />
+            ))
+          )}
+        </div>
+        <div className="draft-sum">
+          <div className="ds-l">
+            这一餐合计
+            <b>
+              {items.length} 道菜
+              {summary.pendingCount > 0 ? `，含 ${summary.pendingCount} 道待估算` : ''}
+            </b>
+          </div>
+          <div className="ds-k" data-kcal={summary.kcal}>
+            {tickedKcal}
+            <em>千卡</em>
+          </div>
+        </div>
+        <MacroRow nutrition={summary} />
+      </div>
+    </div>
+  );
+}
+
 /** 草稿中的一个菜品行：可改份量、可删除。 */
 function DraftItemRow({
   item,
@@ -209,78 +272,93 @@ function DraftItemRow({
     }
   }
 
+  const kcal = item.nutrition.kcal;
+
   return (
     <div>
-      <ItemRow
-        item={{ ...item, uid: item.uid }}
-        trailing={
-          <button className="btn btn--ghost" aria-label={`删除 ${item.name}`} onClick={onRemove}>
-            删除
-          </button>
-        }
-      />
-      {!custom && dish ? (
-        <div className="portions" style={{ paddingBottom: 'var(--s-3)' }}>
-          {dish.portions.map((p) => (
-            <button
-              key={p.key}
-              className="portion"
-              aria-pressed={item.portionLabel === p.label && item.grams === p.grams}
-              onClick={() => applyGrams(p.grams, p.label)}
-            >
-              {p.label}
-              <span className="portion__grams num">{p.grams}g</span>
-            </button>
-          ))}
-          <button
-            className="portion"
-            aria-pressed={false}
-            onClick={() => {
-              setCustom(true);
-            }}
-          >
-            自定义克数
-          </button>
-        </div>
-      ) : (
-        <div className="portions" style={{ paddingBottom: 'var(--s-3)' }}>
-          <input
-            className="input"
-            style={{ width: 120 }}
-            inputMode="decimal"
-            value={gramsText}
-            aria-label="克数"
-            onChange={(e) => setGramsText(e.target.value)}
-            onBlur={() => {
-              const g = parseGrams(gramsText);
-              if (g === null) {
-                // 非法输入不静默忽略：回写为当前实际克数，让输入框与真实值一致。
-                setGramsText(String(item.grams));
-                return;
-              }
-              applyGrams(g, '自定义');
-            }}
-          />
-          <span className="portion__grams">克</span>
-          {dish && (
+      <div className={`dishrow${kcal === null ? ' dishrow--todo' : ''}`}>
+        <span className="dishrow__name">{item.name}</span>
+        <span className="dishrow__qty">
+          {item.portionLabel} <span className="num">{formatGrams(item.grams)}</span>g
+        </span>
+        <span className={`dishrow__kcal${kcal === null ? ' todo-mark' : ''}`}>
+          {kcal === null ? (
+            '待定'
+          ) : (
+            <>
+              <span className="num">{Math.round(kcal)}</span>
+              <em>千卡</em>
+            </>
+          )}
+        </span>
+      </div>
+      <div className="portions" style={{ paddingBottom: 'var(--s-3)' }}>
+        {!custom && dish ? (
+          <>
+            {dish.portions.map((p) => (
+              <button
+                key={p.key}
+                className="portion"
+                aria-pressed={item.portionLabel === p.label && item.grams === p.grams}
+                onClick={() => applyGrams(p.grams, p.label)}
+              >
+                {p.label}
+                <span className="portion__grams num">{p.grams}g</span>
+              </button>
+            ))}
             <button
               className="portion"
+              aria-pressed={false}
               onClick={() => {
-                // 允许回到预设份量，否则选了自定义就再也点不回来。
-                setCustom(false);
-                setGramsText(String(item.grams));
+                setCustom(true);
               }}
             >
-              用预设份量
+              自定义克数
             </button>
-          )}
-        </div>
-      )}
+          </>
+        ) : (
+          <>
+            <input
+              className="input"
+              style={{ width: 120 }}
+              inputMode="decimal"
+              value={gramsText}
+              aria-label="克数"
+              onChange={(e) => setGramsText(e.target.value)}
+              onBlur={() => {
+                const g = parseGrams(gramsText);
+                if (g === null) {
+                  // 非法输入不静默忽略：回写为当前实际克数，让输入框与真实值一致。
+                  setGramsText(String(item.grams));
+                  return;
+                }
+                applyGrams(g, '自定义');
+              }}
+            />
+            <span className="portion__grams">克</span>
+            {dish && (
+              <button
+                className="portion"
+                onClick={() => {
+                  // 允许回到预设份量，否则选了自定义就再也点不回来。
+                  setCustom(false);
+                  setGramsText(String(item.grams));
+                }}
+              >
+                用预设份量
+              </button>
+            )}
+          </>
+        )}
+        <button className="btn btn--ghost btn--danger" aria-label={`删除 ${item.name}`} onClick={onRemove}>
+          删除
+        </button>
+      </div>
     </div>
   );
 }
 
-/** 添加入口：拍照 / 搜索 / 手动。 */
+/** 相机机身：取景器 + 双环快门 + 左右快捷入口，外加搜索抽屉、手写抽屉与两个选图 input。 */
 function AddDish({
   apiKey,
   hasKey,
@@ -297,6 +375,59 @@ function AddDish({
   const [error, setError] = useState<string | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [mode, setMode] = useState<'idle' | 'search' | 'manual'>('idle');
+  const [shotCap, setShotCap] = useState<ReactNode>(<>轻按中央快门，拍下<b>当前餐盘</b></>);
+  const [firing, setFiring] = useState(false);
+  const fireTimer = useRef<number | null>(null);
+  const previewUrlRef = useRef<string | null>(null);
+
+  // 预览图用 object URL：换图或卸载时立即释放，避免内存泄漏。
+  useEffect(() => {
+    return () => {
+      if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+      if (fireTimer.current !== null) window.clearTimeout(fireTimer.current);
+    };
+  }, []);
+
+  function showPreview(file: File) {
+    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+    const url = URL.createObjectURL(file);
+    previewUrlRef.current = url;
+    setPreview(url);
+  }
+
+  function clearPreview() {
+    if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
+    previewUrlRef.current = null;
+    setPreview(null);
+  }
+
+  function flashShutter() {
+    setFiring(true);
+    if (fireTimer.current !== null) window.clearTimeout(fireTimer.current);
+    fireTimer.current = window.setTimeout(() => setFiring(false), 320);
+  }
+
+  /** 拍照入口：未配置 key 时给提示，不打开文件选择。 */
+  function openCamera() {
+    setError(null);
+    if (!hasKey) {
+      setError('未配置 API key。先在设置里填入才能拍照识别；也可以搜索或手动补录。');
+      return;
+    }
+    if (recognizing) return;
+    flashShutter();
+    cameraRef.current?.click();
+  }
+
+  function openAlbum() {
+    setError(null);
+    if (!hasKey) {
+      setError('未配置 API key。先在设置里填入才能拍照识别；也可以搜索或手动补录。');
+      return;
+    }
+    if (recognizing) return;
+    albumRef.current?.click();
+  }
 
   async function onFile(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -308,10 +439,10 @@ function AddDish({
       setError('未配置 API key，无法识别。可以用搜索或手动补录。');
       return;
     }
+    showPreview(file);
     setRecognizing(true);
     try {
       const dataUrl = await downscaleImage(file);
-      setPreview(dataUrl);
       const result = await recognizeDish(apiKey, dataUrl);
       if (result.candidates.length === 0) {
         setError('没认出来。可以重拍、搜索，或手动记录。');
@@ -326,22 +457,38 @@ function AddDish({
     }
   }
 
-  function chooseCandidate(dish: Dish) {
-    setPicking(null);
-    setPreview(null);
-    setError(null);
-    // 选定菜品后进入份量选择
-    setPortionFor({ dish, grams: standardGrams(dish), portionLabel: '标准份' });
-  }
-
   const [portionFor, setPortionFor] = useState<PickerState | null>(null);
   const [customGrams, setCustomGrams] = useState('');
   const [search, setSearch] = useState('');
   const results = useMemo(() => (search.trim() ? searchDishes(search, 10) : []), [search]);
+  const common = useMemo(() => allDishes().slice(0, 8), []);
+
+  function chooseCandidate(dish: Dish) {
+    setPicking(null);
+    clearPreview();
+    setError(null);
+    setShotCap(
+      <>
+        已选 <b>{dish.name}</b>，确认份量后加入
+      </>,
+    );
+    // 选定菜品后进入份量选择
+    setPortionFor({ dish, grams: standardGrams(dish), portionLabel: '标准份' });
+  }
+
+  function pickFromSearch(dish: Dish) {
+    setError(null);
+    setShotCap(
+      <>
+        已加 <b>{dish.name}</b>，确认份量后加入
+      </>,
+    );
+    setPortionFor({ dish, grams: standardGrams(dish), portionLabel: '标准份' });
+  }
 
   return (
-    <section className="section" style={{ marginTop: 0 }}>
-      {/* 拍与选分成两个 input：带 capture 的会强制开相机，不给相册入口，
+    <>
+      {/* 拍与选分成两个 input：带 capture 的会强制开相机、不给相册入口，
           与 PRD「可直接拍摄，也可从相册选择」冲突，因此分开。 */}
       <input
         ref={cameraRef}
@@ -358,51 +505,75 @@ function AddDish({
         className="sr-only"
         onChange={onFile}
       />
-      <div style={{ display: 'grid', gridTemplateColumns: '1.4fr 1fr', gap: 'var(--s-2)' }}>
+
+      <div className="cam-body">
+        <div className="cam-top">
+          <span className="cam-lens-badge">
+            <i className="cam-led" aria-hidden="true" />
+            INSTANT 35
+          </span>
+          <span className="cam-stripe" aria-hidden="true">
+            <i style={{ background: '#d65c3a' }} />
+            <i style={{ background: '#e59d3c' }} />
+            <i style={{ background: '#74aa66' }} />
+          </span>
+          <span className="cam-flash-win" aria-hidden="true" />
+        </div>
+
+        <div className="cam-vf">
+          {preview && <img src={preview} alt="取景预览" />}
+          <div className="cam-reticle" aria-hidden="true">
+            <i />
+            <i />
+            <i />
+            <i />
+          </div>
+          <div className="cam-cross" aria-hidden="true" />
+          <span className="cam-vf-pill">{recognizing ? '对焦识别中…' : preview ? '已对焦餐盘' : '取景窗'}</span>
+        </div>
+
+        <div className="cam-controls">
+          <button
+            className="cam-side-btn"
+            aria-expanded={mode === 'search'}
+            onClick={() => setMode(mode === 'search' ? 'idle' : 'search')}
+          >
+            <SearchIcon />
+            搜索添加
+          </button>
+
+          <button
+            className={`shutter-btn${firing ? ' is-firing' : ''}`}
+            aria-label="按下快门拍摄这一盘"
+            aria-busy={recognizing}
+            onClick={openCamera}
+          >
+            <span className="shutter-btn__cap" />
+          </button>
+
+          <button
+            className="cam-side-btn"
+            aria-expanded={mode === 'manual'}
+            onClick={() => {
+              const next = mode === 'manual' ? 'idle' : 'manual';
+              setMode(next);
+              if (next === 'manual') setError(null);
+            }}
+          >
+            <PenIcon />
+            手写补录
+          </button>
+        </div>
+        <div className="shot-cap">{recognizing ? '正在识别，请稍候…' : shotCap}</div>
         <button
-          className={`capture ${hasKey ? '' : 'capture--disabled'}`}
-          onClick={() => {
-            setError(null);
-            if (!hasKey) {
-              setError('未配置 API key。先在设置里填入才能拍照识别；也可以搜索或手动补录。');
-              return;
-            }
-            cameraRef.current?.click();
-          }}
-          aria-disabled={recognizing}
+          className="btn btn--ghost"
+          style={{ display: 'flex', width: '100%', marginTop: 4, fontSize: 'var(--t-xs)' }}
+          onClick={openAlbum}
+          disabled={recognizing}
         >
-          <span className="capture__icon" aria-hidden="true">
-            📷
-          </span>
-          {recognizing ? '正在识别…' : '拍一张'}
-          <span className="capture__hint">
-            {hasKey ? '单道菜一张，识别后由你确认' : '需要先在设置中配置 API key'}
-          </span>
-        </button>
-        <button
-          className={`capture ${hasKey ? '' : 'capture--disabled'}`}
-          onClick={() => {
-            setError(null);
-            if (!hasKey) {
-              setError('未配置 API key。先在设置里填入才能拍照识别；也可以搜索或手动补录。');
-              return;
-            }
-            albumRef.current?.click();
-          }}
-          aria-disabled={recognizing}
-        >
-          <span className="capture__icon" aria-hidden="true">
-            🖼
-          </span>
-          从相册选
+          从相册选一张
         </button>
       </div>
-
-      {preview && recognizing && (
-        <div style={{ marginTop: 'var(--s-2)', fontSize: 'var(--t-xs)', color: 'var(--ink-3)' }}>
-          已选照片，正在请求识别…
-        </div>
-      )}
 
       {error && <Notice kind="warn">{error}</Notice>}
 
@@ -423,10 +594,22 @@ function AddDish({
             </button>
           ))}
           <div className="actions">
-            <button className="btn btn--ghost" onClick={() => { setPicking(null); setPreview(null); }}>
+            <button
+              className="btn btn--ghost"
+              onClick={() => {
+                setPicking(null);
+                clearPreview();
+              }}
+            >
               都不是，重新拍
             </button>
-            <button className="btn btn--ghost" onClick={() => { setPicking(null); setMode('search'); }}>
+            <button
+              className="btn btn--ghost"
+              onClick={() => {
+                setPicking(null);
+                setMode('search');
+              }}
+            >
               用搜索添加
             </button>
             <button
@@ -463,7 +646,7 @@ function AddDish({
             ))}
           </div>
           <div className="field">
-            <label className="field__label">或直接填克数</label>
+            <label className="field__label">或直接填克数（1~5000）</label>
             <div style={{ display: 'flex', gap: 'var(--s-2)', alignItems: 'center' }}>
               <input
                 className="input"
@@ -500,22 +683,43 @@ function AddDish({
         </div>
       )}
 
-      <div className="actions">
-        <button className="btn" onClick={() => setMode(mode === 'search' ? 'idle' : 'search')}>
-          {mode === 'search' ? '收起搜索' : '搜索菜品'}
-        </button>
-        <button className="btn" onClick={() => setMode(mode === 'manual' ? 'idle' : 'manual')}>
-          {mode === 'manual' ? '收起手动' : '手动补录'}
-        </button>
-      </div>
-
       {mode === 'search' && (
-        <div className="card" style={{ marginTop: 'var(--s-3)' }}>
+        <div className="quick-drawer" aria-label="搜索添加菜品">
+          <div className="qd-title">食堂常见菜品 · 点击加入本餐</div>
+          <div className="qd-grid">
+            {common.map((d) => (
+              <button
+                key={d.id}
+                className="qd-item"
+                onClick={() => {
+                  pickFromSearch(d);
+                }}
+              >
+                {dishPhoto(d.id) ? (
+                  <img src={dishPhoto(d.id) ?? ''} alt="" loading="lazy" />
+                ) : (
+                  <span
+                    aria-hidden="true"
+                    style={{ width: 32, height: 32, flex: '0 0 auto', borderRadius: 3, background: 'var(--paper2)' }}
+                  />
+                )}
+                <div>
+                  <b>{d.name}</b>
+                  <span>
+                    {standardGrams(d)}g ·{' '}
+                    {d.per100g.kcal === null
+                      ? '待估算'
+                      : `${Math.round((d.per100g.kcal * standardGrams(d)) / 100)}千卡`}
+                  </span>
+                </div>
+              </button>
+            ))}
+          </div>
           <input
-            className="input"
+            className="qd-input"
+            style={{ marginTop: 'var(--s-2)', display: 'block', width: '100%' }}
             placeholder="输入菜名或别名，如「番茄炒蛋」「西红柿炒鸡蛋」"
             value={search}
-            autoFocus
             onChange={(e) => setSearch(e.target.value)}
           />
           {search.trim() && results.length === 0 && (
@@ -530,9 +734,9 @@ function AddDish({
                   key={d.id}
                   className="result"
                   onClick={() => {
-                    setMode('idle');
+                    pickFromSearch(d);
                     setSearch('');
-                    setPortionFor({ dish: d, grams: standardGrams(d), portionLabel: '标准份' });
+                    setMode('idle');
                   }}
                 >
                   <div className="result__name">{d.name}</div>
@@ -549,8 +753,41 @@ function AddDish({
         </div>
       )}
 
-      {mode === 'manual' && <ManualEntry onSubmit={(it) => { onPick(it); setMode('idle'); }} />}
-    </section>
+      {mode === 'manual' && (
+        <div className="quick-drawer" aria-label="手写补录">
+          <div className="qd-title">手写补录（菜品库外标为待估算）</div>
+          <ManualEntry
+            onSubmit={(it) => {
+              onPick(it);
+              setMode('idle');
+              setShotCap(
+                <>
+                  已手写 <b>{it.name}</b>（{formatGrams(it.grams)}g，标为待估算）
+                </>,
+              );
+            }}
+          />
+        </div>
+      )}
+    </>
+  );
+}
+
+function SearchIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="11" cy="11" r="7" />
+      <path d="M20 20l-3.5-3.5" />
+    </svg>
+  );
+}
+
+function PenIcon() {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 20h9" />
+      <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z" />
+    </svg>
   );
 }
 
@@ -559,43 +796,43 @@ function ManualEntry({ onSubmit }: { onSubmit: (item: Omit<MealItem, 'uid'>) => 
   const [name, setName] = useState('');
   const [grams, setGrams] = useState('150');
 
+  const valid = name.trim().length > 0 && parseGrams(grams) !== null;
+
   return (
-    <div className="card" style={{ marginTop: 'var(--s-3)' }}>
-      <div className="section__title" style={{ marginBottom: 'var(--s-2)' }}>
-        手动补录（会标记为待估算）
-      </div>
-      <div className="field">
-        <label className="field__label">菜名</label>
-        <input
-          className="input"
-          placeholder="如「食堂自制凉皮」"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-        />
-      </div>
-      <div className="field">
-        <label className="field__label">大约吃了多少克（1~5000）</label>
-        <input
-          className="input"
-          inputMode="decimal"
-          value={grams}
-          onChange={(e) => setGrams(e.target.value)}
-        />
-      </div>
-      <div className="actions">
-        <button
-          className="btn btn--primary"
-          disabled={!name.trim() || parseGrams(grams) === null}
-          onClick={() => {
-            const g = parseGrams(grams);
-            if (g !== null) onSubmit(computeCustomItem(name.trim(), g));
-          }}
-        >
-          加入这一餐
-        </button>
-      </div>
-    </div>
+    <form
+      className="qd-form"
+      onSubmit={(e) => {
+        e.preventDefault();
+        const g = parseGrams(grams);
+        if (g !== null && name.trim()) onSubmit(computeCustomItem(name.trim(), g));
+      }}
+    >
+      <input
+        className="qd-input"
+        type="text"
+        placeholder="如：糖醋里脊"
+        maxLength={16}
+        required
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+      <input
+        className="qd-input"
+        style={{ flex: '0 0 74px' }}
+        type="number"
+        aria-label="克数"
+        min={1}
+        max={MAX_GRAMS}
+        value={grams}
+        onChange={(e) => setGrams(e.target.value)}
+      />
+      <button className="qd-submit" type="submit" disabled={!valid}>
+        记上
+      </button>
+    </form>
   );
 }
 
 export { PendingTag };
+
+
