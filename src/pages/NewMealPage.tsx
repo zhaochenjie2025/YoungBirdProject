@@ -43,6 +43,11 @@ interface PickerState {
   portionLabel: string;
 }
 
+/** 待估算判定：以 pending 为主，兼顾热量缺失但 pending 未标的旧数据。 */
+function isTodoItem(item: { pending: boolean; nutrition: { kcal: number | null } }): boolean {
+  return item.pending || item.nutrition.kcal === null;
+}
+
 export function NewMealPage({ meals, settings, navigate, editId }: PageProps & { editId?: string }) {
   const editing = editId ? meals.meals.find((m) => m.id === editId) : undefined;
   const [items, setItems] = useState<DraftItem[]>(() =>
@@ -192,8 +197,8 @@ function DraftPrint({
         ) : (
           items.map((it) => {
             const photo = dishPhoto(it.dishId);
-            // 待估算优先：存储里的旧记录可能 pending=true 却带着数值快照，不能只看有没有照片。
-            if (it.pending || !photo) {
+            // 待估算优先：旧记录可能 pending=true 却带着数值快照，也可能 pending=false 但热量为空。
+            if (isTodoItem(it) || !photo) {
               return (
                 <div key={it.uid} className="contact__cell contact__cell--todo">
                   <span>待估</span>
@@ -237,7 +242,7 @@ function DraftPrint({
             </b>
           </div>
           <div className="ds-k" data-kcal={summary.kcal}>
-            {summary.pendingCount > 0 && items.every((it) => it.pending) ? (
+            {items.length > 0 && summary.pendingCount === items.length ? (
               <em style={{ font: '600 14px/1 var(--f-hand)', marginLeft: 0 }}>全部待估算</em>
             ) : (
               <>
@@ -284,7 +289,7 @@ function DraftItemRow({
 
   const kcal = item.nutrition.kcal;
   // 待估算以 pending 为准：旧记录可能 pending=true 却保留数值快照。
-  const todo = item.pending || kcal === null;
+  const todo = isTodoItem(item);
 
   return (
     <div>
