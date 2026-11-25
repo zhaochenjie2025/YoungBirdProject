@@ -1,7 +1,7 @@
-// S39O-cs-router: 极简 hash 路由，四个页面加一个设置页，不引第三方路由库。
+// S39O-cs-router: 极简 hash 路由，八个页面，不引第三方路由库。
 // 实现 解析 location.hash 为 {name, params}，监听 hashchange 重渲染，提供 navigate。
 // 原理 GitHub Pages 无服务端重写，hash 路由不需要 404 回退配置；
-// 页面只有五个、层级极浅，路由库的体积换不回任何能力。
+// 页面只有七个、层级极浅，路由库的体积换不回任何能力。
 import { useEffect, useState, useCallback } from 'react';
 
 export type Route =
@@ -9,8 +9,9 @@ export type Route =
   | { name: 'new' }
   | { name: 'edit'; id: string }
   | { name: 'meal'; id: string }
-  | { name: 'history' }
   | { name: 'week' }
+  | { name: 'share' }
+  | { name: 'history' }
   | { name: 'settings' };
 
 function parse(hash: string): Route {
@@ -26,10 +27,13 @@ function parse(hash: string): Route {
       return rest[0] ? { name: 'edit', id: rest[0] } : { name: 'new' };
     case 'meal':
       return rest[0] ? { name: 'meal', id: rest[0] } : { name: 'today' };
-    case 'history':
-      return { name: 'history' };
+    case 'share':
+      return { name: 'share' };
     case 'week':
       return { name: 'week' };
+    case 'history':
+      // 全部记录页：按日期倒序浏览，并提供导出导入入口。
+      return { name: 'history' };
     case 'settings':
       return { name: 'settings' };
     default:

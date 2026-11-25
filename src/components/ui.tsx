@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 import type { Nutrition, MealItem } from '../domain/types';
 import type { Dish } from '../domain/types';
 import { formatGrams, scaleNutrition, roundNutrition } from '../domain/nutrition';
+import { dishPhoto } from '../data/photos';
 
 export function Num({ children }: { children: ReactNode }) {
   return <span className="num">{children}</span>;
@@ -75,8 +76,14 @@ export function ItemRow({
   onClick?: () => void;
   trailing?: ReactNode;
 }) {
+  const photo = dishPhoto(item.dishId);
   const body = (
     <>
+      {photo ? (
+        <img className="item__thumb" src={photo} alt="" loading="lazy" width="48" height="48" />
+      ) : (
+        <span className="item__thumb item__thumb--blank" aria-hidden="true" />
+      )}
       <div className="item__main">
         <div className="item__name">
           {item.name}

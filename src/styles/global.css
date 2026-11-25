@@ -1,22 +1,65 @@
-/* S39O-cs-styles: 全局样式与设计令牌，所有组件只引用这里的变量，不写死颜色和间距。
-   实现 在 :root 定义颜色/间距/字号/圆角/动效令牌，并提供移动端安全区与基础排版。
-   原理 视觉方向一旦定稿只需替换这一处的令牌值，组件结构不用动；
-   令牌集中也保证同一层级的圆角、间距来自同一套比例，而不是各组件随手取值。 */
+/* S39O-cs-styles: 全局样式与设计令牌，全站统一「暖阳拍立得食记」的奶油纸底 + 鼠尾草绿 + 暖陶橘。
+   实现 :root 放定稿配色、字体栈、纸纹与安全区令牌，并保留原有间距/字号/圆角比例尺与缓动令牌；
+        旧令牌名（--surface/--ink-2/--accent 等）别名到新配色，供尚未改写的组件继续消费；
+        body 承载奶油渐变 + 纸纹 + 晨光斜影多层背景，并给出按钮/图片/选区的基线。
+   原理 换肤只改这一处令牌，组件结构不动；别名层保证新旧类取色同源，不会出现两套配色并存。
+   @RULE 颜色一律走令牌：新组件用 --paper/--ink2/--sage 等定稿名，旧组件用别名，两者指向同一值。
+   @TRAP --grain 是给 CSS 背景用的内联 SVG data URI，CSP 只放行 img-src 'self' data:，不能换成外链图片或字体。
+   @REL cs-components-css */
 
 :root {
-  /* 色彩 —— 暖中性底 + 单一强调色，强调色只用于主操作与热量数值 */
-  --bg: #f7f4ef;
-  --surface: #fffdf9;
-  --surface-2: #efe9e0;
-  --ink: #1c1a17;
-  --ink-2: #4a453e;
-  --ink-3: #7d766c;
-  --line: #ddd5c9;
-  --accent: #c2410c;
-  --accent-ink: #fff8f3;
-  --warn: #9a6700;
-  --warn-bg: #fdf3d7;
-  --ok: #2f6b4f;
+  /* 暖阳桌面与纸张 */
+  --bg: #faf3e4;
+  --bg2: #f3e9d4;
+  --paper: #fffdf8;
+  --paper2: #f8f1e2;
+  --paperEdge: #e5d8be;
+
+  /* 温润深咖墨水 */
+  --ink: #33261b;
+  --ink2: #665545;
+  --ink3: #8d7b68;
+
+  /* 清新自然点缀：鼠尾草嫩绿 / 暖陶橘 / 蜂蜜黄 */
+  --sage: #5d8f54;
+  --sageDeep: #385e33;
+  --sageSoft: #e8f3df;
+  --sageTint: rgba(118, 168, 104, 0.16);
+  --coral: #d65c3a;
+  --coralDeep: #b44324;
+  --coralSoft: #fcece5;
+  --honey: #e59d3c;
+  --honeyDeep: #a5671c;
+  --honeySoft: #fdf2dc;
+  --teal: #5ea197;
+
+  /* 字体：手写宋体 / 系统无衬线 / 等宽数字 */
+  --f-hand: 'Songti SC', 'STSong', 'Noto Serif CJK SC', 'Noto Serif SC', 'Source Han Serif SC',
+    Georgia, serif;
+  --f-sans: system-ui, -apple-system, 'PingFang SC', 'Noto Sans CJK SC', 'Noto Sans SC',
+    'Segoe UI', sans-serif;
+  --f-mono: 'SFMono-Regular', ui-monospace, 'Menlo', 'Consolas', 'Noto Sans Mono CJK SC', monospace;
+
+  /* 细纸纹颗粒（内联 SVG，无外部请求） */
+  --grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E");
+
+  /* 安全区 */
+  --safe-t: env(safe-area-inset-top, 0px);
+  --safe-b: env(safe-area-inset-bottom, 0px);
+
+  /* —— 兼容别名：旧组件与内联样式仍在用的令牌名，值指向新配色 —— */
+  --surface: var(--paper);
+  --surface-2: var(--paper2);
+  --line: var(--paperEdge);
+  --ink-2: var(--ink2);
+  --ink-3: var(--ink3);
+  --accent: var(--coralDeep);
+  --accent-ink: #fffdf8;
+  --warn: var(--coral);
+  --warn-bg: var(--coralSoft);
+  --ok: var(--sageDeep);
+  --safe-top: var(--safe-t);
+  --safe-bottom: var(--safe-b);
 
   /* 间距 —— 4px 基准的比例尺 */
   --s-1: 4px;
@@ -40,18 +83,16 @@
   --t-num: 44px;
 
   /* 圆角 */
+  --r1: 4px;
+  --r2: 12px;
   --r-sm: 8px;
   --r-md: 14px;
   --r-lg: 20px;
   --r-full: 999px;
 
-  /* 动效 —— 只用 transform/opacity，时长统一 */
+  /* 动效 —— 只用 transform/opacity */
   --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
   --dur: 180ms;
-
-  /* 安全区 */
-  --safe-top: env(safe-area-inset-top, 0px);
-  --safe-bottom: env(safe-area-inset-bottom, 0px);
 
   color-scheme: light;
 }
@@ -62,25 +103,79 @@
   box-sizing: border-box;
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 html,
 body {
   margin: 0;
   padding: 0;
 }
 
+/* 应用外壳：body 固定一屏高、内层滚动，底部导航参与 flex 布局不遮挡内容 */
 body {
-  background: var(--bg);
+  height: 100dvh;
+  overflow: hidden;
   color: var(--ink);
-  font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Hiragino Sans GB',
-    'Microsoft YaHei', 'Noto Sans CJK SC', system-ui, sans-serif;
+  font-family: var(--f-sans);
   font-size: var(--t-base);
   line-height: 1.65;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
   overscroll-behavior-y: none;
+  background:
+    radial-gradient(120% 52% at 12% -6%, #e7f4d9 0%, rgba(231, 244, 217, 0) 56%),
+    radial-gradient(110% 48% at 92% 0%, #ffe9d6 0%, rgba(255, 233, 214, 0) 54%),
+    radial-gradient(120% 62% at 50% 112%, #f7ebd4 0%, rgba(247, 235, 212, 0) 64%),
+    linear-gradient(180deg, #fcf7ec 0%, #f5ecda 100%);
+  background-attachment: fixed;
 }
 
-/* 数字一律等宽，避免热量数值跳动 */
+/* 全站统一细暖纸纹 */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: var(--grain);
+  background-size: 150px;
+  opacity: 0.085;
+  mix-blend-mode: multiply;
+}
+
+/* 柔和晨光斜影（只动 opacity/transform） */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: repeating-linear-gradient(
+    124deg,
+    rgba(255, 253, 245, 0.52) 0 42px,
+    rgba(182, 162, 124, 0.035) 42px 72px,
+    transparent 72px 136px
+  );
+  mask-image: radial-gradient(ellipse 95% 68% at 28% 8%, #000 0%, transparent 82%);
+  -webkit-mask-image: radial-gradient(ellipse 95% 68% at 28% 8%, #000 0%, transparent 82%);
+  animation: morningLight 14s ease-in-out infinite;
+}
+
+@keyframes morningLight {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: translateX(-2%);
+  }
+  50% {
+    opacity: 0.82;
+    transform: translateX(2%);
+  }
+}
+
+/* 数字等宽，热量数值不跳动 */
 .num {
   font-variant-numeric: tabular-nums;
   font-feature-settings: 'tnum' 1;
@@ -91,12 +186,6 @@ h2,
 h3,
 p {
   margin: 0;
-}
-
-button {
-  font: inherit;
-  color: inherit;
-  cursor: pointer;
 }
 
 a {
@@ -110,16 +199,39 @@ select {
   color: inherit;
 }
 
-:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 2px;
+button {
+  font-family: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--sage);
+  outline-offset: 3px;
+  border-radius: var(--r1);
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+::selection {
+  background: var(--sageSoft);
+  color: var(--sageDeep);
 }
 
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
   *::after {
-    animation-duration: 0.01ms !important;
-    transition-duration: 0.01ms !important;
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
   }
 }

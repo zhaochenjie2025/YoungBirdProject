@@ -111,3 +111,32 @@ export function summarizeItems(items: MealItem[]): MealSummary {
 export function formatGrams(g: number): string {
   return Number.isInteger(g) ? String(g) : String(Math.round(g * 10) / 10);
 }
+
+/** 三大营养素每克的供能系数（千卡）。用于把克数换算成供能占比。 */
+export const KCAL_PER_GRAM = { protein: 4, fat: 9, carbs: 4 } as const;
+
+/** 三大营养素的供能占比，三项相加为 1。任一项缺失时返回 null。 */
+export interface MacroShare {
+  protein: number;
+  fat: number;
+  carbs: number;
+}
+
+/**
+ * 按供能占比计算三大营养素。周视图的堆叠柱用这个分段，而不是按克数分段，
+ * 因为克数占比会低估脂肪（9 千卡/克），读起来与热量对不上。
+ * 任一项为 null 或总能量为 0 时返回 null，由调用方决定如何显示。
+ */
+export function macroShare(n: {
+  protein: number | null;
+  fat: number | null;
+  carbs: number | null;
+}): MacroShare | null {
+  if (n.protein === null || n.fat === null || n.carbs === null) return null;
+  const p = n.protein * KCAL_PER_GRAM.protein;
+  const f = n.fat * KCAL_PER_GRAM.fat;
+  const c = n.carbs * KCAL_PER_GRAM.carbs;
+  const total = p + f + c;
+  if (!(total > 0)) return null;
+  return { protein: p / total, fat: f / total, carbs: c / total };
+}

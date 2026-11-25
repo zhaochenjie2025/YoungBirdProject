@@ -1,0 +1,211 @@
+<div id="app">
+  <div class="app-scroll" id="scroller">
+    <header class="topbar">
+      <div class="brand"><span class="b1" id="eyebrow">今日食记</span><span class="b2">卡路里拍立得</span></div>
+      <div class="dateink">2026.11.23<b>星期一</b></div>
+    </header>
+    <div class="ink-rule"></div>
+
+    <main id="main" tabindex="-1">
+
+      <!-- ============ 今日 ============ -->
+      <section class="screen screen-enter" id="s-today" aria-label="今日">
+        <div class="today-hero">
+          <div class="today-total">
+            <div class="tt-k" id="today-kcal"><span id="today-num">0</span><small>千卡</small></div>
+            <div class="tt-sub" id="today-sub">今天还没有拍下的记录</div>
+          </div>
+          <div class="today-macro" id="today-macro"></div>
+        </div>
+
+        <div class="fan" id="today-fan"></div>
+
+        <div id="today-empty" hidden>
+          <div class="print" style="margin-top:14px">
+            <div class="tape">今日第一张</div>
+            <div class="print__photo print__photo--blank">
+              <span class="hand" style="font-size:14px;color:var(--ink3)">相纸已备好</span>
+            </div>
+            <div class="print__chin">
+              <div class="hand" style="font-size:16px;font-weight:700">今天还是空白的一页</div>
+              <div class="hand" style="font-size:13px;color:var(--ink2);margin-top:5px;line-height:1.5">拍下第一餐，它会在这里慢慢显影。</div>
+              <button class="tbtn" data-go="new" style="margin-top:10px">去拍第一张 →</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 拍一张（复古奶油拍立得机身 + 真实双环相机快门） ============ -->
+      <section class="screen" id="s-new" aria-label="拍一张" hidden>
+        <div class="nm-head">
+          <h2>拍下这一餐</h2>
+          <div class="nm-hint">对准餐盘按快门<br>也可搜索或手写</div>
+        </div>
+
+        <div class="cam-body" id="cam-body">
+          <div class="cam-top">
+            <span class="cam-lens-badge"><i class="cam-led"></i>INSTANT 35</span>
+            <span class="cam-stripe" aria-hidden="true">
+              <i style="background:#d65c3a"></i>
+              <i style="background:#e59d3c"></i>
+              <i style="background:#74aa66"></i>
+            </span>
+            <span class="cam-flash-win" aria-hidden="true"></span>
+          </div>
+
+          <div class="cam-vf" id="cam-vf">
+            <img id="vf-img" alt="取景预览">
+            <div class="cam-reticle" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+            <div class="cam-cross" aria-hidden="true"></div>
+            <span class="cam-vf-pill">已对焦餐盘</span>
+          </div>
+
+          <div class="cam-controls">
+            <button class="cam-side-btn" id="btn-search" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+              搜索添加
+            </button>
+
+            <button class="shutter-btn" id="shutter" aria-label="按下快门拍摄这一盘">
+              <span class="shutter-btn__cap"></span>
+            </button>
+
+            <button class="cam-side-btn" id="btn-manual" aria-expanded="false">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>
+              手写补录
+            </button>
+          </div>
+          <div class="shot-cap" id="shot-cap">轻按中央快门，拍下<b>当前餐盘</b></div>
+        </div>
+
+        <div class="quick-drawer" id="drawer-search" hidden>
+          <div class="qd-title">食堂常见菜品 · 点击加入本餐</div>
+          <div class="qd-grid" id="qd-grid"></div>
+        </div>
+
+        <div class="quick-drawer" id="drawer-manual" hidden>
+          <div class="qd-title">手写补录（菜品库外标为待估算）</div>
+          <form class="qd-form" id="manual-form">
+            <input class="qd-input" id="manual-name" type="text" placeholder="如：糖醋里脊" maxlength="16" required>
+            <input class="qd-input" id="manual-grams" type="number" value="120" min="20" max="800" style="flex:0 0 74px" aria-label="克数">
+            <button class="qd-submit" type="submit">记上</button>
+          </form>
+        </div>
+
+        <div class="print draft">
+          <div class="tape">本餐草稿</div>
+          <div class="contact" id="draft-strip" aria-label="本餐已拍菜品">
+            <span class="contact__empty" id="contact-empty">拍到的菜会排成一列小相片</span>
+          </div>
+          <div class="print__chin">
+            <div class="dishlist" id="draft-list"></div>
+            <div class="draft-sum">
+              <div class="ds-l">这一餐合计<b id="draft-count">0 道菜</b></div>
+              <div class="ds-k" id="draft-kcal">0<em>千卡</em></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============ 识别确认页 ============ -->
+      <section class="screen" id="s-detect" aria-label="识别结果" hidden>
+        <div class="dl-head">
+          <div>
+            <h2>看看这一盘里有什么</h2>
+            <p>已帮你圈出候选菜，轻点贴纸核对</p>
+          </div>
+          <button class="dl-back" id="det-back">重拍一张</button>
+        </div>
+
+        <div class="dl-shot">
+          <div class="dl-shot__img" id="det-img"></div>
+          <div class="dl-focus" id="det-focus"><i></i><i></i><i></i><i></i></div>
+          <div class="dl-shot__scan" id="det-scan"></div>
+          <span class="dl-shot__tag" id="det-tag">对焦识别中…</span>
+        </div>
+
+        <div class="dl-res">
+          <div class="dl-res__t"><b>认出来的菜</b><span id="det-count"></span></div>
+          <div class="dl-chips" id="det-chips"></div>
+        </div>
+
+        <div class="dl-foot">
+          <button class="dl-cta" id="det-confirm">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+            就是这些，收进这一餐
+          </button>
+          <p class="dl-note">轻点贴纸可取消勾选，或返回重拍。</p>
+        </div>
+      </section>
+
+      <!-- ============ 单餐结果页 ============ -->
+      <section class="screen" id="s-result" aria-label="单餐结果" hidden>
+        <div class="res-head">
+          <h2>这一张，显影好了</h2>
+          <div class="res-time" id="res-time"><b>午餐</b>11:52 记录</div>
+        </div>
+
+        <div class="print res-print" style="transform:rotate(.4deg)">
+          <div class="tape">显影完成</div>
+          <div class="print__glare"></div>
+          <div class="print__photo" id="result-photo"></div>
+          <div class="print__chin">
+            <div class="dishlist" id="result-entries"></div>
+            <div class="draft-sum">
+              <div class="ds-l" id="result-summary">已估算热量<b>3 道菜</b></div>
+              <div class="ds-k" id="result-total">596<em>千卡</em></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="advice" id="result-advice"></div>
+        <div class="txtbtn"><button class="tbtn" data-go="share">把这一餐做成明信片 →</button></div>
+      </section>
+
+      <!-- ============ 周视图（暖阳手账相册） ============ -->
+      <section class="screen" id="s-week" aria-label="周视图" hidden>
+        <div class="week-head">
+          <h2>最近七天</h2>
+          <div class="wk-sum" id="week-sum"><b>1,296 千卡</b>已记录 5 天</div>
+        </div>
+        <div class="album-chart" id="week-film"></div>
+        <div class="wk-loupe" id="week-loupe"></div>
+        <div class="wcomp" id="week-comp"></div>
+        <div class="wk-note" id="week-note"></div>
+      </section>
+
+      <!-- ============ 分享明信片试印页 ============ -->
+      <section class="screen" id="s-share" aria-label="分享" hidden>
+        <div class="sh-head">
+          <h2>留张小样片</h2>
+          <div class="sh-sub">选一段记录<br>冲印成明信片</div>
+        </div>
+        <div class="sh-seg" id="sh-seg" role="tablist" aria-label="分享范围">
+          <button role="tab" data-scope="meal" aria-selected="true">这一餐</button>
+          <button role="tab" data-scope="day" aria-selected="false">这一天</button>
+          <button role="tab" data-scope="week" aria-selected="false">这一周</button>
+        </div>
+        <div class="sh-stage">
+          <canvas class="sh-preview" id="share-canvas" width="1080" height="1350" aria-label="分享样张预览"></canvas>
+          <div class="sh-stage__cap"><span>1080 × 1350</span><span id="sh-cap-r"></span></div>
+        </div>
+        <div class="sh-actions">
+          <button class="sh-save" id="sh-save">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 11l5 5 5-5"/><path d="M5 20h14"/></svg>
+            保存这张拍立得
+          </button>
+          <p class="sh-hint">点击生成高清 PNG；手机端也可<b>长按预览图</b>直接保存。</p>
+        </div>
+        <div class="sh-saved" id="sh-saved"><b>已存下这张样片。</b> 直接发朋友圈或小红书，就是一张暖阳拍立得食记。</div>
+      </section>
+
+    </main>
+  </div>
+
+  <nav class="tabbar" role="tablist" aria-label="主导航">
+    <button class="tab" role="tab" data-screen="today" data-go="today" aria-selected="true">今日</button>
+    <button class="tab" role="tab" data-screen="new" data-go="new" aria-selected="false">拍一张</button>
+    <button class="tab" role="tab" data-screen="week" data-go="week" aria-selected="false">本周</button>
+    <button class="tab" role="tab" data-screen="share" data-go="share" aria-selected="false">分享</button>
+  </nav>
+</div>

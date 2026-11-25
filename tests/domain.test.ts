@@ -11,6 +11,7 @@ import {
   computeCustomItem,
   isPending,
   itemKcalRange,
+  macroShare,
 } from '../src/domain/nutrition';
 import { dayStats, weekStats, localDate, addDays, mealsOn } from '../src/domain/stats';
 import type { Dish, Meal, MealItem } from '../src/domain/types';
@@ -244,5 +245,36 @@ describe('建议数字提取', () => {
 
   it('没有数字时返回空数组', () => {
     expect(extractNumbers('这餐蔬菜偏少')).toEqual([]);
+  });
+});
+
+describe('供能占比', () => {
+  it('按 4/9/4 千卡每克换算，不是按克数', () => {
+    // 蛋白 10g=40kcal，脂肪 10g=90kcal，碳水 10g=40kcal，合计 170kcal
+    const s = macroShare({ protein: 10, fat: 10, carbs: 10 });
+    expect(s).not.toBeNull();
+    expect(s!.protein).toBeCloseTo(40 / 170, 6);
+    expect(s!.fat).toBeCloseTo(90 / 170, 6);
+    expect(s!.carbs).toBeCloseTo(40 / 170, 6);
+  });
+
+  it('三项相加恒为 1', () => {
+    const s = macroShare({ protein: 6.5, fat: 7.8, carbs: 4.2 })!;
+    expect(s.protein + s.fat + s.carbs).toBeCloseTo(1, 10);
+  });
+
+  it('脂肪每克 9 千卡，同样克数下占比明显高于另两项', () => {
+    const s = macroShare({ protein: 10, fat: 10, carbs: 10 })!;
+    expect(s.fat).toBeGreaterThan(s.protein);
+    expect(s.fat).toBeGreaterThan(s.carbs);
+  });
+
+  it('任一项缺失时返回 null，不用 0 冒充', () => {
+    expect(macroShare({ protein: 10, fat: null, carbs: 10 })).toBeNull();
+    expect(macroShare({ protein: null, fat: null, carbs: null })).toBeNull();
+  });
+
+  it('总能量为 0 时返回 null，避免除零', () => {
+    expect(macroShare({ protein: 0, fat: 0, carbs: 0 })).toBeNull();
   });
 });
