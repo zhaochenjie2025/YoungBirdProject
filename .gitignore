@@ -13,3 +13,7 @@ tools/.cache/
 data/vision-test/img/
 explore/.shots/
 explore/.refs/
+
+# 交付包与截图不入库
+explore/*.zip
+explore/*.tar.gz
